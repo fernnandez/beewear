@@ -1,0 +1,126 @@
+/* Header */
+.header {
+  height: 56px;
+  width: 100%;
+  background-color: black;
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  padding-left: var(--mantine-spacing-md);
+  padding-right: var(--mantine-spacing-md);
+  color: white;
+}
+
+.inner {
+  height: 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  position: apart;
+}
+
+.burger {
+  display: block;
+}
+
+.brandName {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Links no menu */
+.link {
+  display: block;
+  line-height: 1;
+  padding: 8px 12px;
+  border-radius: var(--mantine-radius-sm);
+  text-decoration: none;
+  color: light-dark(var(--mantine-color-yellow-7), var(--mantine-color-dark-0));
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+}
+
+.link:hover {
+  background-color: light-dark(var(--mantine-color-gray-8), var(--mantine-color-dark-5));
+}
+
+/* Carrinho de compras */
+.shoppingBag {
+  cursor: pointer;
+  min-width: 50px;
+  min-height: 50px;
+  border-radius: var(--mantine-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: light-dark(var(--mantine-color-yellow-7), var(--mantine-color-dark-0));
+}
+
+.shoppingBag:hover {
+  background-color: light-dark(var(--mantine-color-gray-8), var(--mantine-color-dark-5));
+}
+
+/* Autocomplete - Barra de pesquisa */
+.search {
+  width: 200px;
+}
+
+/* Media Queries para responsividade */
+
+/* Para telas pequenas (como smartphones em retrato) */
+@media (max-width: 768px) {
+  .header {
+    padding-left: var(--mantine-spacing-sm);
+    padding-right: var(--mantine-spacing-sm);
+  }
+
+  .burger {
+    display: block;
+  }
+
+  .rightSide {
+    display: none; /* Esconde os links de navegação */
+  }
+
+  /* Quando o menu hamburguer for aberto, mostramos os links */
+  .openedLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search {
+    width: 100%;
+  }
+}
+
+/* Para telas médias (tablets) */
+@media (max-width: 1024px) {
+  .rightSide {
+    display: flex;
+    gap: 10px;
+  }
+
+  .search {
+    width: 150px;
+  }
+}
+
+/* Para telas grandes */
+@media (min-width: 1024px) {
+  .rightSide {
+    display: flex;
+    gap: 20px;
+  }
+
+  .links {
+    display: flex;
+  }
+
+  .divider {
+    display: block;
+  }
+
+  .search {
+    width: 200px;
+  }
+}

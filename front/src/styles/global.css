@@ -1,0 +1,24 @@
+/* Scrollbar customizada com cores do Mantine */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mantine-color-yellow-7); /* Cor personalizada do Mantine */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mantine-color-yellow-6); /* Cor ao passar o mouse */
+}
+
+/* Ajustes para Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mantine-color-yellow-7) var(--mantine-color-black);
+}
+
