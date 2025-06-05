@@ -1,14 +1,14 @@
 import {
-  Injectable,
   ConflictException,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
 import { AuthService } from '../../infra/auth/auth.service';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { User } from './user.entity';
 
 @Injectable()
 export class UserService {
@@ -32,6 +32,7 @@ export class UserService {
     return {
       access_token: this.authService.generateToken({
         sub: user.id,
+        name: user.name,
         email: user.email,
         role: user.role,
       }),
@@ -50,6 +51,7 @@ export class UserService {
     return {
       access_token: this.authService.generateToken({
         sub: user.id,
+        name: user.name,
         email: user.email,
         role: user.role,
       }),

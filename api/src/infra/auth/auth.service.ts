@@ -12,11 +12,15 @@ export class AuthService {
   }
 
   async comparePassword(password: string, hash: string): Promise<boolean> {
-    console.log(password, hash);
     return bcrypt.compare(password, hash);
   }
 
-  generateToken(payload: { sub: number; email: string; role: string }) {
+  generateToken(payload: {
+    sub: number;
+    name: string;
+    email: string;
+    role: string;
+  }) {
     return this.jwtService.sign(payload);
   }
 }
