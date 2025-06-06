@@ -1,19 +1,20 @@
 "use client";
 
-import { Routes, Route, Navigate } from "react-router-dom";
 import { Center, Loader, Stack, Text } from "@mantine/core";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 // Páginas
 
 // Componentes
-import { useAuth } from "./contexts/auth-context";
-import LoginPage from "./pages/LoginPage";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import DashboardPage from "./pages/DashboardPage";
-import ProductsPage from "./pages/ProductsPage";
-import NewProductPage from "./pages/NewProductPage";
-import ReportsPage from "./pages/ReportsPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { useAuth } from "./contexts/auth-context";
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
+import NewProductPage from "./pages/NewProductPage";
+import ProductsPage from "./pages/ProductsPage";
+import RegisterPage from "./pages/RegisterPage";
+import ReportsPage from "./pages/ReportsPage";
 
 export const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route
           path="/dashboard"

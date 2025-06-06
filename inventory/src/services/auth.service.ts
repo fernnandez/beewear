@@ -16,7 +16,7 @@ export const register = async (
 ): Promise<any> => {
   const res = await api.post("/auth/register", registerParams);
 
-  return res.data;
+  return res?.data.access_token;
 };
 
 export const loginFunction = async (loginParams: LoginParams): Promise<any> => {
