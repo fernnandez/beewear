@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(profileInfo);
         } catch (error) {
           console.error("Erro ao buscar perfil do usuário:", error);
-          logout(); // Opcional: deslogar se o token estiver inválido
+          logout();
         }
       }
 

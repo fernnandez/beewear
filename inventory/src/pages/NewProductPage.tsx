@@ -1,83 +1,153 @@
-"use client"
-
-import type React from "react"
-
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
 import {
-  Title,
-  Text,
-  Card,
-  Group,
   Button,
+  Card,
+  ColorInput,
   Container,
-  TextInput,
-  Textarea,
+  Divider,
+  Flex,
+  Group,
   NumberInput,
+  ScrollArea,
   Select,
   SimpleGrid,
-  Flex,
-} from "@mantine/core"
-import { IconPackage, IconGavel } from "@tabler/icons-react"
-import { notifications } from "@mantine/notifications"
-import { AppShellLayout } from "../components/AppShell"
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import {
+  IconGavel,
+  IconPackage,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
+import { useState } from "react";
+import { AppShellLayout } from "../components/AppShell";
+import { ConfirmationModal } from "../components/ConfirmationModal";
 
-const categories = ["Camisetas", "Calças", "Vestidos", "Blusas", "Saias", "Casacos", "Shorts", "Acessórios"]
-const sizes = ["PP", "P", "M", "G", "GG", "XGG", "34", "36", "38", "40", "42", "44", "46", "48"]
+const categories = ["Camisetas", "Calças", "Shorts", "Blusas", "Vestidos"];
+const sizes = ["PP", "P", "M", "G", "GG"];
+// const colors = ["Branco", "Preto", "Azul", "Vermelho"];
 
 export default function NewProductPage() {
-  const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    name: "",
-    sku: "",
-    category: "",
-    size: "",
-    price: "",
-    stock: "",
-    minStock: "",
-    description: "",
-    supplier: "",
-    color: "",
-  })
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
+  const [pendingAction, setPendingAction] = useState<() => void>(() => {});
+  // const navigate = useNavigate();
 
-  const handleInputChange = (field: string, value: unknown) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
+  const form = useForm({
+    initialValues: {
+      name: "",
+      category: "",
+      collection: "",
+      variations: [
+        {
+          color: "",
+          size: "",
+          sku: "",
+          price: 0,
+          stock: 0,
+        },
+      ],
+    },
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Aqui você salvaria o produto no banco de dados
-    console.log("Produto criado:", formData)
+    validate: {
+      name: (value) => (value ? null : "Nome é obrigatório"),
+      category: (value) => (value ? null : "Categoria é obrigatória"),
+      collection: (value) => (value ? null : "Coleção é obrigatória"),
+    },
+  });
 
-    notifications.show({
-      title: "Produto cadastrado",
-      message: `${formData.name} foi adicionado ao estoque`,
-      color: "green",
-    })
-
-    navigate("/products")
-  }
+  const hasOneVariation = form.getValues().variations.length === 1;
 
   const generateSKU = () => {
-    if (!formData.category) {
+    const category = form.values.category;
+    if (!category) {
       notifications.show({
         title: "Atenção",
         message: "Selecione uma categoria para gerar o SKU",
         color: "yellow",
-      })
-      return
+      });
+      return;
     }
 
-    const categoryCode = formData.category.substring(0, 3).toUpperCase()
+    const categoryCode = category.substring(0, 3).toUpperCase();
     const randomNum = Math.floor(Math.random() * 1000)
       .toString()
-      .padStart(3, "0")
-    const sku = `${categoryCode}${randomNum}`
-    handleInputChange("sku", sku)
-  }
+      .padStart(3, "0");
+    form.setFieldValue("sku", `${categoryCode}${randomNum}`);
+  };
+
+  const addVariation = () => {
+    form.insertListItem("variations", {
+      color: "",
+      size: "",
+      sku: "",
+      price: 0,
+      stock: 0,
+    });
+  };
+
+  const removeVariation = (index: number) => {
+    form.removeListItem("variations", index);
+
+    if (form.getValues().variations.length === 0) {
+      addVariation();
+    }
+  };
+
+  const cleanAllVariations = () => {
+    form.setFieldValue("variations", []);
+    addVariation();
+  };
+
+  const handleSubmit = () => {
+    console.log("alou");
+    const isValid = form.validate();
+
+    if (isValid.hasErrors) {
+      console.warn("Formulário com erros:", isValid.errors);
+      notifications.show({
+        title: "Erro no formulário",
+        message: "Por favor, preencha todos os campos obrigatórios.",
+        color: "red",
+      });
+      return;
+    }
+
+    const { name, category, collection, variations } = form.values;
+
+    // Verificações manuais (exemplo de reforço ou validações específicas)
+    if (
+      variations.length === 0 ||
+      variations.some((v) => !v.color || !v.size || !v.sku)
+    ) {
+      notifications.show({
+        title: "Erro nas variações",
+        message: "Todas as variações devem ter cor, tamanho e SKU preenchidos.",
+        color: "red",
+      });
+      return;
+    }
+
+    console.log("Dados do formulário:", {
+      name,
+      category,
+      collection,
+      variations,
+    });
+
+    notifications.show({
+      title: "Produto válido",
+      message: `O produto "${name}" foi preenchido corretamente.`,
+      color: "green",
+    });
+
+    // Aqui você pode chamar o backend ou redirecionar
+    // navigate("/products");
+  };
 
   return (
     <AppShellLayout>
@@ -85,13 +155,9 @@ export default function NewProductPage() {
         <Title order={2} mb="md">
           Novo Produto
         </Title>
-        <Text c="dimmed" mb="xl">
-          Cadastre um novo item no estoque
-        </Text>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
           <Flex direction="column" gap="lg">
-            {/* Informações Básicas */}
             <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section withBorder inheritPadding py="xs" mb="md">
                 <Group>
@@ -103,126 +169,162 @@ export default function NewProductPage() {
                 </Text>
               </Card.Section>
 
-              <SimpleGrid cols={{ base: 1, sm: 2 }} mb="md">
+              <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">
                 <TextInput
                   label="Nome do Produto"
-                  placeholder="Ex: Camiseta Básica Branca"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  required
+                  placeholder="Ex: Camiseta Básica"
+                  key={form.key("name")}
+                  {...form.getInputProps("name")}
+                  withAsterisk
                 />
 
-                <Flex gap="md" align="flex-end">
-                  <TextInput
-                    label="SKU"
-                    placeholder="Ex: CAM001"
-                    value={formData.sku}
-                    onChange={(e) => handleInputChange("sku", e.target.value)}
-                    required
-                    style={{ flex: 1 }}
-                  />
-                  <Button onClick={generateSKU} variant="outline" style={{ marginBottom: "1px" }}>
-                    Gerar
-                  </Button>
-                </Flex>
-              </SimpleGrid>
-
-              <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">
                 <Select
                   label="Categoria"
                   placeholder="Selecione..."
                   data={categories}
-                  value={formData.category}
-                  onChange={(value) => handleInputChange("category", value)}
-                  required
+                  key={form.key("category")}
+                  {...form.getInputProps("category")}
+                  withAsterisk
                 />
 
                 <Select
-                  label="Tamanho"
+                  label="Coleção"
                   placeholder="Selecione..."
-                  data={sizes}
-                  value={formData.size}
-                  onChange={(value) => handleInputChange("size", value)}
-                  required
-                />
-
-                <TextInput
-                  label="Cor"
-                  placeholder="Ex: Branco, Azul, Preto"
-                  value={formData.color}
-                  onChange={(e) => handleInputChange("color", e.target.value)}
+                  data={categories}
+                  key={form.key("collection")}
+                  {...form.getInputProps("collection")}
+                  withAsterisk
                 />
               </SimpleGrid>
 
-              <Textarea
-                label="Descrição"
-                placeholder="Descrição detalhada do produto..."
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                minRows={3}
-              />
-            </Card>
-
-            {/* Preço e Estoque */}
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
               <Card.Section withBorder inheritPadding py="xs" mb="md">
-                <Title order={4}>Preço e Estoque</Title>
+                <Group>
+                  <IconPackage size={18} />
+                  <Title order={4}>Variações de produto</Title>
+                </Group>
                 <Text size="sm" c="dimmed">
-                  Configurações de preço e controle de estoque
+                  {form.values.variations.length}{" "}
+                  {hasOneVariation ? "variação" : "variações"}
                 </Text>
               </Card.Section>
 
-              <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">
-                <NumberInput
-                  label="Preço de Venda (R$)"
-                  placeholder="0,00"
-                  value={formData.price === "" ? "" : Number(formData.price)}
-                  onChange={(value) => handleInputChange("price", value)}
-                  decimalScale={2}
-                  fixedDecimalScale
-                  prefix="R$ "
-                  required
-                />
+              <ScrollArea h={350}>
+                {form.values.variations.map((_, index) => (
+                  <Card key={index} withBorder padding="md" mb="md">
+                    <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">
+                      <ColorInput
+                        label="Cor"
+                        key={form.key(`variations.${index}.color`)}
+                        {...form.getInputProps(`variations.${index}.color`)}
+                        withAsterisk
+                        rightSection
+                      />
+                      <Select
+                        label="Tamanho"
+                        data={sizes}
+                        key={form.key(`variations.${index}.size`)}
+                        {...form.getInputProps(`variations.${index}.size`)}
+                        withAsterisk
+                      />
+                      <NumberInput
+                        label="Preço"
+                        prefix="R$ "
+                        key={form.key(`variations.${index}.price`)}
+                        {...form.getInputProps(`variations.${index}.price`)}
+                        withAsterisk
+                      />
+                    </SimpleGrid>
 
-                <NumberInput
-                  label="Quantidade em Estoque"
-                  placeholder="0"
-                  value={formData.stock === "" ? "" : Number(formData.stock)}
-                  onChange={(value) => handleInputChange("stock", value)}
-                  min={0}
-                  required
-                />
-
-                <NumberInput
-                  label="Estoque Mínimo"
-                  placeholder="0"
-                  value={formData.minStock === "" ? "" : Number(formData.minStock)}
-                  onChange={(value) => handleInputChange("minStock", value)}
-                  min={0}
-                  required
-                />
-              </SimpleGrid>
-
-              <TextInput
-                label="Fornecedor"
-                placeholder="Nome do fornecedor"
-                value={formData.supplier}
-                onChange={(e) => handleInputChange("supplier", e.target.value)}
-              />
+                    <SimpleGrid cols={{ base: 1, sm: 2 }} mb="md">
+                      <NumberInput
+                        label="Estoque"
+                        key={form.key(`variations.${index}.stock`)}
+                        {...form.getInputProps(`variations.${index}.stock`)}
+                        withAsterisk
+                      />
+                      <Flex gap="md" align="flex-end">
+                        <TextInput
+                          label="SKU"
+                          placeholder="Ex: CAM001"
+                          key={form.key(`variations.${index}.sku`)}
+                          {...form.getInputProps(`variations.${index}.sku`)}
+                          withAsterisk
+                          style={{ flex: 1 }}
+                        />
+                        <Button
+                          disabled
+                          onClick={generateSKU}
+                          variant="outline"
+                          style={{ marginBottom: "1px" }}
+                        >
+                          Gerar
+                        </Button>
+                      </Flex>
+                    </SimpleGrid>
+                    <Button
+                      color="red"
+                      disabled={hasOneVariation}
+                      onClick={() => {
+                        setPendingAction(() => () => removeVariation(index));
+                        openModal();
+                      }}
+                      variant="subtle"
+                      px={4}
+                    >
+                      <IconTrash size={18} />
+                    </Button>
+                  </Card>
+                ))}
+                <Divider />
+                <Flex justify="center" gap="md" mb="md" mt="md">
+                  <Button
+                    color="red"
+                    onClick={() => {
+                      setPendingAction(() => cleanAllVariations);
+                      openModal();
+                    }}
+                    variant="outline"
+                    leftSection={<IconTrash size={16} />}
+                    fullWidth
+                    style={{ flex: 1 }}
+                    disabled={hasOneVariation}
+                  >
+                    Limpar Variações
+                  </Button>
+                  <Button
+                    onClick={addVariation}
+                    variant="outline"
+                    leftSection={<IconPlus size={16} />}
+                    fullWidth
+                    style={{ flex: 1 }}
+                  >
+                    Adicionar Variação
+                  </Button>
+                </Flex>
+              </ScrollArea>
             </Card>
 
-            {/* Botões de Ação */}
-            <Group justify="flex-end">
-              <Button component={Link} to="/products" variant="outline">
-                Cancelar
-              </Button>
-              <Button type="submit" leftSection={<IconGavel size={16} />}>
+            <Group justify="flex-end" mb="md">
+              <Button leftSection={<IconGavel size={16} />} type="submit">
                 Salvar Produto
               </Button>
             </Group>
           </Flex>
         </form>
       </Container>
+
+      <ConfirmationModal
+        opened={modalOpened}
+        onClose={closeModal}
+        onConfirm={() => {
+          pendingAction();
+          closeModal();
+        }}
+        title="Tem certeza?"
+        message="Essa ação não pode ser desfeita."
+        confirmLabel="Sim, remover"
+        cancelLabel="Cancelar"
+      />
     </AppShellLayout>
-  )
+  );
 }
