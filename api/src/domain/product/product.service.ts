@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { StockService } from './stock/stock.service';
+import { Transactional } from 'typeorm-transactional';
 import { Collection } from './collection/collection.entity';
 import { CreateProductDto } from './create-product.dto';
 import { Product } from './product.entity';
 import { ProductVariation } from './productVariation/product-variation.entity';
-import { Transactional } from 'typeorm-transactional';
+import { StockService } from './stock/stock.service';
 
 @Injectable()
 export class ProductService {
@@ -29,7 +29,7 @@ export class ProductService {
   @Transactional()
   async create(dto: CreateProductDto) {
     const collection = await this.collectionRepo.findOne({
-      where: { id: dto.collectionId },
+      where: { publicId: dto.collectionPublicId },
     });
 
     if (!collection) {

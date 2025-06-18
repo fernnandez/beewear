@@ -1,12 +1,13 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  Generated,
-  OneToMany,
   CreateDateColumn,
-  UpdateDateColumn,
   DeleteDateColumn,
+  Entity,
+  Generated,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Product } from '../product.entity';
 
@@ -19,7 +20,7 @@ export class Collection {
   @Column({ name: 'public_id' })
   publicId: string;
 
-  @Column({ unique: true }) // 'nullable: false' é o padrão se omitido, mas bom ser explícito
+  @Column({ unique: true })
   name: string;
 
   @Column({ nullable: true })
@@ -29,6 +30,7 @@ export class Collection {
   imageUrl?: string;
 
   @OneToMany(() => Product, (product) => product.collection)
+  @JoinColumn()
   products: Product[];
 
   @CreateDateColumn()
