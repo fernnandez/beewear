@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
@@ -33,7 +28,7 @@ export class ProductService {
     });
 
     if (!collection) {
-      throw new BadRequestException('Coleção não encontrada');
+      throw new NotFoundException('Coleção não encontrada');
     }
 
     Logger.log(`Criando produto ${dto.name}`);

@@ -1,3 +1,4 @@
+import { StockItem } from 'src/domain/product/stock/stock-item.entity';
 import {
   Column,
   CreateDateColumn,
@@ -11,7 +12,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Product } from '../product.entity';
-import { StockItem } from 'src/domain/product/stock/stock-item.entity';
 
 @Entity('product_variation')
 export class ProductVariation {

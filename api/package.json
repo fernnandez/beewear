@@ -23,7 +23,7 @@
     "test:integration": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --testRegex 'test/integration/.*\\.routes\\.spec\\.ts$' --config jest.config.ts",
     "test:e2e": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --testRegex 'test/e2e/.*\\.e2e-spec\\.ts$' --config test/e2e/jest-e2e.json",
     "test:watch": "jest --watch --config jest.config.ts",
-    "test:cov": "jest --coverage --config jest.config.ts",
+    "test:cov": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --coverage --config jest.config.ts",
     "test:unit": "jest --testRegex 'test/unit/.*\\.spec\\.ts$' --config jest.config.ts"
   },
   "dependencies": {

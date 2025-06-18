@@ -4,11 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm'; // Importe DataSource
 
-import {
-  BadRequestException,
-  INestApplication,
-  NotFoundException,
-} from '@nestjs/common';
+import { INestApplication, NotFoundException } from '@nestjs/common';
 
 // Importe seu AppModule
 
@@ -18,14 +14,13 @@ import { Collection } from 'src/domain/product/collection/collection.entity';
 import { Product } from 'src/domain/product/product.entity';
 import { ProductService } from 'src/domain/product/product.service';
 import { StockItem } from 'src/domain/product/stock/stock-item.entity';
+import { runWithRollbackTransaction } from 'test/utils/database/test-transation'; // Assume que já encapsula o dataSource
+import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
 import {
   initializeTransactionalContext,
   StorageDriver,
 } from 'typeorm-transactional';
-import { runWithRollbackTransaction } from '../../utils/database/test-transation'; // Assume que já encapsula o dataSource
-import { setupIntegrationMocks } from '../../utils/mocks/setup-mocks';
 
-// Inicialize o contexto transacional uma vez
 initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
 describe('ProductService (with Real DB Interaction)', () => {
@@ -38,7 +33,7 @@ describe('ProductService (with Real DB Interaction)', () => {
   let stockItemRepo: Repository<StockItem>;
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [AppModule], // Importe seu AppModule completo
+      imports: [AppModule],
     }).compile();
 
     app = module.createNestApplication();
@@ -53,27 +48,18 @@ describe('ProductService (with Real DB Interaction)', () => {
       getRepositoryToken(StockItem),
     );
 
-    // Chame a função de setup dos mocks de guards, se ainda quiser desabilitá-los para o serviço
-    // Embora o serviço não passe por guards, a chamada de setupIntegrationMocks
-    // garante que o req.user mockado esteja disponível se o serviço precisar (caso incomum).
-    // Geralmente, para testes de serviço, os guards não são acionados.
     setupIntegrationMocks();
   });
 
   // Limpeza após todos os testes
   afterAll(async () => {
-    // Restaurar os mocks de guards, se setupIntegrationMocks() for chamado
     jest.restoreAllMocks();
-    // Fechar a conexão com o banco de dados, se necessário.
-    // O Test.createTestingModule().compile() e app.close() já cuidam disso em testes de integração.
-    // Para unitários com DB, é o module.close().
     await app.close();
   });
 
-  // --- Cenários de Criação de Produto (`createProduct`) ---
-
   // CTU-PS-001: Deve criar um produto e suas variações com estoque inicial quando dados válidos são fornecidos.
-  it('should create a product and its variations with initial stock for valid data', async () => {
+  it(
+    'should create a product and its variations with initial stock for valid data',
     runWithRollbackTransaction(async () => {
       // Usar dataSource aqui
       const existingCollection = await collectionRepo.findOneBy({
@@ -83,7 +69,7 @@ describe('ProductService (with Real DB Interaction)', () => {
 
       const createProductDto = {
         name: 'Camisa Serviço Real',
-        collectionId: existingCollection!.id,
+        collectionPublicId: existingCollection!.publicId,
         variations: [
           { color: 'Real Red', size: 'M', price: 100, initialStock: 10 },
         ],
@@ -108,63 +94,35 @@ describe('ProductService (with Real DB Interaction)', () => {
         where: { productVariation: { id: fetchedProduct?.variations[0].id } },
       });
       expect(stockItem?.quantity).toBe(10);
-    });
-  });
+    }),
+  );
 
   // CTU-PS-002: Deve lançar NotFoundException se a coleção não for encontrada ao criar o produto.
   it('should throw NotFoundException if collection not found during product creation', async () => {
-    runWithRollbackTransaction(async () => {
-      // Usar dataSource aqui
-      const createProductDto = {
-        name: 'Camisa Invalida DB',
-        collectionId: 99999, // ID que sabemos que não existe no DB de teste
-        variations: [{ color: 'Blue', size: 'L', price: 120, initialStock: 5 }],
-      };
+    // Usar dataSource aqui
+    const createProductDto = {
+      name: 'Camisa Invalida DB',
+      collectionPublicId: 'f123223f-3f9f-574f-973f-eab0d40b0e83', // PublicId que sabemos que não existe no DB de teste
+      variations: [{ color: 'Blue', size: 'L', price: 120, initialStock: 5 }],
+    };
 
-      await expect(service.create(createProductDto)).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.create(createProductDto)).rejects.toThrow(
-        'Coleção não encontrada',
-      );
-      // Verifique que nada foi salvo no DB
-      const productsAfter = await productRepo.find();
-      expect(productsAfter).toHaveLength(3); // Assumindo 3 produtos iniciais de fixtures
-    });
-  });
-
-  // CTU-PS-003: Deve lançar BadRequestException se alguma variação tiver preço negativo.
-  it('should throw BadRequestException if any variation has a negative price', async () => {
-    runWithRollbackTransaction(async () => {
-      // Usar dataSource aqui
-      const existingCollection = await collectionRepo.findOneBy({
-        name: 'Roupas Masculinas',
-      });
-      expect(existingCollection).toBeDefined();
-
-      const createProductDto = {
-        name: 'Produto Preço Negativo DB',
-        collectionId: existingCollection!.id,
-        variations: [
-          { color: 'Black', size: 'S', price: -50, initialStock: 2 },
-        ], // Preço negativo
-      };
-
-      await expect(service.create(createProductDto)).rejects.toThrow(
-        BadRequestException,
-      );
-      // Ajuste a mensagem de erro conforme sua implementação de validação no serviço/DTO
-      await expect(service.create(createProductDto)).rejects.toThrow(
-        'Preço da variação não pode ser negativo.',
-      );
-    });
+    await expect(service.create(createProductDto)).rejects.toThrow(
+      NotFoundException,
+    );
+    await expect(service.create(createProductDto)).rejects.toThrow(
+      'Coleção não encontrada',
+    );
+    // Verifique que nada foi salvo no DB
+    const productsAfter = await productRepo.find();
+    expect(productsAfter).toHaveLength(3); // Assumindo 3 produtos iniciais de fixtures
   });
 
   // CTU-PS-004: Deve lidar com falha ao salvar produto e reverter/lançar erro.
   // Este cenário é mais difícil de testar com o DB real sem simular um erro do DB.
   // Pode ser melhor manter um mock para este caso específico, ou confiar nos testes de integração.
   // Vou manter o cenário, mas com uma nota.
-  it('should handle product save failure and throw an error (may require specific DB error simulation)', async () => {
+  it(
+    'should handle product save failure and throw an error (may require specific DB error simulation)',
     // Para realmente testar isso, você precisaria de um mock no nível do TypeORM,
     // ou uma forma de fazer o `save` do TypeORM falhar *apenas* para este teste.
     // Isso é mais complexo com o DB real. Por enquanto, pode-se confiar
@@ -179,17 +137,12 @@ describe('ProductService (with Real DB Interaction)', () => {
       // Neste cenário de DB real, é mais sobre o que o TypeORM faz quando falha.
       const createProductDto = {
         name: 'Produto para falha DB',
-        collectionId: (await collectionRepo.findOneBy({
+        collectionPublicId: (await collectionRepo.findOneBy({
           name: 'Roupas Masculinas',
-        }))!.id,
+        }))!.publicId,
         variations: [{ color: 'Fail', size: 'S', price: 100, initialStock: 1 }],
       };
 
-      // Se seu ProductService tem um try/catch ao salvar e lança InternalServerError,
-      // este teste valida isso. Se não tem, o erro viria direto do TypeORM/DB.
-      // Para simular uma falha REAL no DB, seria algo como fechar a conexão temporariamente.
-      // Por isso, este teste é mais realista em um teste de integração com um servidor real
-      // ou com mocks de baixo nível.
       try {
         await service.create(createProductDto);
         // Se o código chegou aqui, o teste falha, pois deveria ter lançado um erro.
@@ -204,8 +157,8 @@ describe('ProductService (with Real DB Interaction)', () => {
         // Para o DB real, pode ser um TypeORMError ou algo mais específico.
         expect(error).toBeDefined(); // Pelo menos um erro deve ser lançado
       }
-    });
-  });
+    }),
+  );
 
   // --- Cenários de Consulta de Produtos (`findAllProducts`) ---
 });

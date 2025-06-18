@@ -74,7 +74,7 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
 
         const createProductDto = {
           name: 'Produto Teste CTI-PC-001',
-          collectionId: existingCollection!.id,
+          collectionPublicId: existingCollection!.publicId,
           variations: [
             { color: 'Azul', size: 'M', price: 150.0, initialStock: 50 },
             { color: 'Verde', size: 'G', price: 160.0, initialStock: 30 },
@@ -88,7 +88,9 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
 
         expect(response.body.id).toBeDefined();
         expect(response.body.name).toBe(createProductDto.name);
-        expect(response.body.collection.id).toBe(createProductDto.collectionId);
+        expect(response.body.collection.publicId).toBe(
+          createProductDto.collectionPublicId,
+        );
 
         // Verifique o produto e variações persistidos
         const createdProduct = await productRepo.findOne({
@@ -124,11 +126,11 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
     );
 
     it(
-      'should return 400 Bad Request if collection not found',
+      'should return 404 Not Found if collection not found',
       runWithRollbackTransaction(async () => {
         const createProductDto = {
           name: 'Produto Teste CTI-PC-002',
-          collectionId: 99999, // Um ID que não existe
+          collectionPublicId: '61e0a4db-58f8-5ef2-b7f5-119384085949', // Um ID que não existe
           variations: [
             { color: 'Red', size: 'XL', price: 200.0, initialStock: 5 },
           ],
@@ -137,11 +139,11 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
         await request(app.getHttpServer())
           .post('/product')
           .send(createProductDto)
-          .expect(400)
+          .expect(404)
           .expect({
-            statusCode: 400,
+            statusCode: 404,
             message: 'Coleção não encontrada',
-            error: 'Bad Request',
+            error: 'Not Found',
           });
 
         // Verifique que nenhum produto EXTRA foi criado
@@ -157,9 +159,9 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       runWithRollbackTransaction(async () => {
         const createProductDto = {
           name: '', // Nome vazio
-          collectionId: (await collectionRepo.findOneBy({
+          collectionPublicId: (await collectionRepo.findOneBy({
             name: 'Roupas Masculinas',
-          }))!.id,
+          }))!.publicId,
           variations: [
             { color: 'Branco', size: 'P', price: 50.0, initialStock: 10 },
           ],
@@ -180,9 +182,9 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       runWithRollbackTransaction(async () => {
         const createProductDto = {
           name: 'Produto Com Variação Inválida',
-          collectionId: (await collectionRepo.findOneBy({
+          collectionPublicId: (await collectionRepo.findOneBy({
             name: 'Roupas Masculinas',
-          }))!.id,
+          }))!.publicId,
           variations: [
             { color: 'Preto', size: 'M', price: -10.0, initialStock: 20 }, // Preço negativo
           ],
