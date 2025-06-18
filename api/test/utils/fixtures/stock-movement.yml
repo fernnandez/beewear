@@ -1,0 +1,44 @@
+entity: StockMovement
+items:
+  # Movimentos para Camiseta Feminina Básica - P - Branco
+  movement_in_camiseta_fem_p_branca_1:
+    id: 1
+    publicId: '13b45978-3898-5b3e-8894-9c8e99cc0cfb'
+    stockItem: "@stock_camiseta_fem_p_branca"
+    type: "IN"
+    quantity: 20
+    description: "Recebimento inicial do fornecedor A"
+
+  movement_out_camiseta_fem_p_branca_1:
+    id: 2
+    publicId: '5e3d6a21-95c2-53c8-80c6-a7b9c0884d15'
+    stockItem: "@stock_camiseta_fem_p_branca"
+    type: "OUT"
+    quantity: 5
+    description: "Venda online pedido #1001"
+
+  # Movimentos para Camiseta Feminina Básica - M - Preto
+  movement_in_camiseta_fem_m_preta_1:
+    id: 3
+    publicId: '303c85d5-82ea-540c-a019-9567717cbea5'
+    stockItem: "@stock_camiseta_fem_m_preta"
+    type: "IN"
+    quantity: 15
+    description: "Reposicao de estoque"
+
+  # Movimentos para Calça Jeans Masculina - 40 - Azul
+  movement_in_jeans_masc_40_azul_1:
+    id: 4
+    publicId: '08bb742b-e195-5284-bc30-f2c4ee8136a0'
+    stockItem: "@stock_jeans_masc_40_azul"
+    type: "IN"
+    quantity: 10
+    description: "Nova remessa"
+
+  movement_out_jeans_masc_40_azul_1:
+    id: 5
+    publicId: 'b763b714-6e3f-5024-b888-1bc206934a7f'
+    stockItem: "@stock_jeans_masc_40_azul"
+    type: "OUT"
+    quantity: 3
+    description: "Troca de produto"

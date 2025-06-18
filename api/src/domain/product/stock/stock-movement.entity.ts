@@ -2,17 +2,24 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
+  Generated,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { StockItem } from './stock-item.entity';
 
-@Entity('stock_movements')
+@Entity('stock_movement')
 export class StockMovement {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Generated('uuid')
+  @Column({ name: 'public_id' })
+  publicId: string;
 
   @ManyToOne(() => StockItem, (stockItem) => stockItem.movements, {
     onDelete: 'CASCADE',
@@ -20,10 +27,7 @@ export class StockMovement {
   @JoinColumn()
   stockItem: StockItem;
 
-  @Column()
-  stockItemId: string;
-
-  @Column({ type: 'enum', enum: ['IN', 'OUT'] })
+  @Column({ enum: ['IN', 'OUT'] })
   type: 'IN' | 'OUT';
 
   @Column()
@@ -34,4 +38,10 @@ export class StockMovement {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

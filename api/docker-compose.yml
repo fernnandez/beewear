@@ -1,18 +1,14 @@
-version: '3.8'
-
+# docker-compose.yml
 services:
   postgres:
     image: postgres:15
     container_name: bewear_db
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+      - ./test/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh # <-- Aponta para o novo script shell
+    env_file: .env.docker
 volumes:
   postgres_data:

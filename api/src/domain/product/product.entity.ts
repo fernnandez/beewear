@@ -3,40 +3,43 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToOne,
+  Generated,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { StockItem } from '../stock/stock-item.entity';
+import { Collection } from './collection/collection.entity';
+import { ProductVariation } from './productVariation/product-variation.entity';
 
 @Entity('product')
 export class Product {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Generated('uuid')
+  @Column({ name: 'public_id' })
+  publicId: string;
 
   @Column()
   name: string;
 
   @Column({ nullable: true })
-  description?: string;
-
-  @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
-
-  @Column()
-  color: string;
-
-  @Column()
-  size: string; // Pode ser enum futuramente
-
-  @Column({ nullable: true })
   imageUrl?: string;
 
-  @Column({ nullable: true })
-  collectionId?: string; // FK opcional
+  @OneToMany(() => ProductVariation, (variation) => variation.product, {
+    onDelete: 'CASCADE',
+  })
+  variations: ProductVariation[];
 
-  @OneToOne(() => StockItem, (stock) => stock.product)
-  stock: StockItem;
+  // Relação ManyToOne opcional (categoria pode ser null)
+  @ManyToOne(() => Collection, (collection) => collection.products, {
+    nullable: true,
+    onDelete: 'SET NULL', // quando categoria for deletada, seta o campo como null
+  })
+  @JoinColumn()
+  collection?: Collection; // campo opcional no TypeScript também
 
   @CreateDateColumn()
   createdAt: Date;

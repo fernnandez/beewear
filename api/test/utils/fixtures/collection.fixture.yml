@@ -1,0 +1,30 @@
+# test/fixtures/collection.fixture.yml
+entity: Collection
+items:
+  # Coleção de Roupas Femininas
+  collection_feminina:
+    id: 1 # Opcional: Se você usa IDs fixos em testes ou precisa de um valor específico
+    publicId: "9ab4b59a-187a-52ff-86c1-73fa5dc9fbc0"
+    name: "Roupas Femininas"
+    description: "Coleção completa de moda feminina para todas as estações."
+    imageUrl: "https://example.com/feminina.jpg"
+    createdAt: "2024-01-01T10:00:00Z"
+    updatedAt: "2024-01-01T10:00:00Z"
+
+  # Coleção de Roupas Masculinas
+  collection_masculina:
+    id: 2
+    publicId: "b2c3d4e5-f6a7-8901-2345-67890abcdef0"
+    name: "Roupas Masculinas"
+    description: "Peças essenciais e tendências para o vestuário masculino."
+    imageUrl: "https://example.com/masculina.jpg"
+    createdAt: "2024-01-02T11:00:00Z"
+    updatedAt: "2024-01-02T11:00:00Z"
+
+  # Coleção de Acessórios (sem imagem, sem descrição para testar nullable)
+  collection_acessorios:
+    id: 3
+    publicId: "c3d4e5f6-a7b8-9012-3456-7890abcdef01"
+    name: "Acessórios"
+    createdAt: "2024-01-03T12:00:00Z"
+    updatedAt: "2024-01-03T12:00:00Z"

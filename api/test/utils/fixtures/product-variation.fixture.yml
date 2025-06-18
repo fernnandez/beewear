@@ -1,0 +1,44 @@
+# test/fixtures/product_variation.fixture.yml
+entity: ProductVariation
+items:
+  # Variações para Camiseta Feminina Básica
+  variation_camiseta_fem_p_branca:
+    id: 201
+    publicId: "93eba129-a3fa-578c-86e3-dd2496921e49"
+    color: "Branco"
+    size: "P"
+    price: '49.90' # Preço da variação
+    product: "@product_camiseta_feminina" # Relacionamento com Product
+    createdAt: "2024-01-08T13:00:00Z"
+    updatedAt: "2024-01-08T13:00:00Z"
+
+  variation_camiseta_fem_m_preta:
+    id: 202
+    publicId: "07982af1-dfc1-535e-bec8-ff470d361aaf"
+    color: "Preto"
+    size: "M"
+    price: '54.90'
+    product: "@product_camiseta_feminina"
+    createdAt: "2024-01-08T13:05:00Z"
+    updatedAt: "2024-01-08T13:05:00Z"
+
+  # Variações para Calça Jeans Masculina
+  variation_jeans_masc_40_azul:
+    id: 203
+    publicId: "d6cd5883-9be6-5547-a105-70013e47b63b"
+    color: "Azul"
+    size: "40"
+    price: '139.90'
+    product: "@product_jeans_masculino"
+    createdAt: "2024-01-09T14:00:00Z"
+    updatedAt: "2024-01-09T14:00:00Z"
+
+  variation_jeans_masc_42_preta:
+    id: 204
+    publicId: "ff707018-1346-5837-bc70-065b8898f3df"
+    color: "Preto"
+    size: "42"
+    price: '149.90'
+    product: "@product_jeans_masculino"
+    createdAt: "2024-01-09T14:10:00Z"
+    updatedAt: "2024-01-09T14:10:00Z"

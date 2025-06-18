@@ -1,0 +1,32 @@
+# test/fixtures/product.fixture.yml
+entity: Product
+items:
+  # Camiseta Feminina Básica
+  product_camiseta_feminina:
+    id: 101
+    publicId: "a6b2ac08-7ee0-53ea-a2f0-ec842ad1f736"
+    name: "Camiseta Básica Algodão Feminina"
+    imageUrl: "https://example.com/camiseta_feminina.jpg"
+    collection: "@collection_feminina" # Relacionamento com Collection
+    createdAt: "2024-01-05T09:00:00Z"
+    updatedAt: "2024-01-05T09:00:00Z"
+
+  # Calça Jeans Masculina Slim Fit
+  product_jeans_masculino:
+    id: 102
+    publicId: "39f5ef81-e93f-5c62-a66e-df824e928377"
+    name: "Calça Jeans Masculina Slim Fit"
+    imageUrl: "https://example.com/jeans_masculino.jpg"
+    collection: "@collection_masculina"
+    createdAt: "2024-01-06T10:30:00Z"
+    updatedAt: "2024-01-06T10:30:00Z"
+
+  # Óculos de Sol (sem coleção para testar nullable)
+  product_oculos_sol:
+    id: 103
+    publicId: "81d4548c-7cc4-5cb8-97b2-a305d168f0d9"
+    name: "Óculos de Sol Estiloso"
+    imageUrl: "https://example.com/oculos_sol.jpg"
+    collection: null # Testando collection opcional (nullable)
+    createdAt: "2024-01-07T11:45:00Z"
+    updatedAt: "2024-01-07T11:45:00Z"
