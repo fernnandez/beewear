@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -13,6 +14,11 @@ export class CreateProductDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  @ApiProperty({ example: true })
+  @IsNotEmpty()
+  @IsBoolean()
+  active: boolean;
 
   @ApiProperty({ example: '4c4b0254-6534-5960-a296-f05f537f7c53' })
   @IsNotEmpty()

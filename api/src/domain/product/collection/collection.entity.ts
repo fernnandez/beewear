@@ -23,6 +23,9 @@ export class Collection {
   @Column({ unique: true })
   name: string;
 
+  @Column({ default: false })
+  active: boolean;
+
   @Column({ nullable: true })
   description?: string;
 

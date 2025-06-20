@@ -37,7 +37,7 @@ describe('CollectionController - Integration (HTTP)', () => {
   it(
     'POST /collection - should create collection with valid data',
     runWithRollbackTransaction(async () => {
-      const dto = { name: 'Linha Esportiva' };
+      const dto = { name: 'Linha Esportiva', active: true };
 
       const response = await request(app.getHttpServer())
         .post('/collection')

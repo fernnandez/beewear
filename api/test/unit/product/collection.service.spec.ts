@@ -45,7 +45,10 @@ describe('CollectionService (with Real DB Interaction)', () => {
   it(
     'should create a collection with valid data',
     runWithRollbackTransaction(async () => {
-      const dto = { name: 'Linha Premium Masculina' } as CreateCollectionDto;
+      const dto = {
+        name: 'Linha Premium Masculina',
+        active: false,
+      } as CreateCollectionDto;
       const result = await service.create(dto);
 
       expect(result).toBeDefined();

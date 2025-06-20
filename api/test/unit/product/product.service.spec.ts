@@ -69,6 +69,7 @@ describe('ProductService (with Real DB Interaction)', () => {
 
       const createProductDto = {
         name: 'Camisa Serviço Real',
+        active: true,
         collectionPublicId: existingCollection!.publicId,
         variations: [
           { color: 'Real Red', size: 'M', price: 100, initialStock: 10 },
@@ -102,6 +103,7 @@ describe('ProductService (with Real DB Interaction)', () => {
     // Usar dataSource aqui
     const createProductDto = {
       name: 'Camisa Invalida DB',
+      active: true,
       collectionPublicId: 'f123223f-3f9f-574f-973f-eab0d40b0e83', // PublicId que sabemos que não existe no DB de teste
       variations: [{ color: 'Blue', size: 'L', price: 120, initialStock: 5 }],
     };
@@ -137,6 +139,7 @@ describe('ProductService (with Real DB Interaction)', () => {
       // Neste cenário de DB real, é mais sobre o que o TypeORM faz quando falha.
       const createProductDto = {
         name: 'Produto para falha DB',
+        active: true,
         collectionPublicId: (await collectionRepo.findOneBy({
           name: 'Roupas Masculinas',
         }))!.publicId,

@@ -77,6 +77,7 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
 
         const createProductDto = {
           name: 'Produto Teste CTI-PC-001',
+          active: true,
           collectionPublicId: existingCollection!.publicId,
           variations: [
             { color: 'Azul', size: 'M', price: 150.0, initialStock: 50 },
@@ -133,6 +134,7 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       runWithRollbackTransaction(async () => {
         const createProductDto = {
           name: 'Produto Teste CTI-PC-002',
+          active: true,
           collectionPublicId: '61e0a4db-58f8-5ef2-b7f5-119384085949', // Um ID que não existe
           variations: [
             { color: 'Red', size: 'XL', price: 200.0, initialStock: 5 },
@@ -162,6 +164,7 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       runWithRollbackTransaction(async () => {
         const createProductDto = {
           name: '', // Nome vazio
+          active: true,
           collectionPublicId: (await collectionRepo.findOneBy({
             name: 'Roupas Masculinas',
           }))!.publicId,
@@ -185,6 +188,7 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       runWithRollbackTransaction(async () => {
         const createProductDto = {
           name: 'Produto Com Variação Inválida',
+          active: true,
           collectionPublicId: (await collectionRepo.findOneBy({
             name: 'Roupas Masculinas',
           }))!.publicId,

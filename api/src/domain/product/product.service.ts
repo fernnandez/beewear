@@ -35,6 +35,7 @@ export class ProductService {
 
     const product = await this.productRepo.save({
       name: dto.name,
+      active: dto.active,
       collection,
     });
 

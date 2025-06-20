@@ -25,6 +25,9 @@ export class Product {
   @Column()
   name: string;
 
+  @Column({ default: false })
+  active: boolean;
+
   @Column({ nullable: true })
   imageUrl?: string;
 
@@ -33,13 +36,12 @@ export class Product {
   })
   variations: ProductVariation[];
 
-  // Relação ManyToOne opcional (categoria pode ser null)
   @ManyToOne(() => Collection, (collection) => collection.products, {
     nullable: true,
-    onDelete: 'SET NULL', // quando categoria for deletada, seta o campo como null
+    onDelete: 'SET NULL',
   })
   @JoinColumn()
-  collection?: Collection; // campo opcional no TypeScript também
+  collection?: Collection;
 
   @CreateDateColumn()
   createdAt: Date;
