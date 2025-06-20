@@ -1,0 +1,10 @@
+entity: User
+processor: ./processor/userProcessor
+items:
+  user_admin:
+    id: 1 # Opcional: Se você usa IDs fixos em testes ou precisa de um valor específico
+    publicId: "7f6a28b1-3efe-52bb-b301-b68217cd7447"
+    name: "John Doe"
+    email: "email@example.com"
+    password: "12345678"
+    role: 'admin'

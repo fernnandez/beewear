@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Req } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -37,6 +37,7 @@ export class UserController {
 
   @Public()
   @Post('login')
+  @HttpCode(200)
   @ApiOkResponse({
     description: 'User successfully logged in',
     schema: {
@@ -54,6 +55,7 @@ export class UserController {
   }
 
   @Get('me')
+  @HttpCode(200)
   @ApiOkResponse({
     description: 'Returns the authenticated user',
     schema: {

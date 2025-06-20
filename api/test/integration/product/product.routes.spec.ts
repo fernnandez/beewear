@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as request from 'supertest';
 import { Repository } from 'typeorm';
@@ -34,6 +34,9 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
     app = await createTestingApp({
       imports: [AppModule],
     });
+
+    // Pipe global de validação (se você usa)
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
     // Chame a função de setup dos mocks
     setupIntegrationMocks();

@@ -1,9 +1,9 @@
 // src/domain/product/collection/collection.controller.spec.ts
 
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import * as request from 'supertest';
+import { createTestingApp } from 'test/utils/create-testing-app';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
 import {
@@ -17,11 +17,9 @@ describe('CollectionController - Integration (HTTP)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    app = await createTestingApp({
       imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
+    });
 
     // Pipe global de validação (se você usa)
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
