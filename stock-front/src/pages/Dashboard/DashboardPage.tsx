@@ -1,40 +1,91 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { AppShellLayout } from "@components/AppShell";
 import {
-  Title,
-  Text,
-  SimpleGrid,
-  Card,
-  Group,
   Badge,
   Button,
-  Stack,
+  Card,
   Container,
+  Group,
   Paper,
+  SimpleGrid,
+  Stack,
+  Text,
   ThemeIcon,
+  Title,
   rem,
-} from "@mantine/core"
-import { IconPackage, IconTrendingUp, IconAlertTriangle, IconShoppingBag, IconPlus } from "@tabler/icons-react"
-import { AppShellLayout } from "../components/AppShell"
+} from "@mantine/core";
+import {
+  IconAlertTriangle,
+  IconPackage,
+  IconPlus,
+  IconShoppingBag,
+  IconTrendingUp,
+} from "@tabler/icons-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 // Dados simulados
 const mockProducts = [
-  { id: 1, name: "Camiseta Básica", category: "Camisetas", stock: 5, minStock: 10, price: 29.9, size: "M" },
-  { id: 2, name: "Calça Jeans", category: "Calças", stock: 15, minStock: 5, price: 89.9, size: "38" },
-  { id: 3, name: "Vestido Floral", category: "Vestidos", stock: 2, minStock: 8, price: 79.9, size: "P" },
-  { id: 4, name: "Blusa Social", category: "Blusas", stock: 12, minStock: 6, price: 59.9, size: "G" },
-  { id: 5, name: "Saia Midi", category: "Saias", stock: 8, minStock: 4, price: 49.9, size: "M" },
-]
+  {
+    id: 1,
+    name: "Camiseta Básica",
+    category: "Camisetas",
+    stock: 5,
+    minStock: 10,
+    price: 29.9,
+    size: "M",
+  },
+  {
+    id: 2,
+    name: "Calça Jeans",
+    category: "Calças",
+    stock: 15,
+    minStock: 5,
+    price: 89.9,
+    size: "38",
+  },
+  {
+    id: 3,
+    name: "Vestido Floral",
+    category: "Vestidos",
+    stock: 2,
+    minStock: 8,
+    price: 79.9,
+    size: "P",
+  },
+  {
+    id: 4,
+    name: "Blusa Social",
+    category: "Blusas",
+    stock: 12,
+    minStock: 6,
+    price: 59.9,
+    size: "G",
+  },
+  {
+    id: 5,
+    name: "Saia Midi",
+    category: "Saias",
+    stock: 8,
+    minStock: 4,
+    price: 49.9,
+    size: "M",
+  },
+];
 
 export default function DashboardPage() {
-  const [products] = useState(mockProducts)
+  const [products] = useState(mockProducts);
 
-  const totalProducts = products.length
-  const totalValue = products.reduce((sum, product) => sum + product.stock * product.price, 0)
-  const lowStockProducts = products.filter((product) => product.stock <= product.minStock)
-  const outOfStockProducts = products.filter((product) => product.stock === 0)
+  const totalProducts = products.length;
+  const totalValue = products.reduce(
+    (sum, product) => sum + product.stock * product.price,
+    0
+  );
+  const lowStockProducts = products.filter(
+    (product) => product.stock <= product.minStock
+  );
+  const outOfStockProducts = products.filter((product) => product.stock === 0);
 
   return (
     <AppShellLayout>
@@ -118,7 +169,10 @@ export default function DashboardPage() {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section withBorder inheritPadding py="xs">
               <Group>
-                <IconAlertTriangle size={18} color="var(--mantine-color-yellow-6)" />
+                <IconAlertTriangle
+                  size={18}
+                  color="var(--mantine-color-yellow-6)"
+                />
                 <Title order={4}>Alertas de Estoque</Title>
               </Group>
               <Text size="sm" c="dimmed">
@@ -133,7 +187,13 @@ export default function DashboardPage() {
                 </Text>
               ) : (
                 lowStockProducts.map((product) => (
-                  <Paper key={product.id} p="md" radius="md" bg="var(--mantine-color-yellow-0)" withBorder>
+                  <Paper
+                    key={product.id}
+                    p="md"
+                    radius="md"
+                    bg="var(--mantine-color-yellow-0)"
+                    withBorder
+                  >
                     <Group justify="space-between">
                       <div>
                         <Text fw={500}>{product.name}</Text>
@@ -167,7 +227,13 @@ export default function DashboardPage() {
 
             <Stack mt="md" gap="sm">
               {products.slice(0, 5).map((product) => (
-                <Paper key={product.id} p="md" radius="md" bg="var(--mantine-color-gray-0)" withBorder>
+                <Paper
+                  key={product.id}
+                  p="md"
+                  radius="md"
+                  bg="var(--mantine-color-gray-0)"
+                  withBorder
+                >
                   <Group justify="space-between">
                     <div>
                       <Text fw={500}>{product.name}</Text>
@@ -175,7 +241,15 @@ export default function DashboardPage() {
                         {product.category} • R$ {product.price.toFixed(2)}
                       </Text>
                     </div>
-                    <Badge color={product.stock === 0 ? "red" : product.stock <= product.minStock ? "yellow" : "blue"}>
+                    <Badge
+                      color={
+                        product.stock === 0
+                          ? "red"
+                          : product.stock <= product.minStock
+                          ? "yellow"
+                          : "blue"
+                      }
+                    >
                       {product.stock} em estoque
                     </Badge>
                   </Group>
@@ -183,7 +257,13 @@ export default function DashboardPage() {
               ))}
             </Stack>
 
-            <Button component={Link} to="/products" variant="outline" fullWidth mt="md">
+            <Button
+              component={Link}
+              to="/products"
+              variant="outline"
+              fullWidth
+              mt="md"
+            >
               Ver Todos os Produtos
             </Button>
           </Card>
@@ -230,5 +310,5 @@ export default function DashboardPage() {
         </Card>
       </Container>
     </AppShellLayout>
-  )
+  );
 }

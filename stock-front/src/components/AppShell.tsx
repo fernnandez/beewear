@@ -18,9 +18,9 @@ import {
 import {
   IconChevronRight,
   IconDashboard,
+  IconFolder,
   IconLogout,
   IconPackage,
-  IconPlus,
   IconReportAnalytics,
   IconShoppingCart,
   IconUser,
@@ -140,15 +140,15 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
             label="Produtos"
             leftSection={<IconShoppingCart size="1.2rem" />}
             rightSection={<IconChevronRight size="0.8rem" />}
-            active={isActive("/products")}
+            active={isActive("/products") || isActive("/products/new")}
           />
           <NavLink
             component={Link}
-            to="/products/new"
-            label="Novo Produto"
-            leftSection={<IconPlus size="1.2rem" />}
+            to="/collections"
+            label="Coleções"
+            leftSection={<IconFolder size="1.2rem" />}
             rightSection={<IconChevronRight size="0.8rem" />}
-            active={isActive("/products/new")}
+            active={isActive("/collections") || isActive("/collections/new")}
           />
           <NavLink
             component={Link}

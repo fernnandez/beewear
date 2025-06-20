@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import {
@@ -19,25 +17,37 @@ import {
   Title,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { getProfileInfo, register } from "@services/auth.service";
 import {
   IconAlertCircle,
+  IconLetterA,
   IconLock,
   IconMail,
   IconPackage,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/auth-context";
-import { getProfileInfo, loginFunction } from "../../services/auth.service";
+import { useAuth } from "@contexts/auth-context";
 
-export const Login = () => {
-  const handleLogin = async (e: React.FormEvent) => {
+export const RegisterPage = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const navigate = useNavigate();
+  const { login, setUser } = useAuth();
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      const token = await loginFunction({
+      const token = await register({
+        name: formData.name,
         email: formData.email,
         password: formData.password,
       });
@@ -49,7 +59,7 @@ export const Login = () => {
       setUser(profileInfo);
 
       notifications.show({
-        title: "Login realizado com sucesso",
+        title: "Registro realizado com sucesso",
         message: "Bem-vindo ao sistema de gestão de estoque",
         color: "green",
       });
@@ -59,7 +69,8 @@ export const Login = () => {
       console.error(err);
 
       const message =
-        err?.response?.data?.message || "Erro ao fazer login. Tente novamente.";
+        err?.response?.data?.message ||
+        "Erro ao fazer Cadastro. Tente novamente.";
 
       setError(message);
     } finally {
@@ -67,25 +78,12 @@ export const Login = () => {
     }
   };
 
-  const navigate = useNavigate();
-  const { login, setUser } = useAuth();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
     if (error) setError("");
-  };
-
-  const fillDemoCredentials = () => {
-    setFormData({ email: "email@example.com", password: "123456" });
   };
 
   return (
@@ -103,19 +101,16 @@ export const Login = () => {
               <IconPackage size={32} color="white" />
             </Box>
             <Title order={1}>Sistema de Estoque</Title>
-            <Text c="dimmed">Faça login para acessar o sistema</Text>
+            <Text c="dimmed">Faça cadastro para acessar o sistema</Text>
           </Stack>
         </Center>
 
         <Card shadow="md" radius="md" p="xl" withBorder>
           <Title order={3} ta="center" mb="sm">
-            Entrar
+            Registrar
           </Title>
-          <Text c="dimmed" size="sm" ta="center" mb="lg">
-            Digite suas credenciais para acessar
-          </Text>
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleRegister}>
             <Stack>
               {error && (
                 <Alert
@@ -126,6 +121,15 @@ export const Login = () => {
                   {error}
                 </Alert>
               )}
+
+              <TextInput
+                label="Nome"
+                placeholder="Jonh doel"
+                value={formData.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+                leftSection={<IconLetterA size={16} />}
+                required
+              />
 
               <TextInput
                 label="Email"
@@ -146,37 +150,23 @@ export const Login = () => {
               />
 
               <Button type="submit" loading={isLoading} fullWidth>
-                {isLoading ? "Entrando..." : "Entrar"}
+                {isLoading ? "Registrando..." : "Registrar"}
               </Button>
             </Stack>
+
+            <Divider label="Login" labelPosition="center" my="md" />
+
+            <Group>
+              <Button
+                variant="light"
+                size="compact-sm"
+                fullWidth
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
+            </Group>
           </form>
-
-          <Divider label="Cadastro" labelPosition="center" my="md" />
-
-          <Group>
-            <Button
-              variant="light"
-              size="compact-sm"
-              fullWidth
-              onClick={() => navigate("/register")}
-            >
-              Registrar
-            </Button>
-            <Button variant="light" size="compact-sm" fullWidth disabled>
-              Esqueci a senha
-            </Button>
-          </Group>
-
-          <Divider label="Demonstração" labelPosition="center" my="md" />
-
-          <Button
-            variant="light"
-            size="compact-sm"
-            fullWidth
-            onClick={fillDemoCredentials}
-          >
-            Preencher Automaticamente
-          </Button>
         </Card>
 
         <Text c="dimmed" size="xs" ta="center" mt={rem(30)}>

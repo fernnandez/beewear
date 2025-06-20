@@ -1,23 +1,29 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { AppShellLayout } from "@components/AppShell";
 import {
-  Title,
-  Text,
-  Card,
-  Group,
   Badge,
   Button,
+  Card,
   Container,
-  SimpleGrid,
-  Select,
-  Stack,
+  Group,
   Paper,
   Progress,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
   ThemeIcon,
-} from "@mantine/core"
-import { IconTrendingUp, IconPackage, IconCurrencyDollar, IconAlertTriangle, IconDownload } from "@tabler/icons-react"
-import { AppShellLayout } from "../components/AppShell"
+  Title,
+} from "@mantine/core";
+import {
+  IconAlertTriangle,
+  IconCurrencyDollar,
+  IconDownload,
+  IconPackage,
+  IconTrendingUp,
+} from "@tabler/icons-react";
+import { useState } from "react";
 
 // Dados simulados para relatórios
 const reportData = {
@@ -33,21 +39,51 @@ const reportData = {
     { name: "Saias", count: 4, value: 250.0 },
   ],
   stockMovements: [
-    { date: "2024-01-15", product: "Camiseta Básica", type: "Entrada", quantity: 20, reason: "Compra" },
-    { date: "2024-01-14", product: "Calça Jeans", type: "Saída", quantity: 5, reason: "Venda" },
-    { date: "2024-01-13", product: "Vestido Floral", type: "Saída", quantity: 2, reason: "Venda" },
-    { date: "2024-01-12", product: "Blusa Social", type: "Entrada", quantity: 15, reason: "Compra" },
-    { date: "2024-01-11", product: "Saia Midi", type: "Saída", quantity: 3, reason: "Venda" },
+    {
+      date: "2024-01-15",
+      product: "Camiseta Básica",
+      type: "Entrada",
+      quantity: 20,
+      reason: "Compra",
+    },
+    {
+      date: "2024-01-14",
+      product: "Calça Jeans",
+      type: "Saída",
+      quantity: 5,
+      reason: "Venda",
+    },
+    {
+      date: "2024-01-13",
+      product: "Vestido Floral",
+      type: "Saída",
+      quantity: 2,
+      reason: "Venda",
+    },
+    {
+      date: "2024-01-12",
+      product: "Blusa Social",
+      type: "Entrada",
+      quantity: 15,
+      reason: "Compra",
+    },
+    {
+      date: "2024-01-11",
+      product: "Saia Midi",
+      type: "Saída",
+      quantity: 3,
+      reason: "Venda",
+    },
   ],
-}
+};
 
 export default function ReportsPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState<string | null>("30")
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>("30");
 
   const exportReport = () => {
     // Função para exportar relatório
-    console.log("Exportando relatório...")
-  }
+    console.log("Exportando relatório...");
+  };
 
   return (
     <AppShellLayout>
@@ -70,7 +106,10 @@ export default function ReportsPage() {
               onChange={setSelectedPeriod}
               w={200}
             />
-            <Button leftSection={<IconDownload size={16} />} onClick={exportReport}>
+            <Button
+              leftSection={<IconDownload size={16} />}
+              onClick={exportReport}
+            >
               Exportar
             </Button>
           </Group>
@@ -161,7 +200,12 @@ export default function ReportsPage() {
                 <Paper key={category.name} p="md" radius="md" withBorder>
                   <Group justify="space-between">
                     <Group>
-                      <ThemeIcon radius="xl" size="lg" variant="light" color="blue">
+                      <ThemeIcon
+                        radius="xl"
+                        size="lg"
+                        variant="light"
+                        color="blue"
+                      >
                         {index + 1}
                       </ThemeIcon>
                       <div>
@@ -197,7 +241,11 @@ export default function ReportsPage() {
                         {movement.date} • {movement.reason}
                       </Text>
                     </div>
-                    <Badge color={movement.type === "Entrada" ? "green" : "red"} variant="light" size="lg">
+                    <Badge
+                      color={movement.type === "Entrada" ? "green" : "red"}
+                      variant="light"
+                      size="lg"
+                    >
                       {movement.type === "Entrada" ? "+" : "-"}
                       {movement.quantity}
                     </Badge>
@@ -219,7 +267,8 @@ export default function ReportsPage() {
 
           <Stack gap="lg">
             {reportData.topCategories.map((category) => {
-              const percentage = (category.count / reportData.totalProducts) * 100
+              const percentage =
+                (category.count / reportData.totalProducts) * 100;
               return (
                 <div key={category.name}>
                   <Group justify="space-between" mb={5}>
@@ -228,13 +277,19 @@ export default function ReportsPage() {
                       {category.count} produtos ({percentage.toFixed(1)}%)
                     </Text>
                   </Group>
-                  <Progress value={percentage} color="blue" size="md" radius="xl" animated />
+                  <Progress
+                    value={percentage}
+                    color="blue"
+                    size="md"
+                    radius="xl"
+                    animated
+                  />
                 </div>
-              )
+              );
             })}
           </Stack>
         </Card>
       </Container>
     </AppShellLayout>
-  )
+  );
 }

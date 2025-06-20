@@ -3,12 +3,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useAuth } from "./contexts/auth-context";
-import DashboardPage from "./pages/DashboardPage";
 import { Login } from "./pages/Login/Login";
-import NewProductPage from "./pages/NewProductPage";
-import ProductsPage from "./pages/ProductsPage";
+
+import CollectionsPage from "./pages/Collection/CollectionPage";
+import NewCollectionPage from "./pages/Collection/NewCollectionPage";
+import DashboardPage from "./pages/Dashboard/DashboardPage";
+import NewProductPage from "./pages/Product/NewProductPage";
+import ProductsPage from "./pages/Product/ProductsPage";
 import { RegisterPage } from "./pages/Register/Register";
-import ReportsPage from "./pages/ReportsPage";
+import ReportsPage from "./pages/Reports/ReportsPage";
 
 export const queryClient = new QueryClient();
 
@@ -55,6 +58,22 @@ function App() {
           element={
             <ProtectedRoute>
               <NewProductPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/collections"
+          element={
+            <ProtectedRoute>
+              <CollectionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/collections/new"
+          element={
+            <ProtectedRoute>
+              <NewCollectionPage />
             </ProtectedRoute>
           }
         />

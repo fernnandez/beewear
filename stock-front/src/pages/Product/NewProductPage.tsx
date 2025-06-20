@@ -1,3 +1,5 @@
+import { AppShellLayout } from "@components/AppShell";
+import { ConfirmationModal } from "@components/ConfirmationModal";
 import {
   Button,
   Card,
@@ -17,76 +19,72 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { createProduct } from "@services/product.service";
 import {
+  IconArrowBackUp,
   IconGavel,
   IconPackage,
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
 import { useState } from "react";
-import { AppShellLayout } from "../components/AppShell";
-import { ConfirmationModal } from "../components/ConfirmationModal";
+import { Link } from "react-router-dom";
 
-const categories = ["Camisetas", "Calças", "Shorts", "Blusas", "Vestidos"];
+const collections = [{ value: "1", label: "PADRÃO" }];
 const sizes = ["PP", "P", "M", "G", "GG"];
-// const colors = ["Branco", "Preto", "Azul", "Vermelho"];
 
 export default function NewProductPage() {
   const [modalOpened, { open: openModal, close: closeModal }] =
     useDisclosure(false);
   const [pendingAction, setPendingAction] = useState<() => void>(() => {});
-  // const navigate = useNavigate();
 
   const form = useForm({
     initialValues: {
       name: "",
-      category: "",
-      collection: "",
+      collectionId: "",
       variations: [
         {
           color: "",
           size: "",
-          sku: "",
+          // sku: "",
           price: 0,
-          stock: 0,
+          initialStock: 0,
         },
       ],
     },
 
     validate: {
       name: (value) => (value ? null : "Nome é obrigatório"),
-      category: (value) => (value ? null : "Categoria é obrigatória"),
-      collection: (value) => (value ? null : "Coleção é obrigatória"),
+      collectionId: (value) => (value ? null : "Coleção é obrigatória"),
     },
   });
 
   const hasOneVariation = form.getValues().variations.length === 1;
 
-  const generateSKU = () => {
-    const category = form.values.category;
-    if (!category) {
-      notifications.show({
-        title: "Atenção",
-        message: "Selecione uma categoria para gerar o SKU",
-        color: "yellow",
-      });
-      return;
-    }
+  // const generateSKU = () => {
+  //   const category = form.values.category;
+  //   if (!category) {
+  //     notifications.show({
+  //       title: "Atenção",
+  //       message: "Selecione uma categoria para gerar o SKU",
+  //       color: "yellow",
+  //     });
+  //     return;
+  //   }
 
-    const categoryCode = category.substring(0, 3).toUpperCase();
-    const randomNum = Math.floor(Math.random() * 1000)
-      .toString()
-      .padStart(3, "0");
-    form.setFieldValue("sku", `${categoryCode}${randomNum}`);
-  };
+  //   const categoryCode = category.substring(0, 3).toUpperCase();
+  //   const randomNum = Math.floor(Math.random() * 1000)
+  //     .toString()
+  //     .padStart(3, "0");
+  //   form.setFieldValue("sku", `${categoryCode}${randomNum}`);
+  // };
 
   const addVariation = () => {
     form.insertListItem("variations", {
       color: "",
       size: "",
-      sku: "",
       price: 0,
-      stock: 0,
+      initialStock: 0,
     });
   };
 
@@ -103,8 +101,7 @@ export default function NewProductPage() {
     addVariation();
   };
 
-  const handleSubmit = () => {
-    console.log("alou");
+  const handleSubmit = async () => {
     const isValid = form.validate();
 
     if (isValid.hasErrors) {
@@ -117,12 +114,12 @@ export default function NewProductPage() {
       return;
     }
 
-    const { name, category, collection, variations } = form.values;
+    const { name, variations } = form.values;
 
     // Verificações manuais (exemplo de reforço ou validações específicas)
     if (
       variations.length === 0 ||
-      variations.some((v) => !v.color || !v.size || !v.sku)
+      variations.some((v) => !v.color || !v.size)
     ) {
       notifications.show({
         title: "Erro nas variações",
@@ -132,11 +129,10 @@ export default function NewProductPage() {
       return;
     }
 
+    await createProduct(form.values);
+
     console.log("Dados do formulário:", {
-      name,
-      category,
-      collection,
-      variations,
+      ...form.values,
     });
 
     notifications.show({
@@ -145,6 +141,8 @@ export default function NewProductPage() {
       color: "green",
     });
 
+    form.reset();
+
     // Aqui você pode chamar o backend ou redirecionar
     // navigate("/products");
   };
@@ -152,9 +150,22 @@ export default function NewProductPage() {
   return (
     <AppShellLayout>
       <Container size="xl">
-        <Title order={2} mb="md">
-          Novo Produto
-        </Title>
+        <Group justify="space-between" mb="xl">
+          <div>
+            <Title order={2} mb="md">
+              Novo Produto
+            </Title>
+            <Text c="dimmed">Crie uma novo produto</Text>
+          </div>
+          <Button
+            variant="light"
+            component={Link}
+            to="/products"
+            leftSection={<IconArrowBackUp size={16} />}
+          >
+            Produtos
+          </Button>
+        </Group>
 
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Flex direction="column" gap="lg">
@@ -169,7 +180,7 @@ export default function NewProductPage() {
                 </Text>
               </Card.Section>
 
-              <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">
+              <SimpleGrid cols={{ base: 1, sm: 2 }} mb="md">
                 <TextInput
                   label="Nome do Produto"
                   placeholder="Ex: Camiseta Básica"
@@ -179,20 +190,11 @@ export default function NewProductPage() {
                 />
 
                 <Select
-                  label="Categoria"
-                  placeholder="Selecione..."
-                  data={categories}
-                  key={form.key("category")}
-                  {...form.getInputProps("category")}
-                  withAsterisk
-                />
-
-                <Select
                   label="Coleção"
                   placeholder="Selecione..."
-                  data={categories}
-                  key={form.key("collection")}
-                  {...form.getInputProps("collection")}
+                  data={collections}
+                  key={form.key("collectionId")}
+                  {...form.getInputProps("collectionId")}
                   withAsterisk
                 />
               </SimpleGrid>
@@ -238,12 +240,15 @@ export default function NewProductPage() {
                     <SimpleGrid cols={{ base: 1, sm: 2 }} mb="md">
                       <NumberInput
                         label="Estoque"
-                        key={form.key(`variations.${index}.stock`)}
-                        {...form.getInputProps(`variations.${index}.stock`)}
+                        key={form.key(`variations.${index}.initialStock`)}
+                        {...form.getInputProps(
+                          `variations.${index}.initialStock`
+                        )}
                         withAsterisk
                       />
                       <Flex gap="md" align="flex-end">
                         <TextInput
+                          disabled
                           label="SKU"
                           placeholder="Ex: CAM001"
                           key={form.key(`variations.${index}.sku`)}
@@ -253,7 +258,7 @@ export default function NewProductPage() {
                         />
                         <Button
                           disabled
-                          onClick={generateSKU}
+                          // onClick={generateSKU}
                           variant="outline"
                           style={{ marginBottom: "1px" }}
                         >
