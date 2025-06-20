@@ -12,6 +12,7 @@ import NewProductPage from "./pages/Product/NewProductPage";
 import ProductsPage from "./pages/Product/ProductsPage";
 import { RegisterPage } from "./pages/Register/Register";
 import ReportsPage from "./pages/Reports/ReportsPage";
+import CollectionDetailPage from "@pages/Collection/CollectionDetails";
 
 export const queryClient = new QueryClient();
 
@@ -74,6 +75,14 @@ function App() {
           element={
             <ProtectedRoute>
               <NewCollectionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/collections/:publicId"
+          element={
+            <ProtectedRoute>
+              <CollectionDetailPage />
             </ProtectedRoute>
           }
         />

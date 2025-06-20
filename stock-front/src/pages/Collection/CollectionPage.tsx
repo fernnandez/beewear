@@ -21,6 +21,7 @@ import {
 import {
   IconDotsVertical,
   IconEdit,
+  IconEye,
   IconPhoto,
   IconPlus,
   IconSearch,
@@ -28,7 +29,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Dados simulados de coleções
 const mockCollections = [
@@ -75,6 +76,7 @@ const mockCollections = [
 ];
 
 export default function CollectionsPage() {
+  const navigate = useNavigate();
   const [collections] = useState(mockCollections);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -221,6 +223,14 @@ export default function CollectionsPage() {
                       Ativa
                     </Badge>
                   </Group>
+                  <Button
+                    variant="light"
+                    fullWidth
+                    leftSection={<IconEye size={14} />}
+                    onClick={() => navigate(`/collections/${collection.id}`)}
+                  >
+                    Ver Detalhes
+                  </Button>
                 </Card>
               ))}
             </SimpleGrid>
