@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Collection } from './collection.entity';
 import { CollectionDetailsDto } from './dto/collection-details.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { UpdateCollectionDto } from './dto/update-collection.dto';
 
 @Injectable()
 export class CollectionService {
@@ -93,5 +94,25 @@ export class CollectionService {
       },
       products,
     };
+  }
+
+  async updateStatus(publicId: string, isActive: boolean): Promise<Collection> {
+    const collection = await this.collectionRepo.findOneBy({ publicId });
+    if (!collection) throw new NotFoundException('Coleção não encontrada');
+
+    collection.active = isActive;
+    return this.collectionRepo.save(collection);
+  }
+
+  async update(
+    publicId: string,
+    dto: UpdateCollectionDto,
+  ): Promise<Collection> {
+    const collection = await this.collectionRepo.findOneBy({ publicId });
+
+    if (!collection) throw new NotFoundException('Coleção não encontrada');
+
+    this.collectionRepo.merge(collection, dto);
+    return this.collectionRepo.save(collection);
   }
 }

@@ -1,27 +1,25 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { Collection } from './collection.entity';
 import { CollectionService } from './collection.service';
-import { CreateCollectionDto } from './dto/create-collection.dto';
 import { CollectionDetailsDto } from './dto/collection-details.dto';
+import { CreateCollectionDto } from './dto/create-collection.dto';
+import { UpdateCollectionStatusDto } from './dto/update-collection-status.dto';
+import { UpdateCollectionDto } from './dto/update-collection.dto';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Collection')
 @Controller('collection')
 export class CollectionController {
-  constructor(private readonly collectionSerivce: CollectionService) {}
-
-  @Post()
-  @ApiCreatedResponse({ description: 'collection successfully registered' })
-  async create(@Body() dto: CreateCollectionDto) {
-    return this.collectionSerivce.create(dto);
-  }
+  constructor(private readonly collectionService: CollectionService) {}
 
   @Get()
   @ApiOkResponse({
@@ -30,7 +28,7 @@ export class CollectionController {
     isArray: true,
   })
   async findAll() {
-    return this.collectionSerivce.findAll();
+    return this.collectionService.findAll();
   }
 
   @Get(':publicId')
@@ -46,6 +44,47 @@ export class CollectionController {
   getCollectionDetails(
     @Param('publicId') publicId: string,
   ): Promise<CollectionDetailsDto> {
-    return this.collectionSerivce.getCollectionDetailsByPublicId(publicId);
+    return this.collectionService.getCollectionDetailsByPublicId(publicId);
+  }
+
+  @Post()
+  @ApiCreatedResponse({ description: 'collection successfully registered' })
+  async create(@Body() dto: CreateCollectionDto) {
+    return this.collectionService.create(dto);
+  }
+
+  @Patch(':publicId/status')
+  @ApiOperation({ summary: 'Atualiza o status de uma coleção (ativa/inativa)' })
+  @ApiParam({ name: 'publicId', type: String })
+  @ApiResponse({ status: 200, description: 'Status atualizado com sucesso' })
+  async updateStatus(
+    @Param('publicId') publicId: string,
+    @Body() dto: UpdateCollectionStatusDto,
+  ) {
+    const collection = await this.collectionService.updateStatus(
+      publicId,
+      dto.isActive,
+    );
+    return {
+      message: 'Status da coleção atualizado com sucesso',
+      data: collection,
+    };
+  }
+
+  @Patch(':publicId')
+  @ApiOperation({ summary: 'Atualiza os dados da coleção' })
+  @ApiParam({ name: 'publicId', type: String, required: true })
+  @ApiResponse({ status: 200, description: 'Coleção atualizada com sucesso' })
+  @ApiResponse({ status: 404, description: 'Coleção não encontrada' })
+  async update(
+    @Param('publicId') publicId: string,
+    @Body() dto: UpdateCollectionDto,
+  ) {
+    const collection = await this.collectionService.update(publicId, dto);
+
+    return {
+      message: 'Coleção atualizada com sucesso',
+      data: collection,
+    };
   }
 }

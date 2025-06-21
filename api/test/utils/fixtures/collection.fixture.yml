@@ -6,6 +6,7 @@ items:
     id: 1 # Opcional: Se você usa IDs fixos em testes ou precisa de um valor específico
     publicId: "9ab4b59a-187a-52ff-86c1-73fa5dc9fbc0"
     name: "Roupas Femininas"
+    active: true
     description: "Coleção completa de moda feminina para todas as estações."
     imageUrl: "https://example.com/feminina.jpg"
     createdAt: "2024-01-01T10:00:00Z"
@@ -16,6 +17,7 @@ items:
     id: 2
     publicId: "339df8dd-d947-4849-8334-105aab258ee5"
     name: "Roupas Masculinas"
+    active: true
     description: "Peças essenciais e tendências para o vestuário masculino."
     imageUrl: "https://example.com/masculina.jpg"
     createdAt: "2024-01-02T11:00:00Z"
@@ -26,5 +28,6 @@ items:
     id: 3
     publicId: "c3d4e5f6-a7b8-9012-3456-7890abcdef01"
     name: "Acessórios"
+    active: true
     createdAt: "2024-01-03T12:00:00Z"
     updatedAt: "2024-01-03T12:00:00Z"

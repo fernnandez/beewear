@@ -190,8 +190,6 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
           name: 'Roupas Masculinas',
         });
 
-        console.log(existingCollection);
-
         const createProductDto = {
           name: 'Produto Com Variação Inválida',
           active: true,

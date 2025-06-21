@@ -34,63 +34,149 @@ describe('CollectionController - Integration (HTTP)', () => {
     jest.restoreAllMocks();
   });
 
-  it(
-    'POST /collection - should create collection with valid data',
-    runWithRollbackTransaction(async () => {
-      const dto = { name: 'Linha Esportiva', active: true };
+  describe('POST /collection', () => {
+    it(
+      'should create collection with valid data',
+      runWithRollbackTransaction(async () => {
+        const dto = { name: 'Linha Esportiva', active: true };
 
-      const response = await request(app.getHttpServer())
-        .post('/collection')
-        .send(dto)
-        .expect(201);
+        const response = await request(app.getHttpServer())
+          .post('/collection')
+          .send(dto)
+          .expect(201);
 
-      expect(response.body).toHaveProperty('id');
-      expect(response.body.name).toBe(dto.name);
-      expect(response.body).toHaveProperty('publicId');
-    }),
-  );
-
-  it('GET /collection - should return list of collection', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/collection')
-      .expect(200);
-
-    expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body.length).toBeGreaterThan(0);
-  });
-
-  it('GET /collection/:publicId - should return collection details by publicId', async () => {
-    // Primeiro pega uma coleção existente (ex: via GET /collection)
-    const listResponse = await request(app.getHttpServer()).get('/collection');
-    const firstCollection = listResponse.body[0];
-
-    const response = await request(app.getHttpServer())
-      .get(`/collection/${firstCollection.publicId}`)
-      .expect(200);
-
-    expect(response.body).toBeDefined();
-    expect(response.body.publicId).toBe(firstCollection.publicId);
-    expect(response.body.name).toBe(firstCollection.name);
-    expect(response.body.aggregations).toEqual(
-      expect.objectContaining({
-        totalProducts: expect.any(Number),
-        totalStock: expect.any(Number),
-        totalValue: expect.any(Number),
+        expect(response.body).toHaveProperty('id');
+        expect(response.body.name).toBe(dto.name);
+        expect(response.body).toHaveProperty('publicId');
       }),
     );
-    expect(response.body.products).toBeDefined();
   });
 
-  it('GET /collection/:publicId - should return 404 Not Found if collection not found', async () => {
-    const notFoundPublicId = 'b00cd611-df8d-4be1-85b1-171c042a69d2';
+  describe('PATCH /collection/:publicId/status', () => {
+    it(
+      'should update collection statue (active or inactive)',
+      runWithRollbackTransaction(async () => {
+        const existentCollectionPublicId =
+          '339df8dd-d947-4849-8334-105aab258ee5';
+        const dto = { isActive: false };
 
-    await request(app.getHttpServer())
-      .get(`/collection/${notFoundPublicId}`)
-      .expect(404)
-      .expect({
-        statusCode: 404,
-        message: 'Coleção não encontrada',
-        error: 'Not Found',
-      });
+        const response = await request(app.getHttpServer())
+          .patch(`/collection/${existentCollectionPublicId}/status`)
+          .send(dto)
+          .expect(200);
+
+        expect(response.body.message).toBe(
+          'Status da coleção atualizado com sucesso',
+        );
+        expect(response.body.data.active).toBeFalsy();
+      }),
+    );
+
+    it(
+      'should return 404 Not Found if collection not found',
+      runWithRollbackTransaction(async () => {
+        const notFoundPublicId = 'b00cd611-df8d-4be1-85b1-171c042a69d2';
+
+        const dto = { isActive: false };
+
+        await request(app.getHttpServer())
+          .patch(`/collection/${notFoundPublicId}/status`)
+          .send(dto)
+          .expect(404)
+          .expect({
+            statusCode: 404,
+            message: 'Coleção não encontrada',
+            error: 'Not Found',
+          });
+      }),
+    );
+  });
+
+  describe('PATCH /collection/:publicId/', () => {
+    it(
+      'should update collection statue (active or inactive)',
+      runWithRollbackTransaction(async () => {
+        const existentCollectionPublicId =
+          '339df8dd-d947-4849-8334-105aab258ee5';
+        const dto = { name: 'test name', description: 'description test' };
+
+        const response = await request(app.getHttpServer())
+          .patch(`/collection/${existentCollectionPublicId}`)
+          .send(dto)
+          .expect(200);
+
+        expect(response.body.message).toBe('Coleção atualizada com sucesso');
+        expect(response.body.data.name).toBe(dto.name);
+        expect(response.body.data.description).toBe(dto.description);
+      }),
+    );
+
+    it(
+      'should return 404 Not Found if collection not found',
+      runWithRollbackTransaction(async () => {
+        const notFoundPublicId = 'b00cd611-df8d-4be1-85b1-171c042a69d2';
+
+        const dto = { name: 'test name', description: 'description test' };
+
+        await request(app.getHttpServer())
+          .patch(`/collection/${notFoundPublicId}`)
+          .send(dto)
+          .expect(404)
+          .expect({
+            statusCode: 404,
+            message: 'Coleção não encontrada',
+            error: 'Not Found',
+          });
+      }),
+    );
+  });
+
+  describe('GET /collection', () => {
+    it('should return list of collection', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/collection')
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('GET /collection/:publicId', () => {
+    it('should return collection details by publicId', async () => {
+      const listResponse = await request(app.getHttpServer()).get(
+        '/collection',
+      );
+      const firstCollection = listResponse.body[0];
+
+      const response = await request(app.getHttpServer())
+        .get(`/collection/${firstCollection.publicId}`)
+        .expect(200);
+
+      expect(response.body).toBeDefined();
+      expect(response.body.publicId).toBe(firstCollection.publicId);
+      expect(response.body.name).toBe(firstCollection.name);
+      expect(response.body.aggregations).toEqual(
+        expect.objectContaining({
+          totalProducts: expect.any(Number),
+          totalStock: expect.any(Number),
+          totalValue: expect.any(Number),
+        }),
+      );
+      expect(response.body.products).toBeDefined();
+    });
+
+    it('should return 404 Not Found if collection not found', async () => {
+      const notFoundPublicId = 'b00cd611-df8d-4be1-85b1-171c042a69d2';
+
+      await request(app.getHttpServer())
+        .get(`/collection/${notFoundPublicId}`)
+        .expect(404)
+        .expect({
+          statusCode: 404,
+          message: 'Coleção não encontrada',
+          error: 'Not Found',
+        });
+    });
   });
 });
