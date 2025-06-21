@@ -7,6 +7,9 @@ const config: Config = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
+  collectCoverage: true,
+  coverageDirectory: './coverage',
+  coverageReporters: ['lcov', 'json-summary'],
   collectCoverageFrom: ['src/**/*.(t|j)s'],
   coveragePathIgnorePatterns: [
     '<rootDir>/src/main.ts',
@@ -21,7 +24,7 @@ const config: Config = {
     '<rootDir>/src/infra/auth/decorator/.*\\.ts',
     '<rootDir>/src/infra/auth/guard/.*\\.ts',
   ],
-  coverageDirectory: './coverage',
+
   testEnvironment: 'node',
   moduleNameMapper: {
     // Isso mapeia 'src/*' para a pasta 'src/' do seu projeto

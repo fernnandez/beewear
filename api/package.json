@@ -5,6 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "type": "module",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -24,7 +25,8 @@
     "test:e2e": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --testRegex 'test/e2e/.*\\.e2e-spec\\.ts$' --config test/e2e/jest-e2e.json",
     "test:watch": "jest --watch --config jest.config.ts",
     "test:cov": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --coverage --config jest.config.ts",
-    "test:unit": "jest --testRegex 'test/unit/.*\\.spec\\.ts$' --config jest.config.ts"
+    "test:unit": "jest --testRegex 'test/unit/.*\\.spec\\.ts$' --config jest.config.ts",
+    "badge:coverage": "coverage-badges --in=coverage/coverage-summary.json && node scripts/move-badge.cjs"
   },
   "dependencies": {
     "@mantine/dropzone": "^8.1.1",
@@ -65,6 +67,7 @@
     "@types/node": "^22.10.7",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.2",
+    "coverage-badges-cli": "^2.1.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
