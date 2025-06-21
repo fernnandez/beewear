@@ -3,6 +3,7 @@ import api from "./api";
 interface CreateCollectionParams {
   name: string;
   description: string;
+  active: boolean;
   //   imageUrl: string TODO: implementar upload de imagems
 }
 

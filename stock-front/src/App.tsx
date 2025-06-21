@@ -5,14 +5,14 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useAuth } from "./contexts/auth-context";
 import { Login } from "./pages/Login/Login";
 
-import CollectionsPage from "./pages/Collection/CollectionPage";
-import NewCollectionPage from "./pages/Collection/NewCollectionPage";
+import CollectionsPage from "./pages/collection/CollectionPage";
+import NewCollectionPage from "./pages/collection/NewCollectionPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
-import NewProductPage from "./pages/Product/NewProductPage";
-import ProductsPage from "./pages/Product/ProductsPage";
+import NewProductPage from "./pages/product/NewProductPage";
+import ProductsPage from "./pages/product/ProductsPage";
 import { RegisterPage } from "./pages/Register/Register";
 import ReportsPage from "./pages/Reports/ReportsPage";
-import CollectionDetailPage from "@pages/Collection/CollectionDetails";
+import CollectionDetailPage from "@pages/collection/CollectionDetails";
 
 export const queryClient = new QueryClient();
 
