@@ -27,3 +27,8 @@ export interface CollectionDetails {
   };
   products: Product[];
 }
+
+export interface PartialUpdateCollection {
+  name?: string;
+  description?: string;
+}

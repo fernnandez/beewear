@@ -1,7 +1,6 @@
-"use client";
-
 import type React from "react";
 
+import { useAuth } from "@contexts/auth-context";
 import {
   Alert,
   Box,
@@ -28,7 +27,6 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@contexts/auth-context";
 
 export const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {

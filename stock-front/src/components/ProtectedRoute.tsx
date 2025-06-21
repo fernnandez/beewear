@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 
 import { Center, Loader, Stack, Text } from "@mantine/core";

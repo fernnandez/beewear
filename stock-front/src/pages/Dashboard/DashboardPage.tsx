@@ -1,5 +1,3 @@
-"use client";
-
 import { AppShellLayout } from "@components/AppShell";
 import {
   Badge,
@@ -24,7 +22,6 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
 // Dados simulados
 const mockProducts = [
   {

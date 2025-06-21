@@ -1,5 +1,3 @@
-"use client";
-
 import { AppShellLayout } from "@components/AppShell";
 import {
   ActionIcon,

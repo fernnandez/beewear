@@ -24,7 +24,6 @@ export default function NewCollectionPage() {
             Coleções
           </Button>
         </Group>
-
         <NewCollectionForm />
       </Container>
     </AppShellLayout>

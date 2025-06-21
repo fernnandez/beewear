@@ -2,13 +2,14 @@ import { AppShellLayout } from "@components/AppShell";
 import {
   CollectionEmptyState,
   CollectionGrid,
-  CollectionHeader,
   CollectionSearch,
 } from "@components/collection";
-import { Container } from "@mantine/core";
+import { Button, Container, Group, Text, Title } from "@mantine/core";
 import { fetchCollections } from "@services/collection.service";
+import { IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function CollectionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,7 +28,19 @@ export default function CollectionsPage() {
   return (
     <AppShellLayout>
       <Container size="xl">
-        <CollectionHeader />
+        <Group justify="space-between" mb="xl">
+          <div>
+            <Title order={2}>Coleções</Title>
+            <Text c="dimmed">Gerencie suas coleções de produtos</Text>
+          </div>
+          <Button
+            component={Link}
+            to="/collections/new"
+            leftSection={<IconPlus size={16} />}
+          >
+            Nova Coleção
+          </Button>
+        </Group>
 
         <CollectionSearch searchTerm={searchTerm} onSearch={setSearchTerm} />
 
