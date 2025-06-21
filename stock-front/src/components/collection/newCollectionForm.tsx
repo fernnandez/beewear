@@ -79,10 +79,12 @@ export const NewCollectionForm = () => {
               {...form.getInputProps("description")}
               minRows={2}
             />
-            <Switch
-              label="Coleção ativa"
-              {...form.getInputProps("active", { type: "checkbox" })}
-            />
+            <Stack gap={4} justify="center">
+              <Text size="sm" fw={500}>
+                Coleção ativa
+              </Text>
+              <Switch {...form.getInputProps("active", { type: "checkbox" })} />
+            </Stack>
           </Stack>
 
           <Divider />

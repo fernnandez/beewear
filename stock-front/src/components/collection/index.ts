@@ -1,6 +1,12 @@
+export { CollectionAggregators } from "./CollectionAggregators";
+export { CollectionCard } from "./CollectionCard";
+export { CollectionDetailsHeader } from "./CollectionDetailsHeader";
 export { CollectionEmptyState } from "./CollectionEmptyState";
 export { CollectionGrid } from "./CollectionGrid";
 export { CollectionHeader } from "./CollectionHeader";
+export { CollectionImageCard } from "./CollectionImageCard";
+export { CollectionInfoCard } from "./CollectionInfoCard";
 export { CollectionPreview } from "./CollectionPreview";
+export { CollectionProductsTable } from "./CollectionProductsTable";
 export { CollectionSearch } from "./CollectionSearch";
 export { NewCollectionForm } from "./NewCollectionForm";

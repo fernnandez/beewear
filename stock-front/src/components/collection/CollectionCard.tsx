@@ -19,7 +19,7 @@ interface CollectionCardProps {
   collection: Collection;
 }
 
-export default function CollectionCard({ collection }: CollectionCardProps) {
+export const CollectionCard = ({ collection }: CollectionCardProps) => {
   const navigate = useNavigate();
 
   return (
@@ -59,8 +59,8 @@ export default function CollectionCard({ collection }: CollectionCardProps) {
         <Text size="xs" c="dimmed">
           Criada em {formatDate(collection.createdAt)}
         </Text>
-        <Badge variant="light" color="blue">
-          Ativa
+        <Badge color={collection.active ? "green" : "red"}>
+          {collection.active ? "Ativa" : "Inativa"}
         </Badge>
       </Group>
 
@@ -74,4 +74,4 @@ export default function CollectionCard({ collection }: CollectionCardProps) {
       </Button>
     </Card>
   );
-}
+};

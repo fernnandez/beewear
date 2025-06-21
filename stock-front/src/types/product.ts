@@ -1,36 +1,37 @@
-export interface ProductVariation {
-  id: string;
-  productId: string;
-  sku: string;
-  size: string;
-  color: string;
-  stock: number;
-  minStock: number;
-  price: number;
-  images?: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+// export interface ProductVariation {
+//   id: string;
+//   productId: string;
+//   sku: string;
+//   size: string;
+//   color: string;
+//   stock: number;
+//   minStock: number;
+//   price: number;
+//   images?: string[];
+//   isActive: boolean;
+//   createdAt: string;
+//   updatedAt: string;
+// }
 
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  brand?: string;
-  supplier?: string;
-  basePrice: number;
-  isActive: boolean;
-  variations: ProductVariation[];
-  totalStock: number;
-  createdAt: string;
-  updatedAt: string;
-}
+// export interface Product {
+//   id: string;
+//   name: string;
+//   description: string;
+//   category: string;
+//   brand?: string;
+//   supplier?: string;
+//   basePrice: number;
+//   isActive: boolean;
+//   variations: ProductVariation[];
+//   totalStock: number;
+//   createdAt: string;
+//   updatedAt: string;
+// }
 
 export type ProductFormValues = {
   name: string;
-  collectionId: string;
+  active: boolean;
+  collectionPublicId: string;
   variations: {
     color: string;
     size: string;
@@ -39,3 +40,19 @@ export type ProductFormValues = {
     sku: string;
   }[];
 };
+
+export interface ProductVariation {
+  publicId: string;
+  color: string;
+  size: string;
+  price: number;
+  stock: number;
+}
+
+export interface Product {
+  publicId: string;
+  name: string;
+  imageUrl?: string;
+  active: boolean;
+  variations: ProductVariation[];
+}

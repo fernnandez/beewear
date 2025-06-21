@@ -1,4 +1,4 @@
-import type { Collection } from "src/types/collection";
+import type { Collection, CollectionDetails } from "src/types/collection";
 import api from "./api";
 
 interface CreateCollectionParams {
@@ -10,12 +10,17 @@ interface CreateCollectionParams {
 
 export const createCollection = async (
   createCollectionParams: CreateCollectionParams
-): Promise<any> => {
+): Promise<void> => {
   console.log(createCollectionParams);
   await api.post("/collection", createCollectionParams);
 };
 
-export async function fetchCollections() {
+export const fetchCollections = async () => {
   const response = await api.get<Collection[]>("/collection");
   return response.data;
-}
+};
+
+export const fetchCollectionDetails = async (publicId: string) => {
+  const response = await api.get<CollectionDetails>(`/collection/${publicId}`);
+  return response.data;
+};

@@ -8,6 +8,8 @@ import {
   ScrollArea,
   Select,
   SimpleGrid,
+  Stack,
+  Switch,
   Text,
   TextInput,
   Title,
@@ -15,37 +17,37 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { fetchCollections } from "@services/collection.service";
 import { createProduct } from "@services/product.service";
 import { IconGavel, IconPackage } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import type { ProductFormValues } from "src/types/product";
 import { VariationActions } from "./ProductVariationActions";
 import { ProductVariationCard } from "./ProductVariationCard";
-import type { ProductFormValues } from "./types";
-
-const collections = [{ value: "1", label: "PADRÃO" }];
 
 export function NewProductForm() {
   const [modalOpened, { open: openModal, close: closeModal }] =
     useDisclosure(false);
-  const [pendingAction, setPendingAction] = useState<() => void>(() => {});
+  const [pendingAction, setPendingAction] = useState<() => void>(
+    () => () => {}
+  );
+
+  const { data: collections = [], isLoading } = useQuery({
+    queryKey: ["collections"],
+    queryFn: fetchCollections,
+  });
 
   const form = useForm<ProductFormValues>({
     initialValues: {
       name: "",
-      collectionId: "",
-      variations: [
-        {
-          color: "",
-          size: "",
-          price: 0,
-          initialStock: 0,
-          sku: "",
-        },
-      ],
+      collectionPublicId: "",
+      active: false,
+      variations: [{ color: "", size: "", price: 0, initialStock: 0, sku: "" }],
     },
     validate: {
       name: (value) => (value ? null : "Nome é obrigatório"),
-      collectionId: (value) => (value ? null : "Coleção é obrigatória"),
+      collectionPublicId: (value) => (value ? null : "Coleção obrigatória"),
     },
   });
 
@@ -72,9 +74,8 @@ export function NewProductForm() {
   };
 
   const handleSubmit = async () => {
-    const isValid = form.validate();
-
-    if (isValid.hasErrors) {
+    const validation = form.validate();
+    if (validation.hasErrors) {
       notifications.show({
         title: "Erro no formulário",
         message: "Preencha todos os campos obrigatórios.",
@@ -82,29 +83,28 @@ export function NewProductForm() {
       });
       return;
     }
-
-    if (
-      form.values.variations.length === 0 ||
-      form.values.variations.some((v) => !v.color || !v.size)
-    ) {
+    if (form.values.variations.some((v) => !v.color || !v.size)) {
       notifications.show({
         title: "Erro nas variações",
-        message: "Todas as variações devem ter cor, tamanho e preço.",
+        message: "Todas variações devem ter cor e tamanho.",
         color: "red",
       });
       return;
     }
-
     await createProduct(form.values);
-
     notifications.show({
       title: "Produto criado",
-      message: `O produto "${form.values.name}" foi salvo com sucesso.`,
+      message: `Produto "${form.values.name}" salvo.`,
       color: "green",
     });
-
     form.reset();
   };
+
+  // Mapear opções para o Select
+  const selectOptions = collections.map((col) => ({
+    value: col.publicId,
+    label: col.name,
+  }));
 
   return (
     <>
@@ -121,33 +121,39 @@ export function NewProductForm() {
               </Text>
             </Card.Section>
 
-            <SimpleGrid cols={{ base: 1, sm: 2 }} mb="md">
+            <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">
               <TextInput
                 label="Nome do Produto"
                 placeholder="Ex: Camiseta Básica"
-                key={form.key("name")}
                 {...form.getInputProps("name")}
                 withAsterisk
               />
               <Select
                 label="Coleção"
                 placeholder="Selecione..."
-                data={collections}
-                key={form.key("collectionId")}
-                {...form.getInputProps("collectionId")}
+                data={selectOptions}
+                clearable
+                {...form.getInputProps("collectionPublicId")}
                 withAsterisk
+                disabled={isLoading}
               />
+              <Stack gap={4} justify="center">
+                <Text size="sm" fw={500}>
+                  Produto ativo
+                </Text>
+                <Switch
+                  {...form.getInputProps("active", { type: "checkbox" })}
+                />
+              </Stack>
             </SimpleGrid>
 
             <Card.Section withBorder inheritPadding py="xs" mb="md">
               <Group>
                 <IconPackage size={18} />
-                <Title order={4}>Variações</Title>
+                <Title order={4}>
+                  Variações ({form.values.variations.length})
+                </Title>
               </Group>
-              <Text size="sm" c="dimmed">
-                {form.values.variations.length}{" "}
-                {hasOneVariation ? "variação" : "variações"}
-              </Text>
             </Card.Section>
 
             <ScrollArea h={350}>
@@ -175,7 +181,7 @@ export function NewProductForm() {
             </ScrollArea>
           </Card>
 
-          <Group justify="flex-end" mb="md">
+          <Group align="right" mb="md">
             <Button leftSection={<IconGavel size={16} />} type="submit">
               Salvar Produto
             </Button>
@@ -190,8 +196,8 @@ export function NewProductForm() {
           pendingAction();
           closeModal();
         }}
-        title="Tem certeza?"
-        message="Essa ação não pode ser desfeita."
+        title="Confirmação"
+        message="Deseja realmente remover esta variação?"
         confirmLabel="Sim, remover"
         cancelLabel="Cancelar"
       />

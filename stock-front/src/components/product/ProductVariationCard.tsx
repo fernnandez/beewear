@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
 import { IconTrash } from "@tabler/icons-react";
-import type { ProductFormValues } from "./types";
+import type { ProductFormValues } from "src/types/product";
 
 const sizes = ["PP", "P", "M", "G", "GG"];
 
@@ -39,6 +39,7 @@ export function ProductVariationCard({
         <Select
           label="Tamanho"
           data={sizes}
+          clearable
           key={form.key(`variations.${index}.size`)}
           {...form.getInputProps(`variations.${index}.size`)}
           withAsterisk
