@@ -17,9 +17,9 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { createCollection } from "@services/collection.service";
 import { IconCheck, IconInfoCircle, IconPhoto } from "@tabler/icons-react";
-import { CollectionPreview } from "./collectionPreview";
+import { CollectionPreview } from "./CollectionPreview";
 
-export function CollectionForm() {
+export const NewCollectionForm = () => {
   const form = useForm({
     initialValues: {
       name: "",
@@ -131,4 +131,4 @@ export function CollectionForm() {
       </Flex>
     </form>
   );
-}
+};

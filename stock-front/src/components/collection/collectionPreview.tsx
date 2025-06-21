@@ -1,7 +1,7 @@
 import { Badge, Card, Flex, Group, Image, Text, Title } from "@mantine/core";
 import { IconPhoto } from "@tabler/icons-react";
 
-export function CollectionPreview({
+export const CollectionPreview = ({
   name,
   description,
   file,
@@ -9,7 +9,7 @@ export function CollectionPreview({
   name?: string;
   description?: string;
   file?: File | null;
-}) {
+}) => {
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Card.Section withBorder inheritPadding py="xs" mb="md">
@@ -70,4 +70,4 @@ export function CollectionPreview({
       </Card>
     </Card>
   );
-}
+};

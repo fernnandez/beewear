@@ -1,3 +1,4 @@
+import type { Collection } from "src/types/collection";
 import api from "./api";
 
 interface CreateCollectionParams {
@@ -13,3 +14,8 @@ export const createCollection = async (
   console.log(createCollectionParams);
   await api.post("/collection", createCollectionParams);
 };
+
+export async function fetchCollections() {
+  const response = await api.get<Collection[]>("/collection");
+  return response.data;
+}

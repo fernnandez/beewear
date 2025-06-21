@@ -25,6 +25,7 @@ import {
   IconShoppingCart,
   IconUser,
 } from "@tabler/icons-react";
+import { getInitials } from "@utils/getInitials";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/auth-context";
@@ -42,15 +43,6 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
   const handleLogout = () => {
     logout();
     navigate("/login");
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   const isActive = (path: string) => location.pathname === path;
@@ -81,7 +73,7 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
               <UnstyledButton>
                 <Group gap={7}>
                   <Avatar color="blue" radius="xl">
-                    {user ? getInitials(user.name) : "U"}
+                    {getInitials(user.name)}
                   </Avatar>
                   <div style={{ flex: 1 }}>
                     <Text size="sm" fw={500}>

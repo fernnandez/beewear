@@ -35,6 +35,8 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
+import { formatDate } from "@utils/formatDate";
+import { getInitials } from "@utils/getInitials";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -91,8 +93,6 @@ export default function CollectionDetailPage() {
   const navigate = useNavigate();
   //   const params = useParams();
 
-  //   const collectionPublicId = params.publicId as string; TODO: utilizar para pegar os dados da coleção do back
-
   const [collection, setCollection] = useState(mockCollection);
 
   const [products] = useState(mockProducts);
@@ -148,19 +148,6 @@ export default function CollectionDetailPage() {
       isActive: collection.isActive,
     });
     setIsEditing(false);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR");
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   const totalValue = products.reduce(

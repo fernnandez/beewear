@@ -1,5 +1,5 @@
 import { AppShellLayout } from "@components/AppShell";
-import { CollectionForm } from "@components/collection/newCollectionForm";
+import { NewCollectionForm } from "@components/collection";
 import { Button, Container, Group, Text, Title } from "@mantine/core";
 import { IconArrowBackUp } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
@@ -25,7 +25,7 @@ export default function NewCollectionPage() {
           </Button>
         </Group>
 
-        <CollectionForm />
+        <NewCollectionForm />
       </Container>
     </AppShellLayout>
   );
