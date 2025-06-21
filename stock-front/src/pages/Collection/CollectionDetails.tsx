@@ -105,7 +105,10 @@ export default function CollectionDetailPage() {
           <CollectionAggregators aggregations={collection.aggregations} />
         </SimpleGrid>
 
-        <CollectionImageCard collectionName={collection.name} />
+        <CollectionImageCard
+          collectionName={collection.name}
+          collectionImageUrl={collection.imageUrl || null}
+        />
 
         <CollectionProductsTable products={collection.products} />
       </Container>

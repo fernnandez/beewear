@@ -22,7 +22,7 @@ export const CollectionPreview = ({
       <Card padding="md" radius="md" withBorder>
         <Card.Section>
           <Flex
-            h={200}
+            h={400}
             align="center"
             justify="center"
             direction="column"
@@ -33,15 +33,15 @@ export const CollectionPreview = ({
               <Image
                 src={URL.createObjectURL(file)}
                 alt="Prévia"
+                h={350}
+                w="auto"
                 fit="contain"
-                maw={240}
               />
             ) : (
               <>
                 <IconPhoto size={32} color="var(--mantine-color-blue-6)" />
-                <Badge variant="light" color="gray" size="xs">
-                  <IconPhoto size={12} style={{ marginRight: 4 }} /> Imagem em
-                  breve
+                <Badge variant="light" color="gray" size="sm">
+                  Nenhuma imagem selecionada
                 </Badge>
               </>
             )}

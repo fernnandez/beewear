@@ -6,10 +6,13 @@ import {
   CardSection,
   Flex,
   Group,
+  Image,
   Text,
   Title,
 } from "@mantine/core";
+import { getImage } from "@services/storage.service";
 import { IconEye, IconPhoto } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { formatDate } from "@utils/formatDate";
 import { getInitials } from "@utils/getInitials";
 import { useNavigate } from "react-router-dom";
@@ -22,28 +25,43 @@ interface CollectionCardProps {
 export const CollectionCard = ({ collection }: CollectionCardProps) => {
   const navigate = useNavigate();
 
+  const { data: src } = useQuery({
+    queryKey: ["image", collection.imageUrl],
+    queryFn: () => getImage(collection.imageUrl!),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!collection.imageUrl,
+  });
+
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <CardSection>
         <Flex
-          h={120}
+          h={150}
           bg="var(--mantine-color-gray-1)"
           align="center"
           justify="center"
           direction="column"
           gap="xs"
         >
-          <Avatar size="xl" color="blue" variant="light">
-            {collection.imageUrl ? (
-              <img src={collection.imageUrl} alt={collection.name} />
-            ) : (
-              getInitials(collection.name)
-            )}
-          </Avatar>
-          <Badge variant="light" color="gray" size="xs" mt={4}>
-            <IconPhoto size={12} style={{ marginRight: 4 }} />
-            Imagem em breve
-          </Badge>
+          {collection.imageUrl ? (
+            <Image
+              src={src}
+              alt={collection.name}
+              h={150}
+              w="auto"
+              fit="contain"
+            />
+          ) : (
+            <>
+              <Avatar size="xl" color="blue" variant="light">
+                {getInitials(collection.name)}
+              </Avatar>
+              <Badge variant="light" color="gray" size="xs" mt={4}>
+                <IconPhoto size={12} style={{ marginRight: 4 }} />
+                Imagem em breve
+              </Badge>
+            </>
+          )}
         </Flex>
       </CardSection>
 

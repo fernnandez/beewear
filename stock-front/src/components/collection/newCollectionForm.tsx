@@ -16,16 +16,27 @@ import {
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { createCollection } from "@services/collection.service";
+import { uploadImage } from "@services/storage.service";
 import { IconCheck, IconInfoCircle, IconPhoto } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 import { CollectionPreview } from "./CollectionPreview";
 
+interface FormValues {
+  name: string;
+  description: string;
+  active: boolean;
+  imageFile: File | null;
+}
+
 export const NewCollectionForm = () => {
-  const form = useForm({
+  const navigate = useNavigate();
+
+  const form = useForm<FormValues>({
     initialValues: {
       name: "",
       description: "",
       active: false,
-      file: null,
+      imageFile: null,
     },
     validate: {
       name: (value) => (value ? null : "Nome é obrigatório"),
@@ -43,13 +54,24 @@ export const NewCollectionForm = () => {
       return;
     }
 
-    await createCollection(form.values);
+    const imageUrl = form.values.imageFile
+      ? await uploadImage(form.values.imageFile)
+      : null;
+
+    await createCollection({
+      name: form.values.name,
+      description: form.values.description,
+      active: form.values.active,
+      imageUrl,
+    });
 
     notifications.show({
       title: "Coleção criada",
       message: `Coleção "${form.values.name}" criada com sucesso.`,
       color: "green",
     });
+
+    navigate('/collections');
   };
 
   return (
@@ -107,7 +129,7 @@ export const NewCollectionForm = () => {
               label="Capa da coleção"
               description="Imagem da coleção exibida como banner"
               accept="image/*"
-              {...form.getInputProps("file")}
+              {...form.getInputProps("imageFile")}
               clearable
             />
           </Stack>
@@ -117,7 +139,7 @@ export const NewCollectionForm = () => {
           <CollectionPreview
             name={form.values.name}
             description={form.values.description}
-            file={form.values.file}
+            file={form.values.imageFile}
           />
         )}
 
