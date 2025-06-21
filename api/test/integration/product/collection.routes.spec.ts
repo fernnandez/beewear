@@ -59,7 +59,7 @@ describe('CollectionController - Integration (HTTP)', () => {
     expect(response.body.length).toBeGreaterThan(0);
   });
 
-  it('GET /collection/:publicId - should return collection by publicId', async () => {
+  it('GET /collection/:publicId - should return collection details by publicId', async () => {
     // Primeiro pega uma coleção existente (ex: via GET /collection)
     const listResponse = await request(app.getHttpServer()).get('/collection');
     const firstCollection = listResponse.body[0];
@@ -71,5 +71,26 @@ describe('CollectionController - Integration (HTTP)', () => {
     expect(response.body).toBeDefined();
     expect(response.body.publicId).toBe(firstCollection.publicId);
     expect(response.body.name).toBe(firstCollection.name);
+    expect(response.body.aggregations).toEqual(
+      expect.objectContaining({
+        totalProducts: expect.any(Number),
+        totalStock: expect.any(Number),
+        totalValue: expect.any(Number),
+      }),
+    );
+    expect(response.body.products).toBeDefined();
+  });
+
+  it('GET /collection/:publicId - should return 404 Not Found if collection not found', async () => {
+    const notFoundPublicId = 'b00cd611-df8d-4be1-85b1-171c042a69d2';
+
+    await request(app.getHttpServer())
+      .get(`/collection/${notFoundPublicId}`)
+      .expect(404)
+      .expect({
+        statusCode: 404,
+        message: 'Coleção não encontrada',
+        error: 'Not Found',
+      });
   });
 });

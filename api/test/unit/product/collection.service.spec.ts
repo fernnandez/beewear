@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { AppModule } from 'src/app.module';
 import { Collection } from 'src/domain/product/collection/collection.entity';
 import { CollectionService } from 'src/domain/product/collection/collection.service';
-import { CreateCollectionDto } from 'src/domain/product/collection/create-collection.dto';
+import { CreateCollectionDto } from 'src/domain/product/collection/dto/create-collection.dto';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
 import {

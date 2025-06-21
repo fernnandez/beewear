@@ -2,7 +2,8 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Collection } from './collection.entity';
-import { CreateCollectionDto } from './create-collection.dto';
+import { CollectionDetailsDto } from './dto/collection-details.dto';
+import { CreateCollectionDto } from './dto/create-collection.dto';
 
 @Injectable()
 export class CollectionService {
@@ -26,5 +27,71 @@ export class CollectionService {
       Logger.error(error);
       throw new NotFoundException('Coleção não encontrada');
     }
+  }
+
+  async getCollectionDetailsByPublicId(
+    publicId: string,
+  ): Promise<CollectionDetailsDto> {
+    const collection = await this.collectionRepo.findOne({
+      where: { publicId },
+      relations: {
+        products: {
+          variations: {
+            stock: true,
+          },
+        },
+      },
+    });
+
+    if (!collection) {
+      throw new NotFoundException('Coleção não encontrada');
+    }
+
+    let totalProducts = 0;
+    let totalStock = 0;
+    let totalValue = 0;
+
+    const products = collection.products.map((product) => {
+      const variations = product.variations.map((variation) => {
+        const quantity = variation.stock?.quantity || 0;
+        const value = quantity * Number(variation.price);
+
+        totalProducts += 1;
+        totalStock += quantity;
+        totalValue += value;
+
+        return {
+          publicId: variation.publicId,
+          color: variation.color,
+          size: variation.size,
+          price: Number(variation.price),
+          stock: quantity,
+        };
+      });
+
+      return {
+        publicId: product.publicId,
+        name: product.name,
+        imageUrl: product.imageUrl,
+        active: product.active,
+        variations,
+      };
+    });
+
+    return {
+      publicId: collection.publicId,
+      name: collection.name,
+      description: collection.description,
+      imageUrl: collection.imageUrl,
+      active: collection.active,
+      createdAt: collection.createdAt,
+      updatedAt: collection.updatedAt,
+      aggregations: {
+        totalProducts,
+        totalStock,
+        totalValue,
+      },
+      products,
+    };
   }
 }

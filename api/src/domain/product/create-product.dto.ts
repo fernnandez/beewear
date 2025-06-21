@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  IsUUID,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -22,7 +23,7 @@ export class CreateProductDto {
 
   @ApiProperty({ example: '4c4b0254-6534-5960-a296-f05f537f7c53' })
   @IsNotEmpty()
-  @IsString()
+  @IsUUID('4')
   collectionPublicId: string;
 
   @ApiProperty({

@@ -1,8 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { CreateProductDto } from './create-product.dto';
 import { ProductService } from './product.service';
 
+@ApiBearerAuth('access-token')
 @ApiTags('Product')
 @Controller('product')
 export class ProductController {

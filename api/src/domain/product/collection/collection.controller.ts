@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
@@ -7,8 +8,10 @@ import {
 } from '@nestjs/swagger';
 import { Collection } from './collection.entity';
 import { CollectionService } from './collection.service';
-import { CreateCollectionDto } from './create-collection.dto';
+import { CreateCollectionDto } from './dto/create-collection.dto';
+import { CollectionDetailsDto } from './dto/collection-details.dto';
 
+@ApiBearerAuth('access-token')
 @ApiTags('Collection')
 @Controller('collection')
 export class CollectionController {
@@ -37,10 +40,12 @@ export class CollectionController {
     description: 'UUID da coleção',
   })
   @ApiOkResponse({
-    description: 'Single collection by PublicId',
-    type: Collection,
+    description: 'Collection Details by PublicId',
+    type: CollectionDetailsDto,
   })
-  async findOne(@Param('publicId') publicId: string) {
-    return this.collectionSerivce.findOne(publicId);
+  getCollectionDetails(
+    @Param('publicId') publicId: string,
+  ): Promise<CollectionDetailsDto> {
+    return this.collectionSerivce.getCollectionDetailsByPublicId(publicId);
   }
 }

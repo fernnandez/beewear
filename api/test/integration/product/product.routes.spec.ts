@@ -69,10 +69,10 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
     it(
       'should create a product with variations and initial stock (using fixture collection)',
       runWithRollbackTransaction(async () => {
-        // Usando async para a callback
         const existingCollection = await collectionRepo.findOneBy({
-          name: 'Roupas Masculinas', // Assumindo que esta fixture existe
+          name: 'Roupas Masculinas',
         });
+
         expect(existingCollection).toBeDefined();
 
         const createProductDto = {
@@ -135,7 +135,7 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
         const createProductDto = {
           name: 'Produto Teste CTI-PC-002',
           active: true,
-          collectionPublicId: '61e0a4db-58f8-5ef2-b7f5-119384085949', // Um ID que não existe
+          collectionPublicId: '1e969714-dcb4-43a5-9466-d9c054397ea4', // Um ID que não existe
           variations: [
             { color: 'Red', size: 'XL', price: 200.0, initialStock: 5 },
           ],
@@ -178,20 +178,24 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
           .send(createProductDto)
           .expect(400);
 
-        expect(response.body.message).toBeInstanceOf(Array); // NestJS validation pipe retorna array de erros
-        expect(response.body.message[0]).toContain('name should not be empty'); // Ajuste a mensagem de erro conforme seu DTO de validação
+        expect(response.body.message).toBeInstanceOf(Array);
+        expect(response.body.message[0]).toContain('name should not be empty');
       }),
     );
 
     it(
       'should return 400 Bad Request if variations are invalid (e.g., negative price)',
       runWithRollbackTransaction(async () => {
+        const existingCollection = await collectionRepo.findOneBy({
+          name: 'Roupas Masculinas',
+        });
+
+        console.log(existingCollection);
+
         const createProductDto = {
           name: 'Produto Com Variação Inválida',
           active: true,
-          collectionPublicId: (await collectionRepo.findOneBy({
-            name: 'Roupas Masculinas',
-          }))!.publicId,
+          collectionPublicId: existingCollection!.publicId,
           variations: [
             { color: 'Preto', size: 'M', price: -10.0, initialStock: 20 }, // Preço negativo
           ],
