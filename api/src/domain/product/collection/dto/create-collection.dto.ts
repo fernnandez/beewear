@@ -1,20 +1,20 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCollectionDto {
-  @ApiProperty({ example: 'Coleção Teste' })
+  @ApiProperty({ example: 'Coleção Teste', type: 'string' })
   @IsNotEmpty()
   @IsString()
   name: string;
 
-  @ApiPropertyOptional({ example: 'descrição da coleção' })
+  @ApiPropertyOptional({ example: 'Descrição da coleção', type: 'string' })
   @IsOptional()
   @IsString()
-  descripttion: string;
+  descripttion?: string;
 
-  @ApiProperty({ example: true })
-  @IsBoolean()
-  active: boolean;
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  active?: boolean;
 
   @ApiPropertyOptional({ example: 'https://example.com/masculina.jpg' })
   @IsOptional()

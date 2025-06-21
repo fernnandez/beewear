@@ -3,22 +3,19 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import * as request from 'supertest';
 import { Repository } from 'typeorm';
 
-// Importações do seu projeto (ajuste os caminhos de import para 'src/domain/...')
 import { Collection } from 'src/domain/product/collection/collection.entity';
 import { Product } from 'src/domain/product/product.entity';
 import { StockItem } from 'src/domain/product/stock/stock-item.entity';
-import { StockMovement } from 'src/domain/product/stock/stock-movement.entity'; // Adicionado
+import { StockMovement } from 'src/domain/product/stock/stock-movement.entity';
 
-// Importar a função de setup dos mocks
 import { AppModule } from 'src/app.module';
-import { ProductVariation } from 'src/domain/product/productVariation/product-variation.entity';
+import { createTestingApp } from 'test/utils/create-testing-app';
+import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
+import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
 import {
   initializeTransactionalContext,
   StorageDriver,
 } from 'typeorm-transactional';
-import { createTestingApp } from '../../utils/create-testing-app';
-import { runWithRollbackTransaction } from '../../utils/database/test-transation'; // Assume que já encapsula o dataSource
-import { setupIntegrationMocks } from '../../utils/mocks/setup-mocks';
 
 initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
@@ -26,19 +23,16 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
   let app: INestApplication;
   let collectionRepo: Repository<Collection>;
   let productRepo: Repository<Product>;
-  let productVariationRepo: Repository<ProductVariation>; // Adicionado
   let stockItemRepo: Repository<StockItem>;
-  let stockMovementRepo: Repository<StockMovement>; // Adicionado
+  let stockMovementRepo: Repository<StockMovement>;
 
   beforeAll(async () => {
     app = await createTestingApp({
       imports: [AppModule],
     });
 
-    // Pipe global de validação (se você usa)
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-    // Chame a função de setup dos mocks
     setupIntegrationMocks();
 
     await app.init();
@@ -47,23 +41,18 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       getRepositoryToken(Collection),
     );
     productRepo = app.get<Repository<Product>>(getRepositoryToken(Product));
-    productVariationRepo = app.get<Repository<ProductVariation>>(
-      getRepositoryToken(ProductVariation),
-    ); // Obtenha o repositório de variação
     stockItemRepo = app.get<Repository<StockItem>>(
       getRepositoryToken(StockItem),
     );
     stockMovementRepo = app.get<Repository<StockMovement>>(
       getRepositoryToken(StockMovement),
-    ); // Obtenha o repositório de movimento de estoque
+    );
   });
 
   afterAll(async () => {
     jest.restoreAllMocks();
     await app.close();
   });
-
-  // ---
 
   describe('/product (POST)', () => {
     it(
@@ -208,54 +197,6 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
         expect(response.body.message[0]).toContain(
           'price must not be less than 0',
         ); // Ajuste conforme sua validação
-      }),
-    );
-  });
-
-  // ---
-
-  describe.skip('/product (GET)', () => {
-    // CTI-PC-005: Deve retornar todos os produtos existentes com sucesso.
-    it(
-      'should return all existing products successfully',
-      runWithRollbackTransaction(async () => {
-        const response = await request(app.getHttpServer())
-          .get('/product')
-          .expect(200);
-
-        console.log(response);
-
-        expect(response.body).toBeInstanceOf(Array);
-        expect(response.body).toHaveLength(3); // Assumindo 3 produtos nas fixtures
-        expect(response.body[0].name).toBeDefined();
-        expect(response.body[0].variations).toBeInstanceOf(Array); // Verifique que variações são carregadas
-      }),
-    );
-
-    // CTI-PC-006: Deve retornar um array vazio se não houver produtos.
-    // Para este teste, vamos garantir que o banco esteja vazio antes.
-    it(
-      'should return an empty array if no products exist',
-      runWithRollbackTransaction(async () => {
-        // Limpar todos os produtos (e suas dependências como variações, estoque)
-        // antes de testar o cenário de "sem produtos".
-        // A ordem de exclusão é importante devido às chaves estrangeiras.
-        await stockMovementRepo.delete({});
-        await stockItemRepo.delete({});
-        await productVariationRepo.delete({});
-        await productRepo.delete({});
-        await collectionRepo.delete({}); // Ou recarregar apenas as coleções vazias se necessário.
-
-        // Opcional: Recarregar apenas fixtures de coleção se elas forem um pré-requisito para o sistema funcionar,
-        // mas não para o retorno de produtos específicos.
-        // Se suas fixtures já garantem isso, este bloco de exclusão pode ser ajustado.
-
-        const response = await request(app.getHttpServer())
-          .get('/product')
-          .expect(200);
-
-        expect(response.body).toBeInstanceOf(Array);
-        expect(response.body).toHaveLength(0);
       }),
     );
   });

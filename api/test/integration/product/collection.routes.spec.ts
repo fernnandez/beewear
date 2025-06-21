@@ -1,5 +1,3 @@
-// src/domain/product/collection/collection.controller.spec.ts
-
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from 'src/app.module';
 import * as request from 'supertest';
