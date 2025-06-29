@@ -5,6 +5,7 @@ import { Transactional } from 'typeorm-transactional';
 import { Collection } from './collection/collection.entity';
 import { CreateProductDto } from './create-product.dto';
 import { Product } from './product.entity';
+import { ProductVariationSize } from './productVariation/product-variation-size.entity';
 import { ProductVariation } from './productVariation/product-variation.entity';
 import { StockService } from './stock/stock.service';
 
@@ -15,6 +16,8 @@ export class ProductService {
     private readonly productRepo: Repository<Product>,
     @InjectRepository(ProductVariation)
     private readonly productVariationRepo: Repository<ProductVariation>,
+    @InjectRepository(ProductVariationSize)
+    private readonly ProductVariationSize: Repository<ProductVariationSize>,
     @InjectRepository(Collection)
     private readonly collectionRepo: Repository<Collection>,
     @Inject(StockService)
@@ -40,19 +43,35 @@ export class ProductService {
     });
 
     for (const variationDto of dto.variations) {
-      const { initialStock } = variationDto;
+      const { sizes } = variationDto;
 
-      Logger.log(`Criando variação ${variationDto.color}-${variationDto.size}`);
+      Logger.log(`Criando variação ${variationDto.name}`);
       const variation = await this.productVariationRepo.save({
         color: variationDto.color,
-        size: variationDto.size,
+        name: variationDto.name,
         price: variationDto.price,
         product,
       });
 
-      await this.stockService.createInitialStock(variation, initialStock);
+      for (const size of sizes) {
+        const productVariationSize = await this.ProductVariationSize.save({
+          size,
+          productVariation: variation,
+        });
+
+        await this.stockService.createInitialStock(productVariationSize, 0);
+      }
     }
 
     return product;
   }
+
+  // TODO: entender melhor formatação desses dados
+  // async findAll() {
+  //   return this.productRepo.find();
+  // }
+
+  // async getProductDetailsByPublicId(publicId: string): Promise<Product> {
+  //   return this.productRepo.findOneByOrFail({ publicId });
+  // }
 }

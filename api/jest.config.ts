@@ -9,7 +9,7 @@ const config: Config = {
   },
   collectCoverage: true,
   coverageDirectory: './coverage',
-  coverageReporters: ['lcov', 'json-summary'],
+  coverageReporters: ['lcov', 'json-summary', 'json', 'text'],
   collectCoverageFrom: ['src/**/*.(t|j)s'],
   coveragePathIgnorePatterns: [
     '<rootDir>/src/main.ts',
@@ -24,16 +24,12 @@ const config: Config = {
     '<rootDir>/src/infra/auth/decorator/.*\\.ts',
     '<rootDir>/src/infra/auth/guard/.*\\.ts',
   ],
-
+  silent: false,
   testEnvironment: 'node',
   moduleNameMapper: {
-    // Isso mapeia 'src/*' para a pasta 'src/' do seu projeto
     '^src/(.*)$': '<rootDir>/src/$1',
-    // Isso mapeia 'test/*' para a pasta 'test/' do seu projeto
     '^test/(.*)$': '<rootDir>/test/$1',
-    // Isso mapeia 'src/domain/*' especificamente para a pasta 'src/domain/'
     '^src/domain/(.*)$': '<rootDir>/src/domain/$1',
-    // Adicione outros mapeamentos conforme seus aliases em tsconfig.json
   },
 };
 

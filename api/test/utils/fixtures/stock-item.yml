@@ -1,32 +1,25 @@
 entity: StockItem
 items:
-  # Estoque para Camiseta Feminina Básica - P - Branco
   stock_camiseta_fem_p_branca:
-    id: 5
-    publicId: '241d8486-ef4b-5a20-a011-96093bf53863'
-    quantity: 50 # Quantidade inicial em estoque
-    productVariation: "@variation_camiseta_fem_p_branca" # Relacionamento com a variação específica
+    id: 401
+    publicId: "241d8486-ef4b-5a20-a011-96093bf53863"
+    quantity: 50
+    productVariationSize: "@size_camiseta_fem_p_branca"
 
-  # Estoque para Camiseta Feminina Básica - M - Preto
   stock_camiseta_fem_m_preta:
-    # id: (Deixar o TypeORM gerar UUID)
-    id: 4
-    publicId: 'd3b5674c-5b20-574f-9133-9625e821959a'
+    id: 402
+    publicId: "d3b5674c-5b20-574f-9133-9625e821959a"
     quantity: 35
-    productVariation: "@variation_camiseta_fem_m_preta"
+    productVariationSize: "@size_camiseta_fem_m_preta"
 
-  # Estoque para Calça Jeans Masculina - 40 - Azul
   stock_jeans_masc_40_azul:
-    # id: (Deixar o TypeORM gerar UUID)
-    id: 2
-    publicId: 'd5139a6f-5ee1-5bab-9037-6d8b544d3483'
+    id: 403
+    publicId: "d5139a6f-5ee1-5bab-9037-6d8b544d3483"
     quantity: 20
-    productVariation: "@variation_jeans_masc_40_azul"
+    productVariationSize: "@size_jeans_40_azul"
 
-  # Estoque para Calça Jeans Masculina - 42 - Preta
   stock_jeans_masc_42_preta:
-    # id: (Deixar o TypeORM gerar UUID)
-    id: 6
-    publicId: 'e96ec222-0b13-5365-b682-41da282356bd'
+    id: 404
+    publicId: "e96ec222-0b13-5365-b682-41da282356bd"
     quantity: 15
-    productVariation: "@variation_jeans_masc_42_preta"
+    productVariationSize: "@size_jeans_42_preta"

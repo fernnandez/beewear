@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductVariation } from '../productVariation/product-variation.entity';
+import { ProductVariationSize } from '../productVariation/product-variation-size.entity';
 import { StockItem } from './stock-item.entity';
 import { StockMovement } from './stock-movement.entity';
 
@@ -16,16 +16,19 @@ export class StockService {
   ) {}
 
   async createInitialStock(
-    productVariation: ProductVariation,
+    productVariationSize: ProductVariationSize,
     quantity: number,
   ) {
-    const existing = await this.stockRepo.findOneBy({ productVariation });
+    const existing = await this.stockRepo.findOneBy({ productVariationSize });
     if (existing) throw new Error('Estoque já registrado para este produto');
 
-    const stockItem = await this.stockRepo.save({ productVariation, quantity });
+    const stockItem = await this.stockRepo.save({
+      productVariationSize,
+      quantity,
+    });
 
     Logger.log(
-      `Criando estoque inicial ${productVariation.product.name}-${productVariation.id}`,
+      `Criando estoque inicial ${productVariationSize.productVariation.name}-${productVariationSize.id}`,
     );
 
     await this.movementRepo.save({

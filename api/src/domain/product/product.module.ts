@@ -10,12 +10,14 @@ import { ProductVariation } from './productVariation/product-variation.entity';
 import { StockItem } from './stock/stock-item.entity';
 import { StockMovement } from './stock/stock-movement.entity';
 import { StockService } from './stock/stock.service';
+import { ProductVariationSize } from './productVariation/product-variation-size.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Product,
       ProductVariation,
+      ProductVariationSize,
       Collection,
       StockItem,
       StockMovement,

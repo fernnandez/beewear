@@ -1,0 +1,33 @@
+entity: ProductVariationSize
+items:
+  size_camiseta_fem_p_branca:
+    id: 301
+    publicId: "7cdb6211-dc02-4f47-90b2-52f03fcb1001"
+    size: "S"
+    productVariation: "@variation_camiseta_fem_branca"
+    createdAt: "2024-01-08T13:01:00Z"
+    updatedAt: "2024-01-08T13:01:00Z"
+
+  size_camiseta_fem_m_preta:
+    id: 302
+    publicId: "68e2bc61-78cb-4ae2-97cb-580204b84501"
+    size: "M"
+    productVariation: "@variation_camiseta_fem_preta"
+    createdAt: "2024-01-08T13:06:00Z"
+    updatedAt: "2024-01-08T13:06:00Z"
+
+  size_jeans_40_azul:
+    id: 303
+    publicId: "fcbad71a-06cd-478f-9883-d00d5948edfb"
+    size: "L"
+    productVariation: "@variation_jeans_masc_azul"
+    createdAt: "2024-01-09T14:01:00Z"
+    updatedAt: "2024-01-09T14:01:00Z"
+
+  size_jeans_42_preta:
+    id: 304
+    publicId: "3f03b888-b3ae-4d14-84b4-45f7ce74e7b9"
+    size: "XL"
+    productVariation: "@variation_jeans_masc_preta"
+    createdAt: "2024-01-09T14:11:00Z"
+    updatedAt: "2024-01-09T14:11:00Z"

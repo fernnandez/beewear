@@ -5,6 +5,7 @@ import { LocalImageStorageService } from './local-image-storage.service';
   providers: [
     {
       provide: 'ImageStorageService',
+      // TODO: usar useFactory para determinar implementação com base no env
       useClass: LocalImageStorageService,
     },
   ],

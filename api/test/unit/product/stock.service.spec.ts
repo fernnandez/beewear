@@ -13,6 +13,10 @@ import { StockMovement } from 'src/domain/product/stock/stock-movement.entity';
 import { StockService } from 'src/domain/product/stock/stock.service';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
+import {
+  ProductVariationSize,
+  Size,
+} from 'src/domain/product/productVariation/product-variation-size.entity';
 
 initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
@@ -22,6 +26,7 @@ describe('StockService (with Real DB Interaction)', () => {
 
   let service: StockService;
   let variationRepo;
+  let variationSizeRepo;
   let stockRepo;
   let movementRepo;
 
@@ -35,6 +40,7 @@ describe('StockService (with Real DB Interaction)', () => {
 
     service = module.get<StockService>(StockService);
     variationRepo = module.get(getRepositoryToken(ProductVariation));
+    variationSizeRepo = module.get(getRepositoryToken(ProductVariationSize));
     stockRepo = module.get(getRepositoryToken(StockItem));
     movementRepo = module.get(getRepositoryToken(StockMovement));
 
@@ -51,22 +57,26 @@ describe('StockService (with Real DB Interaction)', () => {
       const variation = await variationRepo.save({
         publicId: '1c8be5d7-113f-5323-aa9d-2827a7b177fd',
         color: 'Verde Limão',
-        size: 'G',
         price: 89.9,
         product: { id: 101 },
         createdAt: new Date(),
         updatedAt: new Date(),
       });
 
+      const variationSize = await variationSizeRepo.save({
+        productVariation: variation,
+        size: Size.M,
+      });
+
       const stock = await service.createInitialStock(variation, 25);
 
       expect(stock).toBeDefined();
-      expect(stock.productVariation.id).toBe(variation.id);
+      expect(stock.productVariationSize.id).toBe(variationSize.id);
       expect(stock.quantity).toBe(25);
 
       const found = await stockRepo.findOne({
         where: { id: stock.id },
-        relations: ['productVariation'],
+        relations: ['productVariationSize'],
       });
       expect(found).not.toBeNull();
       expect(found?.productVariation.id).toBe(variation.id);
@@ -81,7 +91,7 @@ describe('StockService (with Real DB Interaction)', () => {
   });
 
   it('should throw error if stock already exists for variation', async () => {
-    const [existing] = await variationRepo.find(); // corrigido com await
+    const [existing] = await variationSizeRepo.find(); // corrigido com await
 
     await expect(service.createInitialStock(existing, 10)).rejects.toThrow(
       'Estoque já registrado para este produto',

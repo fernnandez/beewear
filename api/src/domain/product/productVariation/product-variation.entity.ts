@@ -1,4 +1,3 @@
-import { StockItem } from 'src/domain/product/stock/stock-item.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,11 +6,12 @@ import {
   Generated,
   JoinColumn,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Product } from '../product.entity';
+import { ProductVariationSize } from './product-variation-size.entity';
 
 @Entity('product_variation')
 export class ProductVariation {
@@ -26,7 +26,7 @@ export class ProductVariation {
   color: string;
 
   @Column()
-  size: string;
+  name: string;
 
   @Column({
     type: 'numeric',
@@ -41,8 +41,15 @@ export class ProductVariation {
   @JoinColumn()
   product: Product;
 
-  @OneToOne(() => StockItem, (stock) => stock.productVariation)
-  stock: StockItem;
+  @OneToMany(
+    () => ProductVariationSize,
+    (productVariationSize) => productVariationSize.productVariation,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  @JoinColumn()
+  sizes: ProductVariationSize[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -38,7 +38,9 @@ export class CollectionService {
       relations: {
         products: {
           variations: {
-            stock: true,
+            sizes: {
+              stock: true,
+            },
           },
         },
       },
@@ -54,7 +56,7 @@ export class CollectionService {
 
     const products = collection.products.map((product) => {
       const variations = product.variations.map((variation) => {
-        const quantity = variation.stock?.quantity || 0;
+        const quantity = 0;
         const value = quantity * Number(variation.price);
 
         totalProducts += 1;
@@ -64,7 +66,7 @@ export class CollectionService {
         return {
           publicId: variation.publicId,
           color: variation.color,
-          size: variation.size,
+          size: 'S',
           price: Number(variation.price),
           stock: quantity,
         };

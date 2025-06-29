@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -9,6 +10,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { Size } from './productVariation/product-variation-size.entity';
 
 export class CreateProductDto {
   @ApiProperty({ example: 'Produto Teste' })
@@ -41,10 +43,10 @@ export class CreateProductVariationDto {
   @IsString()
   color: string;
 
-  @ApiProperty({ examples: ['P', 'M', 'G'] })
+  @ApiProperty({ example: 'azul royal' })
   @IsNotEmpty()
   @IsString()
-  size: string;
+  name: string;
 
   @ApiProperty({ example: 99.99 })
   @IsNotEmpty()
@@ -52,8 +54,8 @@ export class CreateProductVariationDto {
   @Min(0.01)
   price: number;
 
-  @ApiProperty({ example: 10 })
+  @ApiProperty({ examples: ['XS', 'S', 'M', 'L'] })
   @IsNotEmpty()
-  @IsNumber()
-  initialStock: number;
+  @IsEnum(Size, { each: true })
+  sizes: Size[];
 }

@@ -1,4 +1,3 @@
-// src/domain/inventory/stock-item.entity.ts
 import {
   Column,
   CreateDateColumn,
@@ -11,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ProductVariation } from '../productVariation/product-variation.entity';
+import { ProductVariationSize } from '../productVariation/product-variation-size.entity';
 import { StockMovement } from './stock-movement.entity';
 
 @Entity('stock_item')
@@ -27,12 +26,12 @@ export class StockItem {
   quantity: number;
 
   @OneToOne(
-    () => ProductVariation,
-    (productVariation) => productVariation.stock,
+    () => ProductVariationSize,
+    (productVariationSize) => productVariationSize.stock,
     { onDelete: 'CASCADE' },
   )
   @JoinColumn()
-  productVariation: ProductVariation;
+  productVariationSize: ProductVariationSize;
 
   @OneToMany(() => StockMovement, (movement) => movement.stockItem)
   movements: StockMovement[];

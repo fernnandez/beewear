@@ -5,10 +5,14 @@ import { Repository } from 'typeorm';
 
 import { Collection } from 'src/domain/product/collection/collection.entity';
 import { Product } from 'src/domain/product/product.entity';
-import { StockItem } from 'src/domain/product/stock/stock-item.entity';
 import { StockMovement } from 'src/domain/product/stock/stock-movement.entity';
 
 import { AppModule } from 'src/app.module';
+import { CreateProductDto } from 'src/domain/product/create-product.dto';
+import {
+  ProductVariationSize,
+  Size,
+} from 'src/domain/product/productVariation/product-variation-size.entity';
 import { createTestingApp } from 'test/utils/create-testing-app';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
@@ -23,7 +27,7 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
   let app: INestApplication;
   let collectionRepo: Repository<Collection>;
   let productRepo: Repository<Product>;
-  let stockItemRepo: Repository<StockItem>;
+  let productVariationSizeRepo: Repository<ProductVariationSize>;
   let stockMovementRepo: Repository<StockMovement>;
 
   beforeAll(async () => {
@@ -41,9 +45,10 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       getRepositoryToken(Collection),
     );
     productRepo = app.get<Repository<Product>>(getRepositoryToken(Product));
-    stockItemRepo = app.get<Repository<StockItem>>(
-      getRepositoryToken(StockItem),
+    productVariationSizeRepo = app.get<Repository<ProductVariationSize>>(
+      getRepositoryToken(ProductVariationSize),
     );
+
     stockMovementRepo = app.get<Repository<StockMovement>>(
       getRepositoryToken(StockMovement),
     );
@@ -69,10 +74,26 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
           active: true,
           collectionPublicId: existingCollection!.publicId,
           variations: [
-            { color: 'Azul', size: 'M', price: 150.0, initialStock: 50 },
-            { color: 'Verde', size: 'G', price: 160.0, initialStock: 30 },
+            {
+              name: 'Variação Azul',
+              price: 150.0,
+              color: '#000000',
+              sizes: [Size.L, Size.M, Size.S],
+            },
+            {
+              name: 'Variação Verde',
+              price: 150.0,
+              color: '#000000',
+              sizes: [Size.L, Size.M, Size.S],
+            },
+            {
+              name: 'Variação Vermelho',
+              price: 150.0,
+              color: '#000000',
+              sizes: [Size.L, Size.M, Size.S],
+            },
           ],
-        };
+        } as CreateProductDto;
 
         const response = await request(app.getHttpServer())
           .post('/product')
@@ -91,29 +112,36 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
           relations: ['variations'],
         });
         expect(createdProduct).toBeDefined();
-        expect(createdProduct?.variations).toHaveLength(2); // Duas variações criadas
+        expect(createdProduct?.variations).toHaveLength(3); // Duas variações criadas
 
         // Verifique os itens de estoque para cada variação
         for (const variationData of createProductDto.variations) {
-          const newVariation = createdProduct?.variations.find(
+          const variation = createdProduct?.variations.find(
             (v) =>
-              v.color === variationData.color && v.size === variationData.size,
+              v.name === variationData.name && v.color === variationData.color,
           );
-          expect(newVariation).toBeDefined();
+          expect(variation).toBeDefined();
 
-          const newStockItem = await stockItemRepo.findOne({
-            where: { productVariation: { id: newVariation?.id } },
+          const variationSizes = await productVariationSizeRepo.find({
+            where: { productVariation: { id: variation?.id } },
+            relations: ['stock'],
           });
-          expect(newStockItem).toBeDefined();
-          expect(newStockItem?.quantity).toBe(variationData.initialStock);
 
-          // Verifique se houve um movimento de estoque inicial
-          const stockMovement = await stockMovementRepo.findOne({
-            where: { stockItem: { id: newStockItem?.id } },
-          });
-          expect(stockMovement).toBeDefined();
-          expect(stockMovement?.quantity).toBe(variationData.initialStock);
-          expect(stockMovement?.type).toBe('IN'); // Assumindo um tipo 'initial'
+          expect(variationSizes).toHaveLength(variationData.sizes.length);
+
+          for (const size of variationData.sizes) {
+            const variationSize = variationSizes.find(
+              (s) => s.size === (size as unknown as Size),
+            );
+            expect(variationSize).toBeDefined();
+            expect(variationSize?.stock.quantity).toBe(0);
+
+            const stockMovement = await stockMovementRepo.findOne({
+              where: { stockItem: { id: variationSize?.stock.id } },
+            });
+            expect(stockMovement).toBeDefined();
+            expect(stockMovement?.type).toBe('IN');
+          }
         }
       }),
     );
@@ -122,13 +150,30 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       'should return 404 Not Found if collection not found',
       runWithRollbackTransaction(async () => {
         const createProductDto = {
-          name: 'Produto Teste CTI-PC-002',
+          name: 'Produto Teste CTI-PC-001',
           active: true,
           collectionPublicId: '1e969714-dcb4-43a5-9466-d9c054397ea4', // Um ID que não existe
           variations: [
-            { color: 'Red', size: 'XL', price: 200.0, initialStock: 5 },
+            {
+              name: 'Variação Azul',
+              price: 150.0,
+              color: '#000000',
+              sizes: ['XS', 'S', 'L'],
+            },
+            {
+              name: 'Variação Verde',
+              price: 150.0,
+              color: '#000000',
+              sizes: ['XS', 'S', 'L'],
+            },
+            {
+              name: 'Variação Vermelho',
+              price: 150.0,
+              color: '#000000',
+              sizes: ['XS', 'S', 'L'],
+            },
           ],
-        };
+        } as CreateProductDto;
 
         await request(app.getHttpServer())
           .post('/product')
@@ -152,15 +197,32 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       'should return 400 Bad Request if creation DTO is invalid (e.g., empty name)',
       runWithRollbackTransaction(async () => {
         const createProductDto = {
-          name: '', // Nome vazio
+          name: '',
           active: true,
           collectionPublicId: (await collectionRepo.findOneBy({
             name: 'Roupas Masculinas',
           }))!.publicId,
           variations: [
-            { color: 'Branco', size: 'P', price: 50.0, initialStock: 10 },
+            {
+              name: 'Variação Azul',
+              price: 150.0,
+              color: '#000000',
+              sizes: ['XS', 'S', 'L'],
+            },
+            {
+              name: 'Variação Verde',
+              price: 150.0,
+              color: '#000000',
+              sizes: ['XS', 'S', 'L'],
+            },
+            {
+              name: 'Variação Vermelho',
+              price: 150.0,
+              color: '#000000',
+              sizes: ['XS', 'S', 'L'],
+            },
           ],
-        };
+        } as CreateProductDto;
 
         const response = await request(app.getHttpServer())
           .post('/product')
@@ -180,13 +242,18 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
         });
 
         const createProductDto = {
-          name: 'Produto Com Variação Inválida',
+          name: 'Produto Teste CTI-PC-001',
           active: true,
           collectionPublicId: existingCollection!.publicId,
           variations: [
-            { color: 'Preto', size: 'M', price: -10.0, initialStock: 20 }, // Preço negativo
+            {
+              name: 'Variação Azul',
+              price: -10.0,
+              color: '#000000',
+              sizes: ['XS', 'S', 'L'],
+            },
           ],
-        };
+        } as CreateProductDto;
 
         const response = await request(app.getHttpServer())
           .post('/product')
