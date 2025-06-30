@@ -1,5 +1,7 @@
+import { SaveConfirmationModal } from "@components/collection";
 import {
   ActionIcon,
+  Avatar,
   Badge,
   Button,
   Card,
@@ -8,13 +10,12 @@ import {
   Stack,
   Text,
   TextInput,
-  Textarea,
   Title,
 } from "@mantine/core";
-import type { UseFormReturnType } from "@mantine/form";
+import { UseFormReturnType } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { updateCollection } from "@services/collection.service";
+import { updateProduct } from "@services/product.service";
 import {
   IconCalendar,
   IconDeviceFloppy,
@@ -23,42 +24,39 @@ import {
 } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@utils/formatDate";
-import type { CollectionDetails } from "src/types/collection";
-import { SaveConfirmationModal } from "./SaveConfirmationModal";
+import { getInitials } from "@utils/getInitials";
 
 type FormValues = {
   name: string;
-  description: string;
 };
 
-type Props = {
-  collection: CollectionDetails;
+interface ProductInfoCardProps {
+  product: any;
   form: UseFormReturnType<FormValues>;
   isEditing: boolean;
   onStartEdit: () => void;
   onCancelEdit: () => void;
-};
+}
 
-export const CollectionInfoCard = ({
-  collection,
+export function ProductInfoCard({
+  product,
   isEditing,
   form,
   onStartEdit,
   onCancelEdit,
-}: Props) => {
+}: ProductInfoCardProps) {
   const queryClient = useQueryClient();
   const [modalOpened, { open: openModal, close: closeModal }] =
     useDisclosure(false);
 
   const mutation = useMutation({
     mutationFn: (formValues: FormValues) =>
-      updateCollection(collection.publicId, {
+      updateProduct(product.publicId, {
         name: formValues.name,
-        description: formValues.description,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["collection-details", collection.publicId],
+        queryKey: ["product-details", product.publicId],
       });
 
       onCancelEdit();
@@ -101,12 +99,9 @@ export const CollectionInfoCard = ({
           <Group justify="space-between">
             <Group>
               <IconFolder size={18} />
-              <Title order={4}>Informações da Coleção</Title>
-              <Badge
-                color={collection.active ? "green" : "red"}
-                variant="light"
-              >
-                {collection.active ? "Ativa" : "Inativa"}
+              <Title order={4}>Informações do Produto</Title>
+              <Badge color={product.active ? "green" : "red"} variant="light">
+                {product.active ? "Ativo" : "Inativo"}
               </Badge>
             </Group>
             {!isEditing && (
@@ -120,17 +115,10 @@ export const CollectionInfoCard = ({
         {isEditing ? (
           <Stack>
             <TextInput
-              label="Nome da Coleção"
+              label="Nome do Produto"
               {...form.getInputProps("name")}
               value={form.values.name}
-              withAsterisk
-              autoFocus
-            />
-            <Textarea
-              label="Descrição"
-              {...form.getInputProps("description")}
-              value={form.values.description}
-              minRows={2}
+              required
             />
             <Group justify="flex-end" mt="sm">
               <Button variant="outline" size="sm" onClick={onCancelEdit}>
@@ -147,26 +135,44 @@ export const CollectionInfoCard = ({
           </Stack>
         ) : (
           <Stack>
-            <div>
-              <Text size="sm" fw={500} c="dimmed" mb={4}>
-                Nome
-              </Text>
-              <Title order={3}>{collection.name}</Title>
-            </div>
-            <div>
-              <Text size="sm" fw={500} c="dimmed" mb={4}>
-                Descrição
-              </Text>
-              <Text>{collection.description}</Text>
-            </div>
+            <Group>
+              <Avatar color="blue" radius="sm" size="lg">
+                {getInitials(product?.name || "")}
+              </Avatar>
+              <div>
+                <Title order={3}>{product?.name}</Title>
+                <Text size="sm" c="dimmed">
+                  ID: {product?.publicId.slice(0, 8)}...
+                </Text>
+              </div>
+            </Group>
+
+            {/* Coleção */}
+            {product?.collection && (
+              <div>
+                <Text size="sm" fw={500} c="dimmed" mb={4}>
+                  Coleção
+                </Text>
+                <Group>
+                  <IconFolder size={16} color="var(--mantine-color-blue-6)" />
+                  <div>
+                    <Text fw={500}>{product.collection.name}</Text>
+                    <Text size="xs" c="dimmed">
+                      {product.collection.description}
+                    </Text>
+                  </div>
+                </Group>
+              </div>
+            )}
+
             <SimpleGrid cols={2}>
               <div>
                 <Text size="sm" fw={500} c="dimmed" mb={4}>
-                  Criada em
+                  Criado em
                 </Text>
                 <Group gap="xs">
                   <IconCalendar size={16} color="var(--mantine-color-gray-6)" />
-                  <Text size="sm">{formatDate(collection.createdAt)}</Text>
+                  <Text size="sm">{formatDate(product.createdAt)}</Text>
                 </Group>
               </div>
               <div>
@@ -175,29 +181,24 @@ export const CollectionInfoCard = ({
                 </Text>
                 <Group gap="xs">
                   <IconEdit size={16} color="var(--mantine-color-gray-6)" />
-                  <Text size="sm">{formatDate(collection.updatedAt)}</Text>
+                  <Text size="sm">{formatDate(product.updatedAt)}</Text>
                 </Group>
               </div>
             </SimpleGrid>
           </Stack>
         )}
       </Card>
-
-      {/* Modal de confirmação */}
-
       <SaveConfirmationModal
         opened={modalOpened}
         onClose={closeModal}
         onConfirm={handleConfirmSave}
         originalData={{
-          name: collection.name,
-          description: collection?.description,
+          name: product.name,
         }}
         editData={{
           name: form.values.name,
-          description: form.values?.description,
         }}
       />
     </>
   );
-};
+}

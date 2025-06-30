@@ -22,7 +22,7 @@ import { createProduct } from "@services/product.service";
 import { IconGavel, IconPackage } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import type { ProductFormValues } from "src/types/product";
+import { ProductFormValues } from "src/types/product";
 import { VariationActions } from "./ProductVariationActions";
 import { ProductVariationCard } from "./ProductVariationCard";
 
@@ -43,7 +43,7 @@ export function NewProductForm() {
       name: "",
       collectionPublicId: "",
       active: false,
-      variations: [{ color: "", size: "", price: 0, initialStock: 0, sku: "" }],
+      variations: [{ name: "", color: "", sizes: [], price: 0, sku: "" }],
     },
     validate: {
       name: (value) => (value ? null : "Nome é obrigatório"),
@@ -55,10 +55,10 @@ export function NewProductForm() {
 
   const addVariation = () => {
     form.insertListItem("variations", {
+      name: "",
       color: "",
-      size: "",
       price: 0,
-      initialStock: 0,
+      sizes: [],
       sku: "",
     });
   };
@@ -83,7 +83,7 @@ export function NewProductForm() {
       });
       return;
     }
-    if (form.values.variations.some((v) => !v.color || !v.size)) {
+    if (form.values.variations.some((v) => !v.color || !v.sizes)) {
       notifications.show({
         title: "Erro nas variações",
         message: "Todas variações devem ter cor e tamanho.",
@@ -100,8 +100,7 @@ export function NewProductForm() {
     form.reset();
   };
 
-  // Mapear opções para o Select
-  const selectOptions = collections.map((col) => ({
+  const collectionOptions = collections.map((col) => ({
     value: col.publicId,
     label: col.name,
   }));
@@ -131,7 +130,7 @@ export function NewProductForm() {
               <Select
                 label="Coleção"
                 placeholder="Selecione..."
-                data={selectOptions}
+                data={collectionOptions}
                 clearable
                 {...form.getInputProps("collectionPublicId")}
                 withAsterisk

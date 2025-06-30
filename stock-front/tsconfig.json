@@ -12,7 +12,8 @@
       "@components/*": ["src/components/*"],
       "@hooks/*": ["src/hooks/*"],
       "@contexts/*": ["src/contexts/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@localTypes/*": ["src/types/*"]
     },
     "types": ["vite/client", "node"]
   }

@@ -1,58 +1,65 @@
-// export interface ProductVariation {
-//   id: string;
-//   productId: string;
-//   sku: string;
-//   size: string;
-//   color: string;
-//   stock: number;
-//   minStock: number;
-//   price: number;
-//   images?: string[];
-//   isActive: boolean;
-//   createdAt: string;
-//   updatedAt: string;
-// }
+import { Collection } from "./collection";
 
-// export interface Product {
-//   id: string;
-//   name: string;
-//   description: string;
-//   category: string;
-//   brand?: string;
-//   supplier?: string;
-//   basePrice: number;
-//   isActive: boolean;
-//   variations: ProductVariation[];
-//   totalStock: number;
-//   createdAt: string;
-//   updatedAt: string;
-// }
-
-export type ProductFormValues = {
+export interface ProductFormValues {
   name: string;
   active: boolean;
   collectionPublicId: string;
   variations: {
     color: string;
-    size: string;
+    name: string;
+    sizes: ProductVariationSize[];
     price: number;
-    initialStock: number;
     sku: string;
   }[];
-};
+}
+
+export interface ProductVariationSize {
+  publicId: string;
+  size: Size;
+  stock: any;
+}
+
+export enum Size {
+  XXS = "XXS",
+  XS = "XS",
+  S = "S",
+  M = "M",
+  L = "L",
+  XL = "XL",
+  XXL = "XXL",
+}
 
 export interface ProductVariation {
   publicId: string;
+  images?: string[];
+  name: string;
   color: string;
-  size: string;
+  sizes: ProductVariationSize[];
   price: number;
-  stock: number;
 }
 
 export interface Product {
   publicId: string;
   name: string;
-  imageUrl?: string;
   active: boolean;
   variations: ProductVariation[];
+  collection: Collection;
+}
+
+export interface ProductDetails {
+  publicId: string;
+  name: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  aggregations: {
+    totalStock: number;
+    totalValue: number;
+  };
+  variations: ProductVariation[];
+  collection: Collection;
+}
+
+export interface PartialUpdateProduct {
+  name?: string;
 }

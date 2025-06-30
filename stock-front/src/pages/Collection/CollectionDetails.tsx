@@ -29,7 +29,6 @@ export default function CollectionDetailPage() {
     initialValues: {
       name: "",
       description: "",
-      isActive: false,
     },
     validate: {
       name: (value) =>
@@ -42,7 +41,6 @@ export default function CollectionDetailPage() {
       form.setValues({
         name: collection.name,
         description: collection.description ?? "",
-        isActive: collection.active,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

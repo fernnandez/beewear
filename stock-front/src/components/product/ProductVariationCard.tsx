@@ -1,18 +1,21 @@
+import { ProductFormValues, Size } from "@localTypes/product";
 import {
   Button,
   Card,
   ColorInput,
   Flex,
+  MultiSelect,
   NumberInput,
-  Select,
   SimpleGrid,
   TextInput,
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
 import { IconTrash } from "@tabler/icons-react";
-import type { ProductFormValues } from "src/types/product";
 
-const sizes = ["PP", "P", "M", "G", "GG"];
+const sizeOption = Object.values(Size).map((size) => ({
+  label: size,
+  value: size,
+}));
 
 type Props = {
   index: number;
@@ -30,34 +33,35 @@ export function ProductVariationCard({
   return (
     <Card withBorder padding="md" mb="md">
       <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">
+        <TextInput
+          label="Nome da variação"
+          placeholder="Ex: Azul Royal"
+          key={form.key(`variations.${index}.name`)}
+          {...form.getInputProps(`variations.${index}.name`)}
+          withAsterisk
+        />
         <ColorInput
           label="Cor"
           key={form.key(`variations.${index}.color`)}
           {...form.getInputProps(`variations.${index}.color`)}
           withAsterisk
         />
-        <Select
-          label="Tamanho"
-          data={sizes}
+        <MultiSelect
+          label="Tamanhos"
+          data={sizeOption}
           clearable
-          key={form.key(`variations.${index}.size`)}
-          {...form.getInputProps(`variations.${index}.size`)}
-          withAsterisk
-        />
-        <NumberInput
-          label="Preço"
-          prefix="R$ "
-          key={form.key(`variations.${index}.price`)}
-          {...form.getInputProps(`variations.${index}.price`)}
+          key={form.key(`variations.${index}.sizes`)}
+          {...form.getInputProps(`variations.${index}.sizes`)}
           withAsterisk
         />
       </SimpleGrid>
 
       <SimpleGrid cols={{ base: 1, sm: 2 }} mb="md">
         <NumberInput
-          label="Estoque"
-          key={form.key(`variations.${index}.initialStock`)}
-          {...form.getInputProps(`variations.${index}.initialStock`)}
+          label="Preço"
+          prefix="R$ "
+          key={form.key(`variations.${index}.price`)}
+          {...form.getInputProps(`variations.${index}.price`)}
           withAsterisk
         />
         <Flex gap="md" align="flex-end">

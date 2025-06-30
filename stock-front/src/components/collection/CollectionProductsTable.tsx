@@ -72,7 +72,7 @@ export function CollectionProductsTable({ products }: Props) {
                       <Menu.Item
                         leftSection={<IconEdit size={12} />}
                         component={Link}
-                        to={`/product/${product.publicId}`}
+                        to={`/products/${product.publicId}`}
                       >
                         Visualizar Produto
                       </Menu.Item>

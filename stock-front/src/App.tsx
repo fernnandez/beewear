@@ -5,6 +5,9 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useAuth } from "./contexts/auth-context";
 import { Login } from "./pages/Login/Login";
 
+import CollectionDetailPage from "@pages/collection/CollectionDetails";
+import { NotFoundPage } from "@pages/notFound/NotFound";
+import ProductDetailPage from "@pages/product/ProductDetails";
 import CollectionsPage from "./pages/collection/CollectionPage";
 import NewCollectionPage from "./pages/collection/NewCollectionPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
@@ -12,7 +15,6 @@ import NewProductPage from "./pages/product/NewProductPage";
 import ProductsPage from "./pages/product/ProductsPage";
 import { RegisterPage } from "./pages/Register/Register";
 import ReportsPage from "./pages/Reports/ReportsPage";
-import CollectionDetailPage from "@pages/collection/CollectionDetails";
 
 export const queryClient = new QueryClient();
 
@@ -63,6 +65,14 @@ function App() {
           }
         />
         <Route
+          path="/products/:publicId"
+          element={
+            <ProtectedRoute>
+              <ProductDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/collections"
           element={
             <ProtectedRoute>
@@ -94,6 +104,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </QueryClientProvider>
   );
