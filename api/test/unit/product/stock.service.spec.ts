@@ -7,16 +7,16 @@ import {
 } from 'typeorm-transactional';
 
 import { AppModule } from 'src/app.module';
+import {
+  ProductVariationSize,
+  Size,
+} from 'src/domain/product/productVariation/product-variation-size.entity';
 import { ProductVariation } from 'src/domain/product/productVariation/product-variation.entity';
 import { StockItem } from 'src/domain/product/stock/stock-item.entity';
 import { StockMovement } from 'src/domain/product/stock/stock-movement.entity';
 import { StockService } from 'src/domain/product/stock/stock.service';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
-import {
-  ProductVariationSize,
-  Size,
-} from 'src/domain/product/productVariation/product-variation-size.entity';
 
 initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 

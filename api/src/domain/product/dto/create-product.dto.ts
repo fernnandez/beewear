@@ -10,7 +10,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Size } from './productVariation/product-variation-size.entity';
+import { Size } from '../productVariation/product-variation-size.entity';
 
 export class CreateProductDto {
   @ApiProperty({ example: 'Produto Teste' })

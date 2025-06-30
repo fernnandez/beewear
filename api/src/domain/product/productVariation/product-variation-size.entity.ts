@@ -42,6 +42,7 @@ export class ProductVariationSize {
   productVariation: ProductVariation;
 
   @OneToOne(() => StockItem, (stock) => stock.productVariationSize)
+  @JoinColumn()
   stock: StockItem;
 
   @CreateDateColumn()

@@ -35,6 +35,9 @@ export class ProductVariation {
   })
   price: number;
 
+  @Column('text', { array: true, nullable: true })
+  images: string[];
+
   @ManyToOne(() => Product, (product) => product.variations, {
     onDelete: 'CASCADE',
   })

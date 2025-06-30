@@ -72,10 +72,11 @@ export class CollectionService {
         };
       });
 
+      // TODO: entender esse imageURL
       return {
         publicId: product.publicId,
         name: product.name,
-        imageUrl: product.imageUrl,
+        imageUrl: '',
         active: product.active,
         variations,
       };

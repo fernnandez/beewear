@@ -19,7 +19,13 @@ export class StockService {
     productVariationSize: ProductVariationSize,
     quantity: number,
   ) {
-    const existing = await this.stockRepo.findOneBy({ productVariationSize });
+    const existing = await this.stockRepo.findOne({
+      where: {
+        productVariationSize: { id: productVariationSize.id },
+      },
+      relations: ['productVariationSize'],
+    });
+
     if (existing) throw new Error('Estoque já registrado para este produto');
 
     const stockItem = await this.stockRepo.save({

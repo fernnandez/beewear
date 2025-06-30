@@ -8,7 +8,7 @@ import { Product } from 'src/domain/product/product.entity';
 import { StockMovement } from 'src/domain/product/stock/stock-movement.entity';
 
 import { AppModule } from 'src/app.module';
-import { CreateProductDto } from 'src/domain/product/create-product.dto';
+import { CreateProductDto } from 'src/domain/product/dto/create-product.dto';
 import {
   ProductVariationSize,
   Size,
@@ -264,6 +264,158 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
         expect(response.body.message[0]).toContain(
           'price must not be less than 0',
         ); // Ajuste conforme sua validação
+      }),
+    );
+  });
+
+  describe('/product (GET)', () => {
+    it(
+      'should return a list of all products',
+      runWithRollbackTransaction(async () => {
+        const response = await request(app.getHttpServer())
+          .get('/product')
+          .expect(200);
+
+        expect(Array.isArray(response.body)).toBe(true);
+        expect(response.body.length).toBeGreaterThan(0);
+
+        const product = response.body[0];
+        expect(product).toHaveProperty('publicId');
+        expect(product).toHaveProperty('name');
+        expect(product).toHaveProperty('variations');
+      }),
+    );
+  });
+
+  describe('/product/:publicId (GET)', () => {
+    it(
+      'should return product details for a valid publicId',
+      runWithRollbackTransaction(async () => {
+        const existingProduct = await productRepo.findOneBy({
+          name: 'Calça Jeans Masculina Slim Fit',
+        });
+
+        expect(existingProduct).toBeDefined();
+
+        const response = await request(app.getHttpServer())
+          .get(`/product/${existingProduct!.publicId}`)
+          .expect(200);
+
+        expect(response.body).toHaveProperty(
+          'publicId',
+          existingProduct!.publicId,
+        );
+        expect(response.body).toHaveProperty('name', existingProduct!.name);
+        expect(response.body).toHaveProperty('variations');
+        expect(Array.isArray(response.body.variations)).toBe(true);
+      }),
+    );
+
+    it(
+      'should return 404 if product with given publicId does not exist',
+      runWithRollbackTransaction(async () => {
+        const response = await request(app.getHttpServer())
+          .get('/product/00000000-0000-0000-0000-000000000000')
+          .expect(404);
+
+        expect(response.body).toEqual({
+          statusCode: 404,
+          message: 'Produto não encontrado',
+          error: 'Not Found',
+        });
+      }),
+    );
+  });
+
+  describe('/product/:publicId/status (PATCH)', () => {
+    it(
+      'should update product status',
+      runWithRollbackTransaction(async () => {
+        const existingProduct = await productRepo.findOneBy({
+          name: 'Calça Jeans Masculina Slim Fit',
+        });
+
+        expect(existingProduct).toBeDefined();
+
+        const originalStatus = existingProduct!.active;
+
+        const response = await request(app.getHttpServer())
+          .patch(`/product/${existingProduct!.publicId}/status`)
+          .send({ isActive: !originalStatus })
+          .expect(200);
+
+        expect(response.body.message).toBe(
+          'Status da coleção atualizado com sucesso',
+        );
+        expect(response.body.data).toHaveProperty('active', !originalStatus);
+
+        const updatedProduct = await productRepo.findOneBy({
+          id: existingProduct!.id,
+        });
+
+        expect(updatedProduct).toBeDefined();
+        expect(updatedProduct!.active).toBe(!originalStatus);
+      }),
+    );
+    it(
+      'should return 404 if product with given publicId does not exist',
+      runWithRollbackTransaction(async () => {
+        const response = await request(app.getHttpServer())
+          .patch('/product/00000000-0000-0000-0000-000000000000/status')
+          .send({ isActive: true })
+          .expect(404);
+
+        expect(response.body).toEqual({
+          statusCode: 404,
+          message: 'Produto não encontrado',
+          error: 'Not Found',
+        });
+      }),
+    );
+  });
+
+  describe('/product/:publicId (PATCH)', () => {
+    it(
+      'should update product name',
+      runWithRollbackTransaction(async () => {
+        const existingProduct = await productRepo.findOneBy({
+          name: 'Calça Jeans Masculina Slim Fit',
+        });
+
+        expect(existingProduct).toBeDefined();
+
+        const newName = 'Calça Jeans Masculina Skinny Atualizada';
+
+        const response = await request(app.getHttpServer())
+          .patch(`/product/${existingProduct!.publicId}`)
+          .send({ name: newName })
+          .expect(200);
+
+        expect(response.body.message).toBe('Produto atualizado com sucesso');
+        expect(response.body.data).toHaveProperty('name', newName);
+
+        const updatedProduct = await productRepo.findOneBy({
+          id: existingProduct!.id,
+        });
+
+        expect(updatedProduct).toBeDefined();
+        expect(updatedProduct!.name).toBe(newName);
+      }),
+    );
+
+    it(
+      'should return 404 if product with given publicId does not exist',
+      runWithRollbackTransaction(async () => {
+        const response = await request(app.getHttpServer())
+          .patch('/product/00000000-0000-0000-0000-000000000000')
+          .send({ name: 'name test' })
+          .expect(404);
+
+        expect(response.body).toEqual({
+          statusCode: 404,
+          message: 'Produto não encontrado',
+          error: 'Not Found',
+        });
       }),
     );
   });

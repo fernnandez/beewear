@@ -4,7 +4,6 @@ import {
   DeleteDateColumn,
   Entity,
   Generated,
-  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -30,7 +29,6 @@ export class StockItem {
     (productVariationSize) => productVariationSize.stock,
     { onDelete: 'CASCADE' },
   )
-  @JoinColumn()
   productVariationSize: ProductVariationSize;
 
   @OneToMany(() => StockMovement, (movement) => movement.stockItem)

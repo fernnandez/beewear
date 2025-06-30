@@ -28,9 +28,6 @@ export class Product {
   @Column({ default: false })
   active: boolean;
 
-  @Column({ nullable: true })
-  imageUrl?: string;
-
   @OneToMany(() => ProductVariation, (variation) => variation.product, {
     onDelete: 'CASCADE',
   })

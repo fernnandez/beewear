@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { Collection } from './collection/collection.entity';
-import { CreateProductDto } from './create-product.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { ProductVariationSize } from './productVariation/product-variation-size.entity';
 import { ProductVariation } from './productVariation/product-variation.entity';
@@ -66,12 +67,87 @@ export class ProductService {
     return product;
   }
 
-  // TODO: entender melhor formatação desses dados
-  // async findAll() {
-  //   return this.productRepo.find();
-  // }
+  async findAll() {
+    return this.productRepo.find({
+      relations: {
+        variations: true,
+        collection: true,
+      },
+    });
+  }
 
-  // async getProductDetailsByPublicId(publicId: string): Promise<Product> {
-  //   return this.productRepo.findOneByOrFail({ publicId });
-  // }
+  async getProductDetailsByPublicId(publicId: string): Promise<any> {
+    const product = await this.productRepo.findOne({
+      where: { publicId },
+      relations: {
+        variations: {
+          sizes: {
+            stock: true,
+          },
+        },
+        collection: true,
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Produto não encontrado');
+    }
+
+    let totalStock = 0;
+    let totalValue = 0;
+
+    const variations = product.variations.map((variation) => {
+      const quantity = variation.sizes.reduce(
+        (sum, size) => sum + size.stock.quantity,
+        0,
+      );
+      const value = quantity * Number(variation.price);
+
+      totalStock += quantity;
+      totalValue += value;
+
+      return {
+        publicId: variation.publicId,
+        color: variation.color,
+        sizes: variation.sizes.map((size) => ({
+          size: size.size,
+          stock: size.stock,
+        })),
+        images: variation.images,
+        price: Number(variation.price),
+        stock: quantity,
+      };
+    });
+
+    return {
+      publicId: product.publicId,
+      name: product.name,
+      active: product.active,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+      aggregations: {
+        totalStock,
+        totalValue,
+      },
+      collection: product.collection,
+      variations,
+    };
+  }
+
+  async updateStatus(publicId: string, isActive: boolean): Promise<Product> {
+    const product = await this.productRepo.findOneBy({ publicId });
+    if (!product) throw new NotFoundException('Produto não encontrado');
+
+    product.active = isActive;
+    return this.productRepo.save(product);
+  }
+
+  async update(publicId: string, dto: UpdateProductDto): Promise<Product> {
+    const product = await this.productRepo.findOneBy({ publicId });
+
+    if (!product) throw new NotFoundException('Produto não encontrado');
+
+    this.productRepo.merge(product, dto);
+    return this.productRepo.save(product);
+  }
 }
