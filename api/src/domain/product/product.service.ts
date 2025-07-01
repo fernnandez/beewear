@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { Collection } from './collection/collection.entity';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductVariationImagesDto } from './dto/update-product-variation-images.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { ProductVariationSize } from './productVariation/product-variation-size.entity';
@@ -149,5 +150,56 @@ export class ProductService {
 
     this.productRepo.merge(product, dto);
     return this.productRepo.save(product);
+  }
+
+  async updateProductVariationImages(
+    productVariationPublicId: string,
+    dto: UpdateProductVariationImagesDto,
+  ) {
+    const variation = await this.productVariationRepo.findOneBy({
+      publicId: productVariationPublicId,
+    });
+
+    if (!variation) {
+      throw new NotFoundException(
+        `Variação ${productVariationPublicId} não encontrada`,
+      );
+    }
+
+    await this.productVariationRepo.save({
+      ...variation,
+      images: Array.from(new Set([...(variation.images ?? []), ...dto.images])),
+    });
+  }
+
+  async removeProductVariationImage(
+    productVariationPublicId: string,
+    imageToRemove: string,
+  ) {
+    const variation = await this.productVariationRepo.findOneBy({
+      publicId: productVariationPublicId,
+    });
+
+    if (!variation) {
+      throw new NotFoundException(
+        `Variação ${productVariationPublicId} não encontrada`,
+      );
+    }
+
+    const updatedImages = variation.images.filter(
+      (img) => img !== imageToRemove,
+    );
+
+    // Opcional: se quiser validar se a imagem existia antes
+    if (updatedImages.length === variation.images.length) {
+      throw new NotFoundException(
+        `Imagem "${imageToRemove}" não encontrada nessa variação`,
+      );
+    }
+
+    await this.productVariationRepo.save({
+      ...variation,
+      images: updatedImages,
+    });
   }
 }
