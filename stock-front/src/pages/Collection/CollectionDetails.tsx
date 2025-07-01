@@ -1,4 +1,3 @@
-import { AppShellLayout } from "@components/AppShell";
 import {
   CollectionAggregators,
   CollectionImageCard,
@@ -48,11 +47,9 @@ export default function CollectionDetailPage() {
 
   if (!collection || isLoading) {
     return (
-      <AppShellLayout>
         <Container size="xl">
           <Text>Carregando detalhes da coleção...</Text>
         </Container>
-      </AppShellLayout>
     );
   }
 
@@ -73,7 +70,6 @@ export default function CollectionDetailPage() {
   };
 
   return (
-    <AppShellLayout>
       <Container size="xl">
         <Group justify="space-between" mb="xl">
           <div>
@@ -110,6 +106,5 @@ export default function CollectionDetailPage() {
 
         <CollectionProductsTable products={collection.products} />
       </Container>
-    </AppShellLayout>
   );
 }

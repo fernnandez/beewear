@@ -1,37 +1,25 @@
-import { Center, Loader, Stack, Text } from "@mantine/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Navigate, Route, Routes } from "react-router-dom";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import { useAuth } from "./contexts/auth-context";
-import { Login } from "./pages/Login/Login";
-
+import { Loading, ProtectedRoute } from "@components/shared";
 import CollectionDetailPage from "@pages/collection/CollectionDetails";
 import { NotFoundPage } from "@pages/notFound/NotFound";
 import ProductDetailPage from "@pages/product/ProductDetails";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@utils/queryClient";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useAuth } from "./contexts/auth-context";
 import CollectionsPage from "./pages/collection/CollectionPage";
 import NewCollectionPage from "./pages/collection/NewCollectionPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
+import { Login } from "./pages/Login/Login";
 import NewProductPage from "./pages/product/NewProductPage";
 import ProductsPage from "./pages/product/ProductsPage";
 import { RegisterPage } from "./pages/Register/Register";
 import ReportsPage from "./pages/Reports/ReportsPage";
 
-export const queryClient = new QueryClient();
-
 function App() {
   const { isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <Center h="100vh">
-        <Stack align="center">
-          <Loader size="lg" color="blue" />
-          <Text c="dimmed" mt="md">
-            Carregando...
-          </Text>
-        </Stack>
-      </Center>
-    );
+    return <Loading />;
   }
 
   return (

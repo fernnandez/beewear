@@ -1,10 +1,10 @@
-import { AppShellLayout } from "@components/AppShell";
-import { EditImagesModal } from "@components/product/product-details/EditImagesModal";
-import { ProductInfoCard } from "@components/product/product-details/ProductInfoCard";
-import { ProductStatsGrid } from "@components/product/product-details/ProductStatsGrid";
-import { ProductStatusCard } from "@components/product/product-details/ProductStatusCard";
-import { ProductVariationsCard } from "@components/product/product-details/ProductVariationCard";
-import { StorePreview } from "@components/product/product-details/StorePreview";
+import {
+  ProductInfoCard,
+  ProductStatusCard,
+  ProductVariationsCard,
+} from "@components/product/cards";
+import { ProductStatsGrid, StorePreview } from "@components/product/details";
+import { EditImagesModal } from "@components/product/modals";
 import {
   Button,
   Container,
@@ -56,11 +56,9 @@ export default function ProductDetailPage() {
 
   if (!product || isLoading) {
     return (
-      <AppShellLayout>
-        <Container size="xl">
-          <Text>Carregando detalhes do produto...</Text>
-        </Container>
-      </AppShellLayout>
+      <Container size="xl">
+        <Text>Carregando detalhes do produto...</Text>
+      </Container>
     );
   }
 
@@ -106,64 +104,62 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <AppShellLayout>
-      <Container size="xl">
-        <Group justify="space-between" mb="xl">
-          <div>
-            <Button variant="subtle" onClick={() => navigate("/products")}>
-              ← Voltar
-            </Button>
-          </div>
-        </Group>
+    <Container size="xl">
+      <Group justify="space-between" mb="xl">
+        <div>
+          <Button variant="subtle" onClick={() => navigate("/products")}>
+            ← Voltar
+          </Button>
+        </div>
+      </Group>
 
-        <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="lg" mb="xl">
-          {/* Informações do Produto */}
-          <div style={{ gridColumn: "span 2" }}>
-            <Stack gap="lg">
-              <ProductInfoCard
-                product={product}
-                form={form}
-                isEditing={isEditing}
-                onStartEdit={handleStartEdit}
-                onCancelEdit={handleCancelEdit}
-              />
+      <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="lg" mb="xl">
+        {/* Informações do Produto */}
+        <div style={{ gridColumn: "span 2" }}>
+          <Stack gap="lg">
+            <ProductInfoCard
+              product={product}
+              form={form}
+              isEditing={isEditing}
+              onStartEdit={handleStartEdit}
+              onCancelEdit={handleCancelEdit}
+            />
 
-              <ProductStatusCard
-                name={product.name}
-                publicId={product.publicId}
-                isActive={product.active}
-                isEditing={isEditing}
-              />
-            </Stack>
-          </div>
+            <ProductStatusCard
+              name={product.name}
+              publicId={product.publicId}
+              isActive={product.active}
+              isEditing={isEditing}
+            />
+          </Stack>
+        </div>
 
-          {/* Estatísticas */}
-          <ProductStatsGrid product={product} />
-        </SimpleGrid>
+        {/* Estatísticas */}
+        <ProductStatsGrid product={product} />
+      </SimpleGrid>
 
-        {/* Preview da Vitrine */}
-        <StorePreview product={product} variations={product.variations} />
+      {/* Preview da Vitrine */}
+      <StorePreview product={product} variations={product.variations} />
 
-        {/* Variações do Produto */}
-        <ProductVariationsCard
-          variations={product.variations}
-          getColorName={getColorName}
-          onEditImages={handleEditImages}
-          onRemoveImage={handleRemoveImage}
-        />
+      {/* Variações do Produto */}
+      <ProductVariationsCard
+        variations={product.variations}
+        getColorName={getColorName}
+        onEditImages={handleEditImages}
+        onRemoveImage={handleRemoveImage}
+      />
 
-        {/* Modal de Edição de Imagens */}
-        <EditImagesModal
-          opened={showImageModal}
-          onClose={() => setShowImageModal(false)}
-          editingVariation={editingVariation}
-          newImages={newImages}
-          setNewImages={setNewImages}
-          handleRemoveImage={handleRemoveImage}
-          handleSaveImages={handleSaveImages}
-          getColorName={getColorName}
-        />
-      </Container>
-    </AppShellLayout>
+      {/* Modal de Edição de Imagens */}
+      <EditImagesModal
+        opened={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        editingVariation={editingVariation}
+        newImages={newImages}
+        setNewImages={setNewImages}
+        handleRemoveImage={handleRemoveImage}
+        handleSaveImages={handleSaveImages}
+        getColorName={getColorName}
+      />
+    </Container>
   );
 }

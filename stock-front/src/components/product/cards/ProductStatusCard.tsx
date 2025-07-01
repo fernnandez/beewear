@@ -5,7 +5,7 @@ import { updateProductStatus } from "@services/product.service";
 import { IconToggleLeft, IconToggleRight } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ProductStatusConfirmationModal } from "./ProductStatusConfirmationModal";
+import { StatusConfirmation } from "../modals";
 
 export function ProductStatusCard({
   name,
@@ -22,11 +22,6 @@ export function ProductStatusCard({
   const [pendingStatusChange, setPendingStatusChange] = useState(false);
   const [modalOpened, { open: openModal, close: closeModal }] =
     useDisclosure(false);
-
-  const handleRequestStatusToggle = () => {
-    setPendingStatusChange(!isActive);
-    openModal();
-  };
 
   const mutation = useMutation({
     mutationFn: (newStatus: boolean) =>
@@ -52,6 +47,11 @@ export function ProductStatusCard({
       });
     },
   });
+
+  const handleRequestStatusToggle = () => {
+    setPendingStatusChange(!isActive);
+    openModal();
+  };
 
   const handleToggleStatus = () => {
     mutation.mutate(!isActive);
@@ -112,7 +112,7 @@ export function ProductStatusCard({
         </Group>
       </Card>
 
-      <ProductStatusConfirmationModal
+      <StatusConfirmation
         opened={modalOpened}
         onClose={closeModal}
         onConfirm={handleToggleStatus}

@@ -1,4 +1,3 @@
-import { AppShellLayout } from "@components/AppShell";
 import {
   CollectionEmptyState,
   CollectionGrid,
@@ -26,33 +25,31 @@ export default function CollectionsPage() {
   );
 
   return (
-    <AppShellLayout>
-      <Container size="xl">
-        <Group justify="space-between" mb="xl">
-          <div>
-            <Title order={2}>Coleções</Title>
-            <Text c="dimmed">Gerencie suas coleções de produtos</Text>
-          </div>
-          <Button
-            component={Link}
-            to="/collections/new"
-            leftSection={<IconPlus size={16} />}
-          >
-            Nova Coleção
-          </Button>
-        </Group>
+    <Container size="xl">
+      <Group justify="space-between" mb="xl">
+        <div>
+          <Title order={2}>Coleções</Title>
+          <Text c="dimmed">Gerencie suas coleções de produtos</Text>
+        </div>
+        <Button
+          component={Link}
+          to="/collections/new"
+          leftSection={<IconPlus size={16} />}
+        >
+          Nova Coleção
+        </Button>
+      </Group>
 
-        <CollectionSearch searchTerm={searchTerm} onSearch={setSearchTerm} />
+      <CollectionSearch searchTerm={searchTerm} onSearch={setSearchTerm} />
 
-        {filteredCollections.length > 0 ? (
-          <CollectionGrid collections={filteredCollections} />
-        ) : (
-          <CollectionEmptyState
-            showReset={!!searchTerm}
-            onResetSearch={() => setSearchTerm("")}
-          />
-        )}
-      </Container>
-    </AppShellLayout>
+      {filteredCollections.length > 0 ? (
+        <CollectionGrid collections={filteredCollections} />
+      ) : (
+        <CollectionEmptyState
+          showReset={!!searchTerm}
+          onResetSearch={() => setSearchTerm("")}
+        />
+      )}
+    </Container>
   );
 }

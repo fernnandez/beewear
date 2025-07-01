@@ -26,7 +26,7 @@ import {
 import { getInitials } from "@utils/getInitials";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/auth-context";
+import { useAuth } from "../../contexts/auth-context";
 
 interface AppShellLayoutProps {
   children: React.ReactNode;

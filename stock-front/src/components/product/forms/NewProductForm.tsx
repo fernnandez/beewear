@@ -1,4 +1,4 @@
-import { ConfirmationModal } from "@components/ConfirmationModal";
+import { ConfirmationModal } from "@components/shared/ConfirmationModal";
 import {
   Button,
   Card,
@@ -24,7 +24,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ProductFormValues } from "src/types/product";
 import { VariationActions } from "./ProductVariationActions";
-import { ProductVariationCard } from "./ProductVariationCard";
+import { ProductVariationCard } from "./ProductVariationForm";
 
 export function NewProductForm() {
   const [modalOpened, { open: openModal, close: closeModal }] =
@@ -180,7 +180,7 @@ export function NewProductForm() {
             </ScrollArea>
           </Card>
 
-          <Group align="right" mb="md">
+          <Group mb="md" justify="right">
             <Button leftSection={<IconGavel size={16} />} type="submit">
               Salvar Produto
             </Button>
@@ -196,9 +196,12 @@ export function NewProductForm() {
           closeModal();
         }}
         title="Confirmação"
+        iconColor="var(--mantine-color-red-6)"
+        headerText="Remover variação?"
         message="Deseja realmente remover esta variação?"
         confirmLabel="Sim, remover"
         cancelLabel="Cancelar"
+        confirmColor="red"
       />
     </>
   );

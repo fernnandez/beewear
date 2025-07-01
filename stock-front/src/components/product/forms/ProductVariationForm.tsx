@@ -24,7 +24,7 @@ type Props = {
   onRemove: () => void;
 };
 
-export function ProductVariationCard({
+export function ProductVariationForm({
   index,
   form,
   disableRemove,

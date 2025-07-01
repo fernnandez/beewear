@@ -1,17 +1,17 @@
 import { Button, Flex } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 
-type VariationActionsProps = {
+type ProductVariationActionsProps = {
   onAdd: () => void;
   onClean: () => void;
   disableClean?: boolean;
 };
 
-export function VariationActions({
+export function ProductVariationActions({
   onAdd,
   onClean,
   disableClean,
-}: VariationActionsProps) {
+}: ProductVariationActionsProps) {
   return (
     <Flex justify="center" gap="md" mt="md" mb="md">
       <Button

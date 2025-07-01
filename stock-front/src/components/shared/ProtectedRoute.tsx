@@ -1,9 +1,10 @@
 import type React from "react";
 
-import { Center, Loader, Stack, Text } from "@mantine/core";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/auth-context";
+import { useAuth } from "../../contexts/auth-context";
+import { AppShellLayout } from "./AppShell";
+import { Loading } from "./Loading";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -20,21 +21,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [token, isLoading, navigate]);
 
   if (isLoading) {
-    return (
-      <Center h="100vh">
-        <Stack align="center">
-          <Loader size="lg" color="blue" />
-          <Text c="dimmed" mt="md">
-            Carregando...
-          </Text>
-        </Stack>
-      </Center>
-    );
+    return <Loading />;
   }
 
   if (!token) {
     return null;
   }
 
-  return <>{children}</>;
+  return <AppShellLayout>{children}</AppShellLayout>;
 }
