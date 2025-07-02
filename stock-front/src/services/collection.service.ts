@@ -4,19 +4,25 @@ import type {
   PartialUpdateCollection,
 } from "src/types/collection";
 import api from "./api";
+import { uploadImage } from "./storage.service";
 
 interface CreateCollectionParams {
   name: string;
   description?: string;
   active: boolean;
-  imageUrl: string | null;
+  imageFile: File | null;
 }
 
 export const createCollection = async (
   createCollectionParams: CreateCollectionParams
 ): Promise<void> => {
+  const imageUrl = createCollectionParams.imageFile
+    ? await uploadImage(createCollectionParams.imageFile)
+    : null;
+
   console.log(createCollectionParams);
-  await api.post("/collection", createCollectionParams);
+
+  await api.post("/collection", { ...createCollectionParams, imageUrl });
 };
 
 export const fetchCollections = async () => {

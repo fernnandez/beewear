@@ -1,21 +1,15 @@
-import { ProductFormValues, Size } from "@localTypes/product";
+import { ProductFormValues } from "@localTypes/product";
 import {
   Button,
   Card,
   ColorInput,
-  Flex,
-  MultiSelect,
+  FileInput,
   NumberInput,
   SimpleGrid,
   TextInput,
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
-import { IconTrash } from "@tabler/icons-react";
-
-const sizeOption = Object.values(Size).map((size) => ({
-  label: size,
-  value: size,
-}));
+import { IconTrash, IconUpload } from "@tabler/icons-react";
 
 type Props = {
   index: number;
@@ -46,17 +40,7 @@ export function ProductVariationForm({
           {...form.getInputProps(`variations.${index}.color`)}
           withAsterisk
         />
-        <MultiSelect
-          label="Tamanhos"
-          data={sizeOption}
-          clearable
-          key={form.key(`variations.${index}.sizes`)}
-          {...form.getInputProps(`variations.${index}.sizes`)}
-          withAsterisk
-        />
-      </SimpleGrid>
-
-      <SimpleGrid cols={{ base: 1, sm: 2 }} mb="md">
+        {/* TODO: criar todos os tamanhos */}
         <NumberInput
           label="Preço"
           prefix="R$ "
@@ -64,25 +48,27 @@ export function ProductVariationForm({
           {...form.getInputProps(`variations.${index}.price`)}
           withAsterisk
         />
-        <Flex gap="md" align="flex-end">
-          <TextInput
-            label="SKU"
-            disabled
-            placeholder="Ex: CAM001"
-            key={form.key(`variations.${index}.sku`)}
-            {...form.getInputProps(`variations.${index}.sku`)}
-            withAsterisk
-            style={{ flex: 1 }}
-          />
-          <Button
-            disabled
-            // onClick={generateSKU}
-            variant="outline"
-            style={{ marginBottom: "1px" }}
-          >
-            Gerar
-          </Button>
-        </Flex>
+        {/* <MultiSelect
+          label="Tamanhos"
+          data={sizeOption}
+          clearable
+          key={form.key(`variations.${index}.sizes`)}
+          {...form.getInputProps(`variations.${index}.sizes`)}
+          withAsterisk
+        /> */}
+      </SimpleGrid>
+
+      <SimpleGrid cols={{ base: 1, sm: 1 }} mb="md">
+        <FileInput
+          leftSection={<IconUpload size={16} />}
+          label="Imagens da variação"
+          description="Imagens da variação exibidas na vitrine"
+          accept="image/*"
+          multiple
+          key={form.key(`variations.${index}.imageFiles`)}
+          {...form.getInputProps(`variations.${index}.imageFiles`)}
+          clearable
+        />
       </SimpleGrid>
 
       <Button

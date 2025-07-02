@@ -23,8 +23,8 @@ import { IconGavel, IconPackage } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ProductFormValues } from "src/types/product";
-import { VariationActions } from "./ProductVariationActions";
-import { ProductVariationCard } from "./ProductVariationForm";
+import { ProductVariationActions } from "./ProductVariationActions";
+import { ProductVariationForm } from "./ProductVariationForm";
 
 export function NewProductForm() {
   const [modalOpened, { open: openModal, close: closeModal }] =
@@ -43,7 +43,7 @@ export function NewProductForm() {
       name: "",
       collectionPublicId: "",
       active: false,
-      variations: [{ name: "", color: "", sizes: [], price: 0, sku: "" }],
+      variations: [{ name: "", color: "", imageFiles: [], price: 0 }],
     },
     validate: {
       name: (value) => (value ? null : "Nome é obrigatório"),
@@ -58,8 +58,7 @@ export function NewProductForm() {
       name: "",
       color: "",
       price: 0,
-      sizes: [],
-      sku: "",
+      imageFiles: [],
     });
   };
 
@@ -83,10 +82,10 @@ export function NewProductForm() {
       });
       return;
     }
-    if (form.values.variations.some((v) => !v.color || !v.sizes)) {
+    if (form.values.variations.some((v) => !v.color || !v.name)) {
       notifications.show({
         title: "Erro nas variações",
-        message: "Todas variações devem ter cor e tamanho.",
+        message: "Todas variações devem ter cor e nome.",
         color: "red",
       });
       return;
@@ -157,7 +156,7 @@ export function NewProductForm() {
 
             <ScrollArea h={350}>
               {form.values.variations.map((_, index) => (
-                <ProductVariationCard
+                <ProductVariationForm
                   key={index}
                   index={index}
                   form={form}
@@ -169,7 +168,7 @@ export function NewProductForm() {
                 />
               ))}
               <Divider />
-              <VariationActions
+              <ProductVariationActions
                 onAdd={addVariation}
                 onClean={() => {
                   setPendingAction(() => cleanAllVariations);

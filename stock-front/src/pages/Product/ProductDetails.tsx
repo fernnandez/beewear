@@ -5,6 +5,7 @@ import {
 } from "@components/product/cards";
 import { ProductStatsGrid, StorePreview } from "@components/product/details";
 import { EditImagesModal } from "@components/product/modals";
+import { NewVariationModal } from "@components/product/modals/NewVariationModal";
 import {
   Button,
   Container,
@@ -14,6 +15,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
 import { fetchProductDetails } from "@services/product.service";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -51,6 +53,8 @@ export default function ProductDetailPage() {
   }, [product]);
 
   const [showImageModal, setShowImageModal] = useState(false);
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
   const [editingVariation, setEditingVariation] = useState<any>(null);
   const [newImages, setNewImages] = useState<File[]>([]);
 
@@ -147,6 +151,7 @@ export default function ProductDetailPage() {
         getColorName={getColorName}
         onEditImages={handleEditImages}
         onRemoveImage={handleRemoveImage}
+        onAddVariation={openModal}
       />
 
       {/* Modal de Edição de Imagens */}
@@ -160,6 +165,8 @@ export default function ProductDetailPage() {
         handleSaveImages={handleSaveImages}
         getColorName={getColorName}
       />
+
+      <NewVariationModal opened={modalOpened} onClose={closeModal} />
     </Container>
   );
 }

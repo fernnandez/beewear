@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
-  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -10,7 +10,6 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Size } from '../productVariation/product-variation-size.entity';
 
 export class CreateProductDto {
   @ApiProperty({ example: 'Produto Teste' })
@@ -54,8 +53,9 @@ export class CreateProductVariationDto {
   @Min(0.01)
   price: number;
 
-  @ApiProperty({ examples: ['XS', 'S', 'M', 'L'] })
-  @IsNotEmpty()
-  @IsEnum(Size, { each: true })
-  sizes: Size[];
+  @ApiPropertyOptional({ examples: ['https://example.com/masculina.jpg'] })
+  @IsArray()
+  @IsString({ each: true })
+  @ApiProperty({ type: [String] })
+  images: string[];
 }

@@ -16,7 +16,6 @@ import {
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { createCollection } from "@services/collection.service";
-import { uploadImage } from "@services/storage.service";
 import { IconCheck, IconInfoCircle, IconPhoto } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { CollectionPreview } from "./CollectionPreview";
@@ -54,15 +53,11 @@ export const NewCollectionForm = () => {
       return;
     }
 
-    const imageUrl = form.values.imageFile
-      ? await uploadImage(form.values.imageFile)
-      : null;
-
     await createCollection({
       name: form.values.name,
       description: form.values.description,
       active: form.values.active,
-      imageUrl,
+      imageFile: form.values.imageFile,
     });
 
     notifications.show({
@@ -71,7 +66,7 @@ export const NewCollectionForm = () => {
       color: "green",
     });
 
-    navigate('/collections');
+    navigate("/collections");
   };
 
   return (

@@ -7,7 +7,10 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductVariationImagesDto } from './dto/update-product-variation-images.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
-import { ProductVariationSize } from './productVariation/product-variation-size.entity';
+import {
+  ProductVariationSize,
+  Size,
+} from './productVariation/product-variation-size.entity';
 import { ProductVariation } from './productVariation/product-variation.entity';
 import { StockService } from './stock/stock.service';
 
@@ -45,17 +48,17 @@ export class ProductService {
     });
 
     for (const variationDto of dto.variations) {
-      const { sizes } = variationDto;
-
       Logger.log(`Criando variação ${variationDto.name}`);
       const variation = await this.productVariationRepo.save({
         color: variationDto.color,
         name: variationDto.name,
         price: variationDto.price,
+        images: variationDto.images,
         product,
       });
 
-      for (const size of sizes) {
+      const allSizes = Object.values(Size);
+      for (const size of allSizes) {
         const productVariationSize = await this.ProductVariationSize.save({
           size,
           productVariation: variation,

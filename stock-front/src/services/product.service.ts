@@ -5,12 +5,28 @@ import type {
   ProductFormValues,
 } from "src/types/product";
 import api from "./api";
+import { uploadImage } from "./storage.service";
 
 export const createProduct = async (
   createProductParams: ProductFormValues
 ): Promise<void> => {
-  console.log(createProductParams);
-  await api.post("/product", createProductParams);
+  const variationsWithImages = await Promise.all(
+    createProductParams.variations.map(async (variation) => {
+      const images = variation.imageFiles.map(async (image) => {
+        return await uploadImage(image);
+      });
+
+      return {
+        ...variation,
+        images: await Promise.all(images),
+      };
+    })
+  );
+
+  await api.post("/product", {
+    ...createProductParams,
+    variations: variationsWithImages,
+  });
 };
 
 export const fetchProducts = async () => {

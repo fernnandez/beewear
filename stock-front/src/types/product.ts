@@ -7,9 +7,8 @@ export interface ProductFormValues {
   variations: {
     color: string;
     name: string;
-    sizes: ProductVariationSize[];
+    imageFiles: File[];
     price: number;
-    sku: string;
   }[];
 }
 

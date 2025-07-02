@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   Group,
-  Image,
   Menu,
   Paper,
   Stack,
@@ -39,24 +38,15 @@ interface ProductVariationsCardProps {
   getColorName: (color: string) => string;
   onEditImages: (variation: Variation) => void;
   onRemoveImage: (variationId: string, imageIndex: number) => void;
+  onAddVariation: () => void;
 }
 
 export function ProductVariationsCard({
   variations,
   getColorName,
   onEditImages,
-  onRemoveImage,
+  onAddVariation,
 }: ProductVariationsCardProps) {
-  //   const [expandedVariationIds, setExpandedVariationIds] = useState<string[]>(
-  //     []
-  //   );
-
-  //   const toggleExpanded = (id: string) => {
-  //     setExpandedVariationIds((prev) =>
-  //       prev.includes(id) ? prev.filter((vid) => vid !== id) : [...prev, id]
-  //     );
-  //   };
-
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder mt="xl">
       <Card.Section withBorder inheritPadding py="xs" mb="md">
@@ -67,7 +57,11 @@ export function ProductVariationsCard({
               Diferentes cores e tamanhos disponíveis
             </Text>
           </div>
-          <Button size="sm" leftSection={<IconPlus size={14} />}>
+          <Button
+            size="sm"
+            leftSection={<IconPlus size={14} />}
+            onClick={onAddVariation}
+          >
             Nova Variação
           </Button>
         </Group>
@@ -135,39 +129,8 @@ export function ProductVariationsCard({
                 </Group>
               </Group>
 
-              {/* Imagens da Variação */}
-              {variation.images && variation.images.length > 0 && (
-                <Group gap="xs" mb="md">
-                  {variation.images.map((image, index) => (
-                    <Paper key={index} pos="relative" withBorder>
-                      <Image
-                        src={image || "/placeholder.svg"}
-                        alt={`Imagem ${index + 1}`}
-                        radius="sm"
-                        fit="cover"
-                        w={80}
-                        h={80}
-                      />
-                      <ActionIcon
-                        pos="absolute"
-                        top={4}
-                        right={4}
-                        size="xs"
-                        color="red"
-                        onClick={() => onRemoveImage(variation.publicId, index)}
-                      >
-                        <IconTrash size={12} />
-                      </ActionIcon>
-                    </Paper>
-                  ))}
-                </Group>
-              )}
-
               {/* Tabela de Tamanhos e Estoque */}
-              <Table
-                highlightOnHover
-                verticalSpacing="sm"
-              >
+              <Table highlightOnHover verticalSpacing="sm">
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Tamanho</Table.Th>

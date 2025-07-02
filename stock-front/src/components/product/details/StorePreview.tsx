@@ -3,9 +3,9 @@ import {
   Box,
   Button,
   Card,
+  Center,
   Flex,
   Group,
-  Image,
   Paper,
   SimpleGrid,
   Stack,
@@ -25,6 +25,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useState } from "react";
+import { ProductImagePreview } from "./ProductImagePreview";
 
 export function StorePreview({
   product,
@@ -90,33 +91,29 @@ export function StorePreview({
         <Stack>
           {/* Imagem Principal */}
           <Paper withBorder radius="md" p="xs">
-            {selectedVariation?.images &&
-            selectedVariation.images.length > 0 ? (
-              <Image
-                src={
-                  selectedVariation.images[selectedImageIndex] ||
-                  "/placeholder.svg"
-                }
-                alt={product.name}
-                radius="sm"
-                fit="cover"
-                h={300}
-              />
-            ) : (
-              <Flex
-                h={300}
-                align="center"
-                justify="center"
-                direction="column"
-                gap="md"
-                bg="var(--mantine-color-gray-0)"
-              >
-                <IconPhoto size={48} color="var(--mantine-color-gray-5)" />
-                <Text c="dimmed" size="sm">
-                  Nenhuma imagem disponível
-                </Text>
-              </Flex>
-            )}
+            <Center>
+              {selectedVariation?.images &&
+              selectedVariation.images.length > 0 ? (
+                <ProductImagePreview
+                  image={selectedVariation.images[selectedImageIndex]}
+                  key={selectedVariation.publicId}
+                />
+              ) : (
+                <Flex
+                  h={300}
+                  align="center"
+                  justify="center"
+                  direction="column"
+                  gap="md"
+                  bg="var(--mantine-color-gray-0)"
+                >
+                  <IconPhoto size={48} color="var(--mantine-color-gray-5)" />
+                  <Text c="dimmed" size="sm">
+                    Nenhuma imagem disponível
+                  </Text>
+                </Flex>
+              )}
+            </Center>
           </Paper>
 
           {/* Miniaturas */}
@@ -138,13 +135,11 @@ export function StorePreview({
                   }}
                   onClick={() => setSelectedImageIndex(index)}
                 >
-                  <Image
-                    src={image || "/placeholder.svg"}
-                    alt={`${product.name} ${index + 1}`}
+                  <ProductImagePreview
+                    image={image}
+                    key={index}
                     w={60}
                     h={60}
-                    fit="cover"
-                    radius="xs"
                   />
                 </Paper>
               ))}

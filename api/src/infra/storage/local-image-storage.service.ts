@@ -13,6 +13,8 @@ export class LocalImageStorageService implements ImageStorageService {
       mkdirSync(uploadDir, { recursive: true });
     }
 
+    console.log(file)
+
     return {
       imageUrl: `${file.filename}`,
     };
