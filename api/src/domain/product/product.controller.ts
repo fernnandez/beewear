@@ -8,9 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
-import { RemoveProductVariationImageDto } from './dto/remove-product-variation-image.dto';
 import { UpdateProductStatusDto } from './dto/update-product-status.dto';
-import { UpdateProductVariationImagesDto } from './dto/update-product-variation-images.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
@@ -88,46 +86,4 @@ export class ProductController {
       data: product,
     };
   }
-
-  @Patch('variation/:publicId/images')
-  @ApiOperation({ summary: 'Adiciona imagens à variação do produto' })
-  @ApiParam({
-    name: 'publicId',
-    description: 'PublicId da variação do produto',
-  })
-  @ApiResponse({ status: 200, description: 'Imagens adicionadas com sucesso' })
-  @ApiResponse({ status: 404, description: 'Variação não encontrada' })
-  async updateVariationImages(
-    @Param('publicId') publicId: string,
-    @Body() dto: UpdateProductVariationImagesDto,
-  ) {
-    await this.productService.updateProductVariationImages(publicId, dto);
-
-    return {
-      message: 'Imagens adicionadas com sucesso',
-    };
-  }
-
-  @Patch('variation/:publicId/images/remove')
-  @ApiOperation({ summary: 'Remove uma imagem da variação do produto' })
-  @ApiParam({
-    name: 'publicId',
-    description: 'PublicId da variação do produto',
-  })
-  @ApiResponse({ status: 200, description: 'Imagem removida com sucesso' })
-  @ApiResponse({
-    status: 404,
-    description: 'Imagem ou variação não encontrada',
-  })
-  async removeVariationImage(
-    @Param('publicId') publicId: string,
-    @Body() dto: RemoveProductVariationImageDto,
-  ) {
-    await this.productService.removeProductVariationImage(publicId, dto.image);
-
-    return {
-      message: 'Imagem removida com sucesso',
-    };
-  }
-  s;
 }

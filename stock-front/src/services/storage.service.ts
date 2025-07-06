@@ -9,7 +9,6 @@ export async function uploadImage(file: File): Promise<string> {
 }
 
 export async function getImage(filename: string): Promise<string> {
-  console.log(filename);
   const response = await api.get(`/upload/${filename}`, {
     responseType: "blob",
   });

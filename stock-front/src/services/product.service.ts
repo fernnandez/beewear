@@ -47,7 +47,6 @@ export const updateProductStatus = async (
   await api.patch(`/product/${publicId}/status`, { isActive });
 };
 
-
 export async function updateProduct(
   publicId: string,
   data: PartialUpdateProduct
@@ -55,4 +54,3 @@ export async function updateProduct(
   const response = await api.patch(`/product/${publicId}`, data);
   return response.data;
 }
-

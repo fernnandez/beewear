@@ -5,15 +5,16 @@ import { Repository } from 'typeorm';
 import { INestApplication, NotFoundException } from '@nestjs/common';
 import { AppModule } from 'src/app.module';
 import { Collection } from 'src/domain/product/collection/collection.entity';
+import { CreateProductDto } from 'src/domain/product/dto/create-product.dto';
 import { Product } from 'src/domain/product/product.entity';
 import { ProductService } from 'src/domain/product/product.service';
-import { Size } from 'src/domain/product/productVariation/product-variation-size.entity';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
 import {
   initializeTransactionalContext,
   StorageDriver,
 } from 'typeorm-transactional';
+import { Size } from 'src/domain/product/productVariation/product-variation-size.entity';
 
 initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
@@ -62,10 +63,9 @@ describe('ProductService (with Real DB Interaction)', () => {
             color: 'Real Red',
             name: 'Camisa Real',
             price: 100,
-            sizes: [Size.M],
           },
         ],
-      };
+      } as CreateProductDto;
 
       const result = await service.create(createProductDto);
 
@@ -93,10 +93,9 @@ describe('ProductService (with Real DB Interaction)', () => {
       expect(variation.price).toBe('100.00');
 
       const variationSizes = variation.sizes;
-      expect(variationSizes).toHaveLength(1);
+      expect(variationSizes).toHaveLength(Object.values(Size).length);
 
       const variationSize = variationSizes[0];
-      expect(variationSize.size).toBe('M');
       expect(variationSize.stock).toBeDefined();
       expect(variationSize.stock.quantity).toBe(0);
     }),
@@ -108,16 +107,15 @@ describe('ProductService (with Real DB Interaction)', () => {
     const createProductDto = {
       name: 'Camisa Serviço Real',
       active: true,
-      collectionPublicId: 'f123223f-3f9f-574f-973f-eab0d40b0e83', // PublicId que sabemos que não existe no DB de teste
+      collectionPublicId: '1fca6fb9-3cdf-553c-93ce-7663ff4e831a', // PublicId que sabemos que não existe no DB de teste
       variations: [
         {
           color: 'Real Red',
           name: 'Camisa Real',
           price: 100,
-          sizes: [Size.M],
         },
       ],
-    };
+    } as CreateProductDto;
 
     await expect(service.create(createProductDto)).rejects.toThrow(
       NotFoundException,

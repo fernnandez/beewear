@@ -4,12 +4,14 @@ export interface ProductFormValues {
   name: string;
   active: boolean;
   collectionPublicId: string;
-  variations: {
-    color: string;
-    name: string;
-    imageFiles: File[];
-    price: number;
-  }[];
+  variations: ProductVariationFormValues[];
+}
+
+export interface ProductVariationFormValues {
+  color: string;
+  name: string;
+  imageFiles: File[];
+  price: number;
 }
 
 export interface ProductVariationSize {

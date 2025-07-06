@@ -1,21 +1,17 @@
-import {
-  ProductInfoCard,
-  ProductStatusCard,
-  ProductVariationsCard,
-} from "@components/product/cards";
-import { ProductStatsGrid, StorePreview } from "@components/product/details";
-import { EditImagesModal } from "@components/product/modals";
-import { NewVariationModal } from "@components/product/modals/NewVariationModal";
+import { ProductInfoCard, ProductStatusCard } from "@components/product/cards";
+import { ProductStatsGrid } from "@components/product/details";
+import { ProductVariationsSection } from "@components/product/ProductVariationsSection/ProductVariationsSection";
+import { StorePreview } from "@components/product/StorePreview/StorePreview";
 import {
   Button,
   Container,
+  Divider,
   Group,
   SimpleGrid,
   Stack,
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useDisclosure } from "@mantine/hooks";
 import { fetchProductDetails } from "@services/product.service";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -52,12 +48,6 @@ export default function ProductDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
-  const [showImageModal, setShowImageModal] = useState(false);
-  const [modalOpened, { open: openModal, close: closeModal }] =
-    useDisclosure(false);
-  const [editingVariation, setEditingVariation] = useState<any>(null);
-  const [newImages, setNewImages] = useState<File[]>([]);
-
   if (!product || isLoading) {
     return (
       <Container size="xl">
@@ -78,33 +68,6 @@ export default function ProductDetailPage() {
       name: product.name,
     });
     setIsEditing(false);
-  };
-
-  const handleEditImages = (variation: any) => {
-    setEditingVariation(variation);
-    setNewImages([]);
-    setShowImageModal(true);
-  };
-
-  const handleSaveImages = () => {};
-
-  const handleRemoveImage = (variationId: string, imageIndex: number) => {
-    console.log(variationId, imageIndex);
-    return;
-  };
-
-  const getColorName = (color: string) => {
-    const colorMap: { [key: string]: string } = {
-      "#2667ff": "Azul",
-      "#ff0f0f": "Vermelho",
-      "#000000": "Preto",
-      "#ffffff": "Branco",
-      "#00ff00": "Verde",
-      "#ffff00": "Amarelo",
-      "#ff00ff": "Rosa",
-      "#808080": "Cinza",
-    };
-    return colorMap[color.toLowerCase()] || "Cor personalizada";
   };
 
   return (
@@ -142,31 +105,16 @@ export default function ProductDetailPage() {
         <ProductStatsGrid product={product} />
       </SimpleGrid>
 
+      {/* Variações do Produto */}
+      <ProductVariationsSection
+        productPublicId={product.publicId}
+        variations={product.variations}
+      />
+
+      <Divider mt={50} mb={50} />
+
       {/* Preview da Vitrine */}
       <StorePreview product={product} variations={product.variations} />
-
-      {/* Variações do Produto */}
-      <ProductVariationsCard
-        variations={product.variations}
-        getColorName={getColorName}
-        onEditImages={handleEditImages}
-        onRemoveImage={handleRemoveImage}
-        onAddVariation={openModal}
-      />
-
-      {/* Modal de Edição de Imagens */}
-      <EditImagesModal
-        opened={showImageModal}
-        onClose={() => setShowImageModal(false)}
-        editingVariation={editingVariation}
-        newImages={newImages}
-        setNewImages={setNewImages}
-        handleRemoveImage={handleRemoveImage}
-        handleSaveImages={handleSaveImages}
-        getColorName={getColorName}
-      />
-
-      <NewVariationModal opened={modalOpened} onClose={closeModal} />
     </Container>
   );
 }

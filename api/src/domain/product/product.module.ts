@@ -6,11 +6,13 @@ import { CollectionService } from './collection/collection.service';
 import { ProductController } from './product.controller';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
+import { ProductVariationController } from './productVariation/produc-variation.controller';
+import { ProductVariationSize } from './productVariation/product-variation-size.entity';
 import { ProductVariation } from './productVariation/product-variation.entity';
+import { ProductVariationService } from './productVariation/product-variation.service';
 import { StockItem } from './stock/stock-item.entity';
 import { StockMovement } from './stock/stock-movement.entity';
 import { StockService } from './stock/stock.service';
-import { ProductVariationSize } from './productVariation/product-variation-size.entity';
 
 @Module({
   imports: [
@@ -23,7 +25,16 @@ import { ProductVariationSize } from './productVariation/product-variation-size.
       StockMovement,
     ]),
   ],
-  providers: [ProductService, StockService, CollectionService],
-  controllers: [ProductController, CollectionController],
+  providers: [
+    ProductService,
+    ProductVariationService,
+    StockService,
+    CollectionService,
+  ],
+  controllers: [
+    ProductController,
+    ProductVariationController,
+    CollectionController,
+  ],
 })
 export class ProductModule {}

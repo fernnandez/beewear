@@ -14,6 +14,7 @@ import NewProductPage from "./pages/product/NewProductPage";
 import ProductsPage from "./pages/product/ProductsPage";
 import { RegisterPage } from "./pages/Register/Register";
 import ReportsPage from "./pages/Reports/ReportsPage";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function App() {
   const { isLoading } = useAuth();
@@ -24,6 +25,8 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
+
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RegisterPage />} />

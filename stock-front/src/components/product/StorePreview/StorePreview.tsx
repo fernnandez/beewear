@@ -11,7 +11,6 @@ import {
   Stack,
   Text,
   Title,
-  Tooltip,
 } from "@mantine/core";
 import {
   IconCheck,
@@ -24,9 +23,10 @@ import {
   IconTags,
   IconX,
 } from "@tabler/icons-react";
-import { useState } from "react";
-import { ProductImagePreview } from "./ProductImagePreview";
+import { useEffect, useState } from "react";
+import { ProductImagePreview } from "../details/ProductImagePreview";
 
+// TODO: ajustar tipagem aqui
 export function StorePreview({
   product,
   variations,
@@ -37,6 +37,13 @@ export function StorePreview({
   const [selectedVariation, setSelectedVariation] = useState(variations[0]);
   const [selectedSize, setSelectedSize] = useState(selectedVariation?.sizes[0]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  useEffect(() => {
+    const firstVariation = variations[0];
+    setSelectedVariation(firstVariation);
+    setSelectedSize(firstVariation?.sizes?.[0]);
+    setSelectedImageIndex(0);
+  }, [variations]);
 
   const availableColors = variations.map((v) => ({
     color: v.color,
@@ -57,20 +64,6 @@ export function StorePreview({
     setSelectedSize(size);
   };
 
-  const getColorName = (color: string) => {
-    const colorMap: { [key: string]: string } = {
-      "#2667ff": "Azul",
-      "#ff0f0f": "Vermelho",
-      "#000000": "Preto",
-      "#ffffff": "Branco",
-      "#00ff00": "Verde",
-      "#ffff00": "Amarelo",
-      "#ff00ff": "Rosa",
-      "#808080": "Cinza",
-    };
-    return colorMap[color.toLowerCase()] || "Cor personalizada";
-  };
-
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Card.Section withBorder inheritPadding py="xs" mb="md">
@@ -88,7 +81,7 @@ export function StorePreview({
 
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
         {/* Galeria de Imagens */}
-        <Stack>
+        <Stack align="center">
           {/* Imagem Principal */}
           <Paper withBorder radius="md" p="xs">
             <Center>
@@ -97,6 +90,8 @@ export function StorePreview({
                 <ProductImagePreview
                   image={selectedVariation.images[selectedImageIndex]}
                   key={selectedVariation.publicId}
+                  miw={500}
+                  maw={500}
                 />
               ) : (
                 <Flex
@@ -118,7 +113,7 @@ export function StorePreview({
 
           {/* Miniaturas */}
           {selectedVariation?.images && selectedVariation.images.length > 1 && (
-            <Group gap="xs">
+            <Group gap="xs" align="center">
               {selectedVariation.images.map((image: string, index: number) => (
                 <Paper
                   key={index}
@@ -167,7 +162,7 @@ export function StorePreview({
 
           {/* Preço */}
           <Group>
-            <Title order={2} c="green">
+            <Title order={1} fw={400}>
               R$ {selectedVariation?.price.toFixed(2).replace(".", ",")}
             </Title>
             {selectedSize?.stock.quantity <= 5 &&
@@ -182,35 +177,29 @@ export function StorePreview({
           {availableColors.length > 1 && (
             <div>
               <Text size="sm" fw={500} mb="xs">
-                Cor: {getColorName(selectedVariation?.color)}
+                {selectedVariation.name}
               </Text>
               <Group gap="xs">
                 {availableColors.map((colorOption) => (
-                  <Tooltip
-                    key={colorOption.publicId}
-                    label={getColorName(colorOption.color)}
-                  >
-                    <Box
-                      w={32}
-                      h={32}
-                      style={{
-                        backgroundColor: colorOption.color,
-                        borderRadius: "50%",
-                        border:
-                          selectedVariation?.publicId === colorOption.publicId
-                            ? "3px solid var(--mantine-color-blue-6)"
-                            : "2px solid var(--mantine-color-gray-3)",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleColorChange(colorOption.publicId)}
-                    />
-                  </Tooltip>
+                  <Box
+                    w={32}
+                    h={32}
+                    style={{
+                      backgroundColor: colorOption.color,
+                      borderRadius: "50%",
+                      border:
+                        selectedVariation?.publicId === colorOption.publicId
+                          ? "3px solid var(--mantine-color-blue-6)"
+                          : "2px solid var(--mantine-color-gray-3)",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleColorChange(colorOption.publicId)}
+                  />
                 ))}
               </Group>
             </div>
           )}
 
-          {/* Seleção de Tamanho */}
           {availableSizes.length > 1 && (
             <div>
               <Text size="sm" fw={500} mb="xs">
@@ -237,7 +226,6 @@ export function StorePreview({
             </div>
           )}
 
-          {/* Estoque */}
           <Group>
             <Text size="sm" c="dimmed">
               {selectedSize?.stock.quantity > 0 ? (
@@ -281,9 +269,9 @@ export function StorePreview({
             </Group>
           </Stack>
 
-          {/* Informações Adicionais */}
           <Paper p="md" withBorder bg="var(--mantine-color-gray-0)">
             <Stack gap="xs">
+              <Badge color="orange">Em breve</Badge>
               <Group>
                 <IconTags size={16} color="var(--mantine-color-gray-6)" />
                 <Text size="sm">ID: {product.publicId.slice(0, 8)}...</Text>

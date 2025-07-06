@@ -18,7 +18,6 @@ import {
 import { fetchProducts } from "@services/product.service";
 import {
   IconDotsVertical,
-  IconEdit,
   IconEye,
   IconFilter,
   IconPackage,
@@ -263,13 +262,11 @@ export default function ProductsPage() {
                         >
                           Ver Detalhes
                         </Menu.Item>
-                        <Menu.Item leftSection={<IconEdit size={14} />}>
-                          Editar
-                        </Menu.Item>
                         <Menu.Divider />
                         <Menu.Item
                           leftSection={<IconTrash size={14} />}
                           color="red"
+                          disabled
                         >
                           Excluir
                         </Menu.Item>

@@ -40,7 +40,6 @@ export function ProductVariationForm({
           {...form.getInputProps(`variations.${index}.color`)}
           withAsterisk
         />
-        {/* TODO: criar todos os tamanhos */}
         <NumberInput
           label="Preço"
           prefix="R$ "
@@ -48,14 +47,6 @@ export function ProductVariationForm({
           {...form.getInputProps(`variations.${index}.price`)}
           withAsterisk
         />
-        {/* <MultiSelect
-          label="Tamanhos"
-          data={sizeOption}
-          clearable
-          key={form.key(`variations.${index}.sizes`)}
-          {...form.getInputProps(`variations.${index}.sizes`)}
-          withAsterisk
-        /> */}
       </SimpleGrid>
 
       <SimpleGrid cols={{ base: 1, sm: 1 }} mb="md">
