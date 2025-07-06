@@ -24,8 +24,6 @@ export class ProductVariationService {
     product: Product,
     variationDto: CreateProductVariationDto,
   ): Promise<ProductVariation> {
-    console.log(product);
-
     const savedVariation = await this.productVariationRepo.save({
       ...variationDto,
       product: product,

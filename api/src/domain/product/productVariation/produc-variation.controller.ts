@@ -54,8 +54,6 @@ export class ProductVariationController {
     const product =
       await this.productService.getProductDetailsByPublicId(productPublicId);
 
-    console.log(product);
-
     const newVariation =
       await this.productVariationService.createProductVariation(product, dto);
 
