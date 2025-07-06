@@ -1,4 +1,5 @@
 import { SaveConfirmationModal } from "@components/collection";
+import { ProductDetails } from "@localTypes/product";
 import {
   ActionIcon,
   Avatar,
@@ -31,7 +32,7 @@ type FormValues = {
 };
 
 interface ProductInfoCardProps {
-  product: any;
+  product: ProductDetails;
   form: UseFormReturnType<FormValues>;
   isEditing: boolean;
   onStartEdit: () => void;

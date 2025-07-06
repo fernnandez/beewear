@@ -1,1 +1,1 @@
-export { ProductStatsGrid } from "./ProductStatsGrid";
+export { ProductStatsGrid } from "../ProductInfoSection/ProductStatsGrid";

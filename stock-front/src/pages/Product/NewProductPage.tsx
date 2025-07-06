@@ -1,4 +1,4 @@
-import { NewProductForm } from "@components/product/forms";
+import { NewProductForm } from "@components/product/forms/NewProductForm";
 import { Button, Container, Group, Text, Title } from "@mantine/core";
 import { IconArrowBackUp } from "@tabler/icons-react";
 import { Link } from "react-router-dom";

@@ -25,34 +25,33 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { ProductImagePreview } from "../details/ProductImagePreview";
+import { ProductDetails } from "@localTypes/product";
 
 // TODO: ajustar tipagem aqui
 export function StorePreview({
   product,
-  variations,
 }: {
-  product: any;
-  variations: any[];
+  product: ProductDetails;
 }) {
-  const [selectedVariation, setSelectedVariation] = useState(variations[0]);
+  const [selectedVariation, setSelectedVariation] = useState(product.variations[0]);
   const [selectedSize, setSelectedSize] = useState(selectedVariation?.sizes[0]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
-    const firstVariation = variations[0];
+    const firstVariation = product.variations[0];
     setSelectedVariation(firstVariation);
     setSelectedSize(firstVariation?.sizes?.[0]);
     setSelectedImageIndex(0);
-  }, [variations]);
+  }, [product.variations]);
 
-  const availableColors = variations.map((v) => ({
+  const availableColors = product.variations.map((v) => ({
     color: v.color,
     publicId: v.publicId,
   }));
   const availableSizes = selectedVariation?.sizes || [];
 
   const handleColorChange = (variationId: string) => {
-    const newVariation = variations.find((v) => v.publicId === variationId);
+    const newVariation = product.variations.find((v) => v.publicId === variationId);
     if (newVariation) {
       setSelectedVariation(newVariation);
       setSelectedSize(newVariation.sizes[0]);

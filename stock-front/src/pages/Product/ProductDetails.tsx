@@ -1,27 +1,16 @@
-import { ProductInfoCard, ProductStatusCard } from "@components/product/cards";
-import { ProductStatsGrid } from "@components/product/details";
+import { ProductInfoSection } from "@components/product/ProductInfoSection/ProductInfoSection";
 import { ProductVariationsSection } from "@components/product/ProductVariationsSection/ProductVariationsSection";
 import { StorePreview } from "@components/product/StorePreview/StorePreview";
-import {
-  Button,
-  Container,
-  Divider,
-  Group,
-  SimpleGrid,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Button, Container, Divider, Group, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { fetchProductDetails } from "@services/product.service";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function ProductDetailPage() {
   const navigate = useNavigate();
   const { publicId } = useParams();
-
-  const [isEditing, setIsEditing] = useState(false);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product-details", publicId],
@@ -56,20 +45,6 @@ export default function ProductDetailPage() {
     );
   }
 
-  const handleStartEdit = () => {
-    form.setValues({
-      name: product.name,
-    });
-    setIsEditing(true);
-  };
-
-  const handleCancelEdit = () => {
-    form.setValues({
-      name: product.name,
-    });
-    setIsEditing(false);
-  };
-
   return (
     <Container size="xl">
       <Group justify="space-between" mb="xl">
@@ -80,30 +55,7 @@ export default function ProductDetailPage() {
         </div>
       </Group>
 
-      <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="lg" mb="xl">
-        {/* Informações do Produto */}
-        <div style={{ gridColumn: "span 2" }}>
-          <Stack gap="lg">
-            <ProductInfoCard
-              product={product}
-              form={form}
-              isEditing={isEditing}
-              onStartEdit={handleStartEdit}
-              onCancelEdit={handleCancelEdit}
-            />
-
-            <ProductStatusCard
-              name={product.name}
-              publicId={product.publicId}
-              isActive={product.active}
-              isEditing={isEditing}
-            />
-          </Stack>
-        </div>
-
-        {/* Estatísticas */}
-        <ProductStatsGrid product={product} />
-      </SimpleGrid>
+      <ProductInfoSection product={product} />
 
       {/* Variações do Produto */}
       <ProductVariationsSection
@@ -114,7 +66,7 @@ export default function ProductDetailPage() {
       <Divider mt={50} mb={50} />
 
       {/* Preview da Vitrine */}
-      <StorePreview product={product} variations={product.variations} />
+      <StorePreview product={product} />
     </Container>
   );
 }

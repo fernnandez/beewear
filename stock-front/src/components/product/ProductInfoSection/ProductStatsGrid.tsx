@@ -1,3 +1,4 @@
+import { ProductDetails } from "@localTypes/product";
 import { Card, Group, Stack, Text, ThemeIcon, Title } from "@mantine/core";
 import {
   IconPackage,
@@ -6,7 +7,7 @@ import {
 } from "@tabler/icons-react";
 
 interface ProductStatsGridProps {
-  product: any;
+  product: ProductDetails;
 }
 
 export function ProductStatsGrid({ product }: ProductStatsGridProps) {

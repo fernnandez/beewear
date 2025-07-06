@@ -5,7 +5,7 @@ import { updateProductStatus } from "@services/product.service";
 import { IconToggleLeft, IconToggleRight } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { StatusConfirmation } from "../modals";
+import { StatusConfirmation } from "./StatusConfirmation";
 
 export function ProductStatusCard({
   name,
