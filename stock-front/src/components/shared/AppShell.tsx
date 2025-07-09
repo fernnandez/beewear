@@ -6,6 +6,7 @@ import {
   Burger,
   Divider,
   Group,
+  Image,
   Menu,
   NavLink,
   rem,
@@ -18,7 +19,6 @@ import {
   IconDashboard,
   IconFolder,
   IconLogout,
-  IconPackage,
   IconReportAnalytics,
   IconShoppingCart,
   IconUser,
@@ -61,8 +61,8 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
               size="sm"
             />
             <Group>
-              <IconPackage size={24} color="var(--mantine-color-blue-6)" />
-              <Title order={4}>Estoque Pro</Title>
+              <Image w={30} src={"/favicon.svg"} />
+              <Title order={4}>Beewear Stock</Title>
             </Group>
           </Group>
 
@@ -109,43 +109,37 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        <AppShell.Section>
-          <Title order={5} mb="md">
-            Menu Principal
-          </Title>
-        </AppShell.Section>
-        <Divider mb="sm" />
         <AppShell.Section grow>
           <NavLink
             component={Link}
             to="/dashboard"
             label="Dashboard"
-            leftSection={<IconDashboard size="1.2rem" />}
-            rightSection={<IconChevronRight size="0.8rem" />}
+            leftSection={<IconDashboard size="1.5rem" />}
+            rightSection={<IconChevronRight size="1rem" />}
             active={isActive("/dashboard")}
           />
           <NavLink
             component={Link}
             to="/products"
             label="Produtos"
-            leftSection={<IconShoppingCart size="1.2rem" />}
-            rightSection={<IconChevronRight size="0.8rem" />}
+            leftSection={<IconShoppingCart size="1.5rem" />}
+            rightSection={<IconChevronRight size="1rem" />}
             active={isActive("/products") || isActive("/products/new")}
           />
           <NavLink
             component={Link}
             to="/collections"
             label="Coleções"
-            leftSection={<IconFolder size="1.2rem" />}
-            rightSection={<IconChevronRight size="0.8rem" />}
+            leftSection={<IconFolder size="1.5rem" />}
+            rightSection={<IconChevronRight size="1rem" />}
             active={isActive("/collections") || isActive("/collections/new")}
           />
           <NavLink
             component={Link}
             to="/reports"
             label="Relatórios"
-            leftSection={<IconReportAnalytics size="1.2rem" />}
-            rightSection={<IconChevronRight size="0.8rem" />}
+            leftSection={<IconReportAnalytics size="1.5rem" />}
+            rightSection={<IconChevronRight size="1rem" />}
             active={isActive("/reports")}
           />
         </AppShell.Section>
@@ -154,7 +148,7 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
           <Divider my="sm" />
           <Group justify="space-between">
             <Text size="xs" c="dimmed">
-              Sistema de Estoque v1.0
+              Beewear Stock v1.0
             </Text>
             <Text size="xs" c="dimmed">
               © 2024
