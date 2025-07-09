@@ -13,6 +13,7 @@ import { ProductVariationService } from './productVariation/product-variation.se
 import { StockItem } from './stock/stock-item.entity';
 import { StockMovement } from './stock/stock-movement.entity';
 import { StockService } from './stock/stock.service';
+import { StockController } from './stock/stock.controller';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { StockService } from './stock/stock.service';
     ProductController,
     ProductVariationController,
     CollectionController,
+    StockController,
   ],
 })
 export class ProductModule {}

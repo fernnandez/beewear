@@ -30,8 +30,14 @@ export class StockMovement {
   @Column({ enum: ['IN', 'OUT'] })
   type: 'IN' | 'OUT';
 
-  @Column()
+  @Column({ type: 'int' })
   quantity: number;
+
+  @Column({ type: 'int' })
+  previousQuantity: number;
+
+  @Column({ type: 'int' })
+  newQuantity: number;
 
   @Column({ nullable: true })
   description?: string;

@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductVariationSize } from '../productVariation/product-variation-size.entity';
@@ -42,57 +47,69 @@ export class StockService {
       type: 'IN',
       quantity,
       description: 'Estoque inicial',
+      previousQuantity: 0,
+      newQuantity: quantity,
     });
 
     return stockItem;
   }
 
-  // async increase(productId: string, quantity: number, description?: string) {
-  //   const stock = await this.getByProductId(productId);
-  //   if (!stock) throw new Error('Produto sem estoque');
+  async adjustStock(
+    stockItemPublicId: string,
+    adjustmentQuantity: number,
+    customDescription?: string,
+  ) {
+    const stockItem = await this.stockRepo.findOne({
+      where: { publicId: stockItemPublicId },
+      relations: [
+        'productVariationSize',
+        'productVariationSize.productVariation',
+      ],
+    });
 
-  //   stock.quantity += quantity;
-  //   await this.stockRepo.save(stock);
+    if (!stockItem) {
+      throw new NotFoundException('Estoque não encontrado');
+    }
 
-  //   await this.movementRepo.save({
-  //     productId,
-  //     type: 'IN',
-  //     quantity,
-  //     description: description || 'Entrada de estoque',
-  //   });
+    const previousQuantity = stockItem.quantity;
+    const newQuantity = previousQuantity + adjustmentQuantity;
 
-  //   return stock;
-  // }
+    if (newQuantity < 0) {
+      throw new BadRequestException(
+        'Estoque insuficiente para realizar esta saída',
+      );
+    }
 
-  // async decrease(productId: string, quantity: number, description?: string) {
-  //   const stock = await this.getByProductId(productId);
-  //   if (!stock) throw new Error('Produto sem estoque');
+    const type = adjustmentQuantity >= 0 ? 'IN' : 'OUT';
+    const description =
+      customDescription ||
+      (type === 'IN' ? 'Entrada de estoque' : 'Saída de estoque');
 
-  //   if (stock.quantity < quantity) {
-  //     throw new Error('Estoque insuficiente');
-  //   }
+    stockItem.quantity = newQuantity;
+    await this.stockRepo.save(stockItem);
 
-  //   stock.quantity -= quantity;
-  //   await this.stockRepo.save(stock);
+    await this.movementRepo.save({
+      stockItem,
+      type,
+      quantity: Math.abs(adjustmentQuantity),
+      description,
+      previousQuantity,
+      newQuantity,
+    });
 
-  //   await this.movementRepo.save({
-  //     productId,
-  //     type: 'OUT',
-  //     quantity,
-  //     description: description || 'Saída de estoque',
-  //   });
+    Logger.log(
+      `Ajuste de estoque ${type} para ${stockItem.productVariationSize.productVariation.name}-${stockItem.productVariationSize.id} (${stockItem.publicId}): ${adjustmentQuantity}`,
+    );
 
-  //   return stock;
-  // }
+    return stockItem;
+  }
 
-  // async getMovementsByProduct(productId: string) {
-  //   const stockItem = await this.stockRepo.findOneBy({ productId });
-  //   if (!stockItem) throw new Error('Estoque não encontrado');
+  async listStockMovements(stockItemPublicId: string) {
+    const movements = await this.movementRepo.find({
+      where: { stockItem: { publicId: stockItemPublicId } },
+      order: { createdAt: 'DESC' },
+    });
 
-  //   return this.movementRepo.find({
-  //     where: { stockItemId: stockItem.id },
-  //     order: { createdAt: 'DESC' },
-  //     relations: ['stockItem', 'stockItem.product'],
-  //   });
-  // }
+    return movements;
+  }
 }

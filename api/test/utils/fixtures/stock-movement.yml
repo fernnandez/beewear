@@ -7,6 +7,8 @@ items:
     stockItem: "@stock_camiseta_fem_p_branca"
     type: "IN"
     quantity: 20
+    previousQuantity: 0
+    newQuantity: 20
     description: "Recebimento inicial do fornecedor A"
 
   movement_out_camiseta_fem_p_branca_1:
@@ -15,6 +17,8 @@ items:
     stockItem: "@stock_camiseta_fem_p_branca"
     type: "OUT"
     quantity: 5
+    previousQuantity: 20
+    newQuantity: 15
     description: "Venda online pedido #1001"
 
   # Movimentos para Camiseta Feminina Básica - M - Preto
@@ -24,6 +28,8 @@ items:
     stockItem: "@stock_camiseta_fem_m_preta"
     type: "IN"
     quantity: 15
+    previousQuantity: 0
+    newQuantity: 15
     description: "Reposicao de estoque"
 
   # Movimentos para Calça Jeans Masculina - 40 - Azul
@@ -33,6 +39,8 @@ items:
     stockItem: "@stock_jeans_masc_40_azul"
     type: "IN"
     quantity: 10
+    previousQuantity: 0
+    newQuantity: 10
     description: "Nova remessa"
 
   movement_out_jeans_masc_40_azul_1:
@@ -41,4 +49,6 @@ items:
     stockItem: "@stock_jeans_masc_40_azul"
     type: "OUT"
     quantity: 3
+    previousQuantity: 10
+    newQuantity: 7
     description: "Troca de produto"
