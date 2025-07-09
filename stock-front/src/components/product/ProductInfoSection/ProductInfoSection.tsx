@@ -2,8 +2,8 @@ import { ProductDetails } from "@localTypes/product";
 import { Grid, Stack } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
-import { ProductStatsGrid } from "../details";
 import { ProductInfoCard } from "./ProductInfoCard";
+import { ProductStatsGrid } from "./ProductStatsGrid";
 import { ProductStatusCard } from "./ProductStatusCard";
 
 interface ProductInfoSectionProps {

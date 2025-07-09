@@ -2,14 +2,14 @@ import { Image, ImageProps } from "@mantine/core";
 import { getImage } from "@services/storage.service";
 import { useQuery } from "@tanstack/react-query";
 
-interface ProductImagePreviewProps extends Omit<ImageProps, "src" | "alt"> {
+interface ImagePreviewProps extends Omit<ImageProps, "src" | "alt"> {
   image: string;
 }
 
-export const ProductImagePreview = ({
+export const ImagePreview = ({
   image,
   ...rest
-}: ProductImagePreviewProps) => {
+}: ImagePreviewProps) => {
   const { data: src } = useQuery({
     queryKey: ["image", image],
     queryFn: () => getImage(image!),

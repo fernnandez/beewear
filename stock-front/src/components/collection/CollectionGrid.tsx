@@ -19,9 +19,7 @@ export const CollectionGrid = ({ collections }: Props) => {
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
         {collections.map((collection) => (
-          <>
-            <CollectionCard collection={collection} />
-          </>
+          <CollectionCard key={collection.publicId} collection={collection} />
         ))}
       </SimpleGrid>
     </Card>

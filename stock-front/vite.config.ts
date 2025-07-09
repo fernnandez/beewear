@@ -3,7 +3,23 @@ import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  server: {
+    watch: {
+      ignored: ["**/node_modules/**", "**/dist/**"],
+    },
+  },
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
+          mantine: ["@mantine/core", "@mantine/hooks"],
+          icons: ["@tabler/icons-react"],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@services": path.resolve(__dirname, "src/services"),

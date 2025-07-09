@@ -1,3 +1,5 @@
+import { ImagePreview } from "@components/shared/ImagePreview";
+import { ProductDetails } from "@localTypes/product";
 import {
   Badge,
   Box,
@@ -24,16 +26,12 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { ProductImagePreview } from "../details/ProductImagePreview";
-import { ProductDetails } from "@localTypes/product";
 
 // TODO: ajustar tipagem aqui
-export function StorePreview({
-  product,
-}: {
-  product: ProductDetails;
-}) {
-  const [selectedVariation, setSelectedVariation] = useState(product.variations[0]);
+export function StorePreview({ product }: { product: ProductDetails }) {
+  const [selectedVariation, setSelectedVariation] = useState(
+    product.variations[0]
+  );
   const [selectedSize, setSelectedSize] = useState(selectedVariation?.sizes[0]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -51,7 +49,9 @@ export function StorePreview({
   const availableSizes = selectedVariation?.sizes || [];
 
   const handleColorChange = (variationId: string) => {
-    const newVariation = product.variations.find((v) => v.publicId === variationId);
+    const newVariation = product.variations.find(
+      (v) => v.publicId === variationId
+    );
     if (newVariation) {
       setSelectedVariation(newVariation);
       setSelectedSize(newVariation.sizes[0]);
@@ -86,7 +86,7 @@ export function StorePreview({
             <Center>
               {selectedVariation?.images &&
               selectedVariation.images.length > 0 ? (
-                <ProductImagePreview
+                <ImagePreview
                   image={selectedVariation.images[selectedImageIndex]}
                   key={selectedVariation.publicId}
                   miw={500}
@@ -129,12 +129,7 @@ export function StorePreview({
                   }}
                   onClick={() => setSelectedImageIndex(index)}
                 >
-                  <ProductImagePreview
-                    image={image}
-                    key={index}
-                    w={60}
-                    h={60}
-                  />
+                  <ImagePreview image={image} key={index} w={60} h={60} />
                 </Paper>
               ))}
             </Group>
@@ -181,6 +176,7 @@ export function StorePreview({
               <Group gap="xs">
                 {availableColors.map((colorOption) => (
                   <Box
+                    key={colorOption.publicId}
                     w={32}
                     h={32}
                     style={{

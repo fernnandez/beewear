@@ -3,6 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { NewVariationModal } from "./NewVariationModal";
 import { ProductVariationSectionCard } from "./ProductVariationSectionCard";
+import { ProductVariationSize } from "@localTypes/product";
 
 // TODO: analisar essas interfaces
 export interface Variation {
@@ -10,14 +11,10 @@ export interface Variation {
   name: string;
   color: string;
   price: number;
-  sizes: SizeOption[];
+  sizes: ProductVariationSize[];
   images?: string[] | null;
 }
 
-interface SizeOption {
-  stock: { publicId: string; quantity: number };
-  size: string;
-}
 
 interface ProductVariationsCardProps {
   productPublicId: string;

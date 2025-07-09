@@ -1,8 +1,8 @@
 import { ConfirmationModal } from "@components/shared/ConfirmationModal";
+import { ProductVariationSize } from "@localTypes/product";
 import {
   Accordion,
   ActionIcon,
-  Badge,
   Box,
   Card,
   Group,
@@ -23,20 +23,17 @@ import { getAxiosErrorMessage } from "@utils/getAxiosErrorMessage";
 import { queryClient } from "@utils/queryClient";
 import { EditImagesModal } from "./EditImagesModal";
 import { EditVariationModal } from "./EditVariationModal";
+import { ProductVariationSizeLine } from "./ProductVariationSizeLine";
 
 interface Variation {
   publicId: string;
   name: string;
   color: string;
   price: number;
-  sizes: SizeOption[];
+  sizes: ProductVariationSize[];
   images?: string[] | null;
 }
 
-interface SizeOption {
-  stock: { publicId: string; quantity: number };
-  size: string;
-}
 export function ProductVariationSectionCard({
   productPublicId,
   variation,
@@ -157,39 +154,13 @@ export function ProductVariationSectionCard({
                 </Table.Thead>
                 <Table.Tbody>
                   {variation.sizes.map((sizeOption) => (
-                    <Table.Tr key={sizeOption.stock.publicId}>
-                      <Table.Td>
-                        <Badge variant="light" color="gray" size="sm">
-                          {sizeOption.size}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text fw={500}>{sizeOption.stock.quantity}</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge
-                          color={
-                            sizeOption.stock.quantity > 0 ? "green" : "red"
-                          }
-                          variant="light"
-                          size="sm"
-                        >
-                          {sizeOption.stock.quantity > 0
-                            ? "Disponível"
-                            : "Sem Estoque"}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>
-                        <ActionIcon
-                          variant="light"
-                          color="blue"
-                          size="sm"
-                          radius="xl"
-                        >
-                          <IconEdit size={16} />
-                        </ActionIcon>
-                      </Table.Td>
-                    </Table.Tr>
+                    <ProductVariationSizeLine
+                      key={sizeOption.stock.publicId}
+                      size={sizeOption}
+                      productPublicId={productPublicId}
+                      variationColor={variation.color}
+                      variationName={variation.name}
+                    />
                   ))}
                 </Table.Tbody>
               </Table>

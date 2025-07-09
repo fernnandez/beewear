@@ -1,3 +1,4 @@
+import { ImagePreview } from "@components/shared/ImagePreview";
 import {
   Button,
   Divider,
@@ -18,7 +19,6 @@ import { IconDeviceFloppy, IconUpload } from "@tabler/icons-react";
 import { getAxiosErrorMessage } from "@utils/getAxiosErrorMessage";
 import { queryClient } from "@utils/queryClient";
 import { useState } from "react";
-import { ProductImagePreview } from "../details/ProductImagePreview";
 import { Variation } from "./ProductVariationsSection";
 
 interface EditImagesModalProps {
@@ -50,7 +50,6 @@ export function EditImagesModal({
       queryClient.invalidateQueries({
         queryKey: ["image", image],
       });
-      
     } catch (error) {
       notifications.show({
         title: "Erro",
@@ -73,7 +72,7 @@ export function EditImagesModal({
       });
       setNewImages([]);
       await queryClient.invalidateQueries({
-        queryKey: ["product-details", productPublicId,],
+        queryKey: ["product-details", productPublicId],
       });
     } catch (error) {
       notifications.show({
@@ -108,12 +107,7 @@ export function EditImagesModal({
                   >
                     Remover imagem
                   </Button>
-                  <ProductImagePreview
-                    image={image}
-                    key={index}
-                    miw={150}
-                    maw={150}
-                  />
+                  <ImagePreview image={image} key={index} miw={150} maw={150} />
                 </Stack>
               </Paper>
             ))}
