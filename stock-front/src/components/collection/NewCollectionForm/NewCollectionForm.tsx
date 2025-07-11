@@ -18,7 +18,7 @@ import { notifications } from "@mantine/notifications";
 import { createCollection } from "@services/collection.service";
 import { IconCheck, IconInfoCircle, IconPhoto } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import { CollectionPreview } from "./CollectionPreview";
+import { CollectionPreview } from "../CollectionPreview/CollectionPreview";
 
 interface FormValues {
   name: string;

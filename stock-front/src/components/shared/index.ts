@@ -1,3 +1,3 @@
-export { AppShellLayout } from "./AppShell";
-export { ProtectedRoute } from "./ProtectedRoute";
-export { Loading } from "./Loading";
+export { AppShellLayout } from "./AppShell/AppShell";
+export { ProtectedRoute } from "./ProtectedRoute/ProtectedRoute";
+export { Loading } from "./Loading/Loading";

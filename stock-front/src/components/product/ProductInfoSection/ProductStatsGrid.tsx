@@ -1,5 +1,6 @@
+import { ValueCard } from "@components/shared/ValueCard/ValueCard";
 import { ProductDetails } from "@localTypes/product";
-import { Card, Group, Stack, Text, ThemeIcon, Title } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import {
   IconPackage,
   IconPalette,
@@ -17,56 +18,32 @@ export function ProductStatsGrid({ product }: ProductStatsGridProps) {
 
   return (
     <Stack>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Group justify="space-between" mb="xs">
-          <Text size="sm" fw={500} c="dimmed">
-            Estoque Total
-          </Text>
-          <ThemeIcon variant="light" color="blue" size="sm">
-            <IconPackage size={16} />
-          </ThemeIcon>
-        </Group>
-        <Title order={2} c="blue">
-          {totalStock}
-        </Title>
-        <Text size="xs" c="dimmed">
-          unidades em estoque
-        </Text>
-      </Card>
+      <ValueCard
+        title="Estoque Total"
+        value={totalStock}
+        description="unidades em estoque"
+        icon={<IconPackage size={16} />}
+        iconColor="blue"
+        valueColor="blue"
+      />
 
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Group justify="space-between" mb="xs">
-          <Text size="sm" fw={500} c="dimmed">
-            Valor Total
-          </Text>
-          <ThemeIcon variant="light" color="green" size="sm">
-            <IconShoppingCart size={16} />
-          </ThemeIcon>
-        </Group>
-        <Title order={2} c="green">
-          R$ {totalValue.toFixed(2).replace(".", ",")}
-        </Title>
-        <Text size="xs" c="dimmed">
-          valor em estoque
-        </Text>
-      </Card>
+      <ValueCard
+        title="Valor Total"
+        value={`R$ ${totalValue.toFixed(2).replace(".", ",")}`}
+        description="valor em estoque"
+        icon={<IconShoppingCart size={16} />}
+        iconColor="green"
+        valueColor="green"
+      />
 
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Group justify="space-between" mb="xs">
-          <Text size="sm" fw={500} c="dimmed">
-            Variações
-          </Text>
-          <ThemeIcon variant="light" color="purple" size="sm">
-            <IconPalette size={16} />
-          </ThemeIcon>
-        </Group>
-        <Title order={2} c="purple">
-          {totalVariations}
-        </Title>
-        <Text size="xs" c="dimmed">
-          cores disponíveis
-        </Text>
-      </Card>
+      <ValueCard
+        title="Variações"
+        value={totalVariations}
+        description="cores disponíveis"
+        icon={<IconPalette size={16} />}
+        iconColor="orange"
+        valueColor="orange"
+      />
     </Stack>
   );
 }

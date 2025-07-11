@@ -8,13 +8,11 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./contexts/auth-context";
 import CollectionsPage from "./pages/collection/CollectionPage";
 import NewCollectionPage from "./pages/collection/NewCollectionPage";
-import DashboardPage from "./pages/Dashboard/DashboardPage";
-import { Login } from "./pages/Login/Login";
+import { Login } from "./pages/login/Login";
 import NewProductPage from "./pages/product/NewProductPage";
 import ProductsPage from "./pages/product/ProductsPage";
-import { RegisterPage } from "./pages/Register/Register";
-import ReportsPage from "./pages/Reports/ReportsPage";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { RegisterPage } from "./pages/register/Register";
+import ReportsPage from "./pages/reports/ReportsPage";
 
 function App() {
   const { isLoading } = useAuth();
@@ -25,20 +23,12 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
 
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/" element={<Navigate to="/reports" replace />} />
         <Route
           path="/products"
           element={

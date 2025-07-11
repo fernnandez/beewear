@@ -4,6 +4,7 @@ import {
   AppShell,
   Avatar,
   Burger,
+  Button,
   Divider,
   Group,
   Image,
@@ -13,20 +14,22 @@ import {
   Text,
   Title,
   UnstyledButton,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconChevronRight,
-  IconDashboard,
   IconFolder,
   IconLogout,
+  IconMoon,
   IconReportAnalytics,
   IconShoppingCart,
+  IconSun,
   IconUser,
 } from "@tabler/icons-react";
 import { getInitials } from "@utils/getInitials";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/auth-context";
+import { useAuth } from "../../../contexts/auth-context";
 
 interface AppShellLayoutProps {
   children: React.ReactNode;
@@ -42,6 +45,10 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
     logout();
     navigate("/login");
   };
+
+  const { colorScheme, setColorScheme } = useMantineColorScheme({
+    keepTransitions: true,
+  });
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -70,11 +77,11 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
             <Menu.Target>
               <UnstyledButton>
                 <Group gap={7}>
-                  <Avatar color="blue" radius="xl">
+                  <Avatar color="yellow" radius="xl">
                     {getInitials(user.name)}
                   </Avatar>
                   <div style={{ flex: 1 }}>
-                    <Text size="sm" fw={500}>
+                    <Text size="xs" fw={500}>
                       {user?.name}
                     </Text>
                     <Text c="dimmed" size="xs">
@@ -87,6 +94,7 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
 
             <Menu.Dropdown>
               <Menu.Item
+                disabled
                 leftSection={
                   <IconUser style={{ width: rem(14), height: rem(14) }} />
                 }
@@ -112,11 +120,11 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
         <AppShell.Section grow>
           <NavLink
             component={Link}
-            to="/dashboard"
-            label="Dashboard"
-            leftSection={<IconDashboard size="1.5rem" />}
+            to="/reports"
+            label="Relatórios"
+            leftSection={<IconReportAnalytics size="1.5rem" />}
             rightSection={<IconChevronRight size="1rem" />}
-            active={isActive("/dashboard")}
+            active={isActive("/reports")}
           />
           <NavLink
             component={Link}
@@ -134,14 +142,27 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
             rightSection={<IconChevronRight size="1rem" />}
             active={isActive("/collections") || isActive("/collections/new")}
           />
-          <NavLink
-            component={Link}
-            to="/reports"
-            label="Relatórios"
-            leftSection={<IconReportAnalytics size="1.5rem" />}
-            rightSection={<IconChevronRight size="1rem" />}
-            active={isActive("/reports")}
-          />
+        </AppShell.Section>
+
+        <AppShell.Section>
+          <Divider my="sm" />
+          {colorScheme === "dark" ? (
+            <Button
+              fullWidth
+              variant="default"
+              onClick={() => setColorScheme("light")}
+            >
+              <IconSun size="1.5rem" />
+            </Button>
+          ) : (
+            <Button
+              fullWidth
+              variant="default"
+              onClick={() => setColorScheme("dark")}
+            >
+              <IconMoon size="1.5rem" />
+            </Button>
+          )}
         </AppShell.Section>
 
         <AppShell.Section>
@@ -151,7 +172,7 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
               Beewear Stock v1.0
             </Text>
             <Text size="xs" c="dimmed">
-              © 2024
+              © 2025
             </Text>
           </Group>
         </AppShell.Section>

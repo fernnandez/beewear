@@ -1,28 +1,15 @@
-import {
-  CollectionEmptyState,
-  CollectionGrid,
-  CollectionSearch,
-} from "@components/collection";
+import { CollectionList } from "@components/collection/CollectionList/CollectionList";
 import { Button, Container, Group, Text, Title } from "@mantine/core";
 import { fetchCollections } from "@services/collection.service";
 import { IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function CollectionsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-
   const { data: collections = [] } = useQuery({
     queryKey: ["collections"],
     queryFn: fetchCollections,
   });
-
-  const filteredCollections = collections.filter(
-    (collection) =>
-      collection.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      collection.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <Container size="xl">
@@ -40,16 +27,7 @@ export default function CollectionsPage() {
         </Button>
       </Group>
 
-      <CollectionSearch searchTerm={searchTerm} onSearch={setSearchTerm} />
-
-      {filteredCollections.length > 0 ? (
-        <CollectionGrid collections={filteredCollections} />
-      ) : (
-        <CollectionEmptyState
-          showReset={!!searchTerm}
-          onResetSearch={() => setSearchTerm("")}
-        />
-      )}
+      <CollectionList collections={collections} />
     </Container>
   );
 }

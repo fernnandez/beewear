@@ -79,6 +79,8 @@ export function NewVariationModal({
 
   return (
     <Modal
+      transitionProps={{ duration: 0 }} // remove delay da transição
+      keepMounted={false} // remove da DOM completamente quando fechado
       opened={opened}
       onClose={onClose}
       title={`Adicionar Nova variação`}

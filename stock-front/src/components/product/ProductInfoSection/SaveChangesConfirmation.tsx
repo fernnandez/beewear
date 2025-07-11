@@ -1,4 +1,4 @@
-import { ConfirmationModal } from "@components/shared/ConfirmationModal";
+import { ConfirmationModal } from "@components/shared/ConfirmationModal/ConfirmationModal";
 import { Stack, Text } from "@mantine/core";
 import { IconAlertTriangle } from "@tabler/icons-react";
 

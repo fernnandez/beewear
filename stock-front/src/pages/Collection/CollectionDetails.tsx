@@ -1,22 +1,13 @@
-import {
-  CollectionAggregators,
-  CollectionImageCard,
-  CollectionInfoCard,
-  CollectionProductsTable,
-  CollectionStatus,
-} from "@components/collection";
-import { Button, Container, Group, SimpleGrid, Text } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { CollectionPreview } from "@components/collection";
+import { CollectionInfoSection } from "@components/collection/CollectionInfoSection/CollectionInfoSection";
+import { Button, Container, Group, Text } from "@mantine/core";
 import { fetchCollectionDetails } from "@services/collection.service";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function CollectionDetailPage() {
   const navigate = useNavigate();
   const { publicId } = useParams();
-
-  const [isEditingInfo, setIsEditingInfo] = useState(false);
 
   const { data: collection, isLoading } = useQuery({
     queryKey: ["collection-details", publicId],
@@ -24,87 +15,31 @@ export default function CollectionDetailPage() {
     enabled: !!publicId,
   });
 
-  const form = useForm({
-    initialValues: {
-      name: "",
-      description: "",
-    },
-    validate: {
-      name: (value) =>
-        value.trim().length === 0 ? "Nome é obrigatório" : null,
-    },
-  });
-
-  useEffect(() => {
-    if (collection) {
-      form.setValues({
-        name: collection.name,
-        description: collection.description ?? "",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collection]);
-
   if (!collection || isLoading) {
     return (
-        <Container size="xl">
-          <Text>Carregando detalhes da coleção...</Text>
-        </Container>
+      <Container size="xl">
+        <Text>Carregando detalhes da coleção...</Text>
+      </Container>
     );
   }
 
-  const handleStartEdit = () => {
-    form.setValues({
-      name: collection.name,
-      description: collection.description,
-    });
-    setIsEditingInfo(true);
-  };
-
-  const handleCancelEdit = () => {
-    form.setValues({
-      name: collection.name,
-      description: collection.description,
-    });
-    setIsEditingInfo(false);
-  };
-
   return (
-      <Container size="xl">
-        <Group justify="space-between" mb="xl">
-          <div>
-            <Button variant="subtle" onClick={() => navigate("/collections")}>
-              ← Voltar
-            </Button>
-          </div>
-        </Group>
+    <Container size="xl">
+      <Group justify="space-between" mb="xl">
+        <div>
+          <Button variant="light" onClick={() => navigate("/collections")}>
+            ← Coleções
+          </Button>
+        </div>
+      </Group>
 
-        <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="lg" mb="xl">
-          <div style={{ gridColumn: "span 2" }}>
-            <CollectionInfoCard
-              collection={collection}
-              form={form}
-              isEditing={isEditingInfo}
-              onStartEdit={handleStartEdit}
-              onCancelEdit={handleCancelEdit}
-            />
+      <CollectionInfoSection collection={collection} />
 
-            <CollectionStatus
-              name={collection.name}
-              isEditingInfo={isEditingInfo}
-              isActive={collection.active}
-              publicId={collection.publicId}
-            />
-          </div>
-          <CollectionAggregators aggregations={collection.aggregations} />
-        </SimpleGrid>
-
-        <CollectionImageCard
-          collectionName={collection.name}
-          collectionImageUrl={collection.imageUrl || null}
-        />
-
-        <CollectionProductsTable products={collection.products} />
-      </Container>
+      <CollectionPreview
+        name={collection.name}
+        description={collection.description}
+        image={collection.imageUrl || null}
+      />
+    </Container>
   );
 }

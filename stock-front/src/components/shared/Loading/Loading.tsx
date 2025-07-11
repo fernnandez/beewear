@@ -4,7 +4,7 @@ export function Loading() {
   return (
     <Center h="100vh">
       <Stack align="center">
-        <Loader size="lg" color="blue" />
+        <Loader size="lg"  />
         <Text c="dimmed" mt="md">
           Carregando...
         </Text>

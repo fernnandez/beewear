@@ -1,4 +1,4 @@
-import { ImagePreview } from "@components/shared/ImagePreview";
+import { ImagePreview } from "@components/shared/ImagePreview/ImagePreview";
 import {
   Button,
   Divider,

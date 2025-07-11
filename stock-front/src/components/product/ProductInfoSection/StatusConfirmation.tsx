@@ -1,4 +1,4 @@
-import { ConfirmationModal } from "@components/shared/ConfirmationModal";
+import { ConfirmationModal } from "@components/shared/ConfirmationModal/ConfirmationModal";
 import {
   IconAlertTriangle,
   IconToggleLeft,

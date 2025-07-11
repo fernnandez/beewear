@@ -1,4 +1,4 @@
-import { ImagePreview } from "@components/shared/ImagePreview";
+import { ImagePreview } from "@components/shared/ImagePreview/ImagePreview";
 import { ProductDetails } from "@localTypes/product";
 import {
   Badge,
@@ -161,9 +161,7 @@ export function StorePreview({ product }: { product: ProductDetails }) {
             </Title>
             {selectedSize?.stock.quantity <= 5 &&
               selectedSize?.stock.quantity > 0 && (
-                <Badge color="yellow" size="sm">
-                  Últimas unidades
-                </Badge>
+                <Badge size="sm">Últimas unidades</Badge>
               )}
           </Group>
 
@@ -264,7 +262,7 @@ export function StorePreview({ product }: { product: ProductDetails }) {
             </Group>
           </Stack>
 
-          <Paper p="md" withBorder bg="var(--mantine-color-gray-0)">
+          <Paper p="md" withBorder>
             <Stack gap="xs">
               <Badge color="orange">Em breve</Badge>
               <Group>

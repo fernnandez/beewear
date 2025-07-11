@@ -79,7 +79,14 @@ export function EditVariationModal({
   };
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Editar Variação" size="lg">
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title="Editar Variação"
+      size="lg"
+      keepMounted={false}
+      transitionProps={{ duration: 0 }}
+    >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Card withBorder padding="md" mb="md">
           <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">

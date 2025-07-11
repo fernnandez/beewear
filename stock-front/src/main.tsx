@@ -14,7 +14,10 @@ import "@mantine/notifications/styles.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <MantineProvider>
+      <MantineProvider
+        defaultColorScheme="dark"
+        theme={{ primaryColor: "yellow" }}
+      >
         <Notifications position="top-right" />
         <AuthProvider>
           <App />

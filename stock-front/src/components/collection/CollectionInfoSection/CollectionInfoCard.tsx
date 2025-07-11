@@ -31,7 +31,7 @@ type FormValues = {
   description: string;
 };
 
-type Props = {
+type CollectionInfoCardProps = {
   collection: CollectionDetails;
   form: UseFormReturnType<FormValues>;
   isEditing: boolean;
@@ -45,7 +45,7 @@ export const CollectionInfoCard = ({
   form,
   onStartEdit,
   onCancelEdit,
-}: Props) => {
+}: CollectionInfoCardProps) => {
   const queryClient = useQueryClient();
   const [modalOpened, { open: openModal, close: closeModal }] =
     useDisclosure(false);

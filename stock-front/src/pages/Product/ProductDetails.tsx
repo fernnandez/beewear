@@ -49,7 +49,7 @@ export default function ProductDetailPage() {
     <Container size="xl">
       <Group justify="space-between" mb="xl">
         <div>
-          <Button variant="subtle" onClick={() => navigate("/products")}>
+          <Button variant="light" onClick={() => navigate("/products")}>
             ← Voltar
           </Button>
         </div>
