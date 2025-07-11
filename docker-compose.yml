@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: beewear_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: beewear
+      POSTGRES_USER: beewear
+      POSTGRES_PASSWORD: beewear123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: ./api
+    container_name: beewear_api
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+
+  web:
+    build:
+      context: ./stock-front
+    container_name: beewear_web
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+
+volumes: 
+  pgdata:
