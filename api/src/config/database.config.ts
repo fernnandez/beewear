@@ -8,9 +8,9 @@ export const config: any = {
   subscribers: [__dirname + '/../infra/database/**/*.subscriber{.ts,.js}'],
   logging: process.env.DATABASE_LOGGING === 'true',
   logger: process.env.DATABASE_LOGGER || 'advanced-console',
-  synchronize: true,
+  synchronize: false,
   migrationsRun: (process.env.DATABASE_MIGRATION_RUN || 'true') === 'true',
-  migrations: [__dirname + '/../infra/database/migrations/**/*{.ts,.js}'],
+  migrations: [__dirname + '/../infra/database/migrations/*{.ts,.js}'],
 };
 
 export default registerAs('database', () => ({
