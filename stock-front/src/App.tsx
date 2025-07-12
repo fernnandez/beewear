@@ -1,18 +1,18 @@
 import { Loading, ProtectedRoute } from "@components/shared";
 import CollectionDetailPage from "@pages/collection/CollectionDetails";
+import CollectionsPage from "@pages/collection/CollectionPage";
+import NewCollectionPage from "@pages/collection/NewCollectionPage";
+import { Login } from "@pages/login/Login";
 import { NotFoundPage } from "@pages/notFound/NotFound";
+import NewProductPage from "@pages/product/NewProductPage";
 import ProductDetailPage from "@pages/product/ProductDetails";
+import ProductsPage from "@pages/product/ProductsPage";
+import { RegisterPage } from "@pages/register/Register";
+import ReportsPage from "@pages/reports/ReportsPage";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@utils/queryClient";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./contexts/auth-context";
-import ReportsPage from "src/pages/reports/ReportsPage";
-import CollectionsPage from "@pages/collection/CollectionPage";
-import NewCollectionPage from "@pages/collection/NewCollectionPage";
-import { Login } from "@pages/login/Login";
-import NewProductPage from "@pages/product/NewProductPage";
-import ProductsPage from "@pages/product/ProductsPage";
-import { RegisterPage } from "@pages/register/Register";
 
 function App() {
   const { isLoading } = useAuth();
