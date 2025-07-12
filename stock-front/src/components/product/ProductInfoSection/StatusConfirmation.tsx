@@ -1,4 +1,5 @@
 import { ConfirmationModal } from "@components/shared/ConfirmationModal/ConfirmationModal";
+import { useMantineColorScheme } from "@mantine/core";
 import {
   IconAlertTriangle,
   IconToggleLeft,
@@ -20,17 +21,29 @@ export function StatusConfirmation({
   productName,
   pendingStatus,
 }: StatusConfirmationProps) {
+  const { colorScheme } = useMantineColorScheme();
+
+  const paperBg = pendingStatus
+    ? colorScheme === "dark"
+      ? "dark.6"
+      : "green.0"
+    : colorScheme === "dark"
+    ? "dark.6"
+    : "orange.0";
+
+  const iconColor = pendingStatus ? "green.6" : "orange.6";
+
   return (
     <ConfirmationModal
       opened={opened}
       onClose={onClose}
       onConfirm={onConfirm}
       title={pendingStatus ? "Ativar Produto" : "Desativar Produto"}
-      icon={<IconAlertTriangle size={24} />}
-      iconColor={
-        pendingStatus
-          ? "var(--mantine-color-green-6)"
-          : "var(--mantine-color-orange-6)"
+      icon={
+        <IconAlertTriangle
+          size={24}
+          color={`var(--mantine-color-${iconColor})`}
+        />
       }
       headerText={`${
         pendingStatus ? "Ativar" : "Desativar"
@@ -50,9 +63,7 @@ export function StatusConfirmation({
         ),
         title: `Status: ${pendingStatus ? "Ativo" : "Inativo"}`,
         subtitle: pendingStatus ? "Visível publicamente" : "Oculto do público",
-        bgColor: pendingStatus
-          ? "var(--mantine-color-green-0)"
-          : "var(--mantine-color-orange-0)",
+        bgColor: paperBg,
       }}
     />
   );
