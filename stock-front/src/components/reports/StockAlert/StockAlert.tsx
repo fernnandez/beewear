@@ -1,82 +1,46 @@
-import { Badge, Card, Group, Paper, Stack, Text, Title } from "@mantine/core";
-import { IconAlertTriangle } from "@tabler/icons-react";
+import { LowStockAlertDto } from "@localTypes/product";
+import { Card, Stack, Text } from "@mantine/core";
 
-const lowStockProducts = [
-  {
-    id: 1,
-    name: "Camiseta Básica",
-    category: "Camisetas",
-    stock: 5,
-    minStock: 10,
-    price: 29.9,
-    size: "M",
-  },
-  {
-    id: 3,
-    name: "Vestido Floral",
-    category: "Vestidos",
-    stock: 2,
-    minStock: 8,
-    price: 79.9,
-    size: "P",
-  },
-  {
-    id: 5,
-    name: "Saia Midi",
-    category: "Saias",
-    stock: 8,
-    minStock: 4,
-    price: 49.9,
-    size: "M",
-  },
-];
+interface StockAlertProps {
+  alerts: LowStockAlertDto[];
+}
 
-export const StockAlert = () => {
+export const StockAlert = ({ alerts }: StockAlertProps) => {
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
-      <Card.Section withBorder inheritPadding py="xs">
-        <Group>
-          <IconAlertTriangle size={18} color="var(--mantine-color-orange-6)" />
-          <Title order={4}>Alertas de Estoque</Title>
-        </Group>
-        <Text size="sm" c="dimmed">
-          Produtos que precisam de reposição
-        </Text>
-      </Card.Section>
+    <Card withBorder radius="md" p="lg">
+      <Text size="lg" fw={500} mb="sm">
+        Produtos com Estoque Baixo
+      </Text>
 
-      <Stack mt="md" gap="sm">
-        {lowStockProducts.length === 0 ? (
-          <Text c="dimmed" size="sm">
-            Nenhum produto com estoque baixo
-          </Text>
-        ) : (
-          lowStockProducts.map((product) => (
-            <Paper
-              key={product.id}
-              p="md"
+      {alerts.length === 0 ? (
+        <Text size="sm" c="dimmed">
+          Nenhum alerta de estoque no momento.
+        </Text>
+      ) : (
+        <Stack gap="xs">
+          {alerts.map((alert) => (
+            <Card
+              key={`${alert.name}-${alert.size}`}
+              shadow="sm"
+              p="sm"
               radius="md"
               withBorder
             >
-              <Group justify="space-between">
-                <div>
-                  <Text fw={500}>{product.name}</Text>
-                  <Text size="sm" c="dimmed">
-                    {product.category} • Tamanho {product.size}
-                  </Text>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <Badge  variant="outline">
-                    {product.stock} unidades
-                  </Badge>
-                  <Text size="xs" c="dimmed" mt={4}>
-                    Mín: {product.minStock}
-                  </Text>
-                </div>
-              </Group>
-            </Paper>
-          ))
-        )}
-      </Stack>
+              <Stack gap={0}>
+                <Text size="sm" fw={500}>
+                  {alert.name} ({alert.size})
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Categoria: {alert.category}
+                </Text>
+                <Text size="xs" c="orange">
+                  Estoque atual: {alert.stock} | Mínimo: {alert.minStock}
+                </Text>
+              </Stack>
+            </Card>
+          ))}
+        </Stack>
+      )}
     </Card>
   );
 };

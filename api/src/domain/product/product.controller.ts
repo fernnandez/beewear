@@ -12,6 +12,7 @@ import { UpdateProductStatusDto } from './dto/update-product-status.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
+import { StockDashboardDto } from './dto/stock-dashboard.dto';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Product')
@@ -85,5 +86,10 @@ export class ProductController {
       message: 'Produto atualizado com sucesso',
       data: product,
     };
+  }
+
+  @Get('dashboard/stock')
+  async getStockDashboard(): Promise<StockDashboardDto> {
+    return this.productService.getStockDashboard();
   }
 }

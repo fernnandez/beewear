@@ -3,6 +3,7 @@ import type {
   Product,
   ProductDetails,
   ProductFormValues,
+  StockDashboardDto,
 } from "src/types/product";
 import api from "./api";
 import { uploadImage } from "./storage.service";
@@ -31,6 +32,11 @@ export const createProduct = async (
 
 export const fetchProducts = async () => {
   const response = await api.get<Product[]>("/product");
+  return response.data;
+};
+
+export const fetchStockDashboard = async () => {
+  const response = await api.get<StockDashboardDto>("product/dashboard/stock");
   return response.data;
 };
 

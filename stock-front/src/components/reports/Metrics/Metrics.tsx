@@ -7,26 +7,36 @@ import {
   IconTrendingUp,
 } from "@tabler/icons-react";
 
-export const Metrics = () => {
+export const Metrics = ({
+  totalProducts,
+  totalValue,
+  lowStockCount,
+  noStockCount,
+}: {
+  totalProducts: number;
+  totalValue: number;
+  lowStockCount: number;
+  noStockCount: number;
+}) => {
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} mb="xl">
       <ValueCard
         title="Total de Produtos"
-        value={10}
+        value={totalProducts}
         description="itens cadastrados"
         icon={<IconPackage size={16} />}
       />
 
       <ValueCard
         title="Valor Total"
-        value="R$ 1.000"
+        value={totalValue}
         description="em estoque"
         icon={<IconTrendingUp size={16} />}
       />
 
       <ValueCard
         title="Estoque Baixo"
-        value={2}
+        value={lowStockCount}
         description="produtos em alerta"
         icon={<IconAlertTriangle size={16} />}
         iconColor="orange"
@@ -35,7 +45,7 @@ export const Metrics = () => {
 
       <ValueCard
         title="Sem Estoque"
-        value={3}
+        value={noStockCount}
         description="produtos esgotados"
         icon={<IconShoppingBag size={16} />}
         iconColor="red"

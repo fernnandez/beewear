@@ -64,3 +64,29 @@ export interface ProductDetails {
 export interface PartialUpdateProduct {
   name?: string;
 }
+
+export interface StockDashboardDto {
+  summary: {
+    totalProducts: number;
+    totalValue: number;
+    lowStockCount: number;
+    noStockCount: number;
+  };
+  lowStockAlerts: LowStockAlertDto[];
+  recentMovements: StockMovementSummaryDto[];
+}
+
+export interface LowStockAlertDto {
+  name: string;
+  category: string;
+  size: Size;
+  stock: number;
+  minStock: number;
+}
+
+export interface StockMovementSummaryDto {
+  productName: string;
+  date: string; // formato ISO (ex: '2025-07-12')
+  type: "Compra" | "Venda";
+  quantity: number; // positivo para entrada, negativo para saída
+}

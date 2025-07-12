@@ -66,28 +66,32 @@ export class CollectionService {
 
     const products = collection.products.map((product) => {
       const variations = product.variations.map((variation) => {
-        const quantity = 0;
-        const value = quantity * Number(variation.price);
+        const sizes = variation.sizes.map((sizeRelation) => {
+          const stockQty = sizeRelation.stock?.quantity ?? 0;
+
+          totalStock += stockQty;
+          totalValue += stockQty * Number(variation.price);
+
+          return {
+            size: sizeRelation.size, // supondo que `size` seja string ou enum
+            stock: stockQty,
+          };
+        });
 
         totalProducts += 1;
-        totalStock += quantity;
-        totalValue += value;
 
         return {
           publicId: variation.publicId,
           color: variation.color,
-          size: 'S',
           price: Number(variation.price),
-          stock: quantity,
+          stock: sizes.reduce((acc, s) => acc + s.stock, 0),
+          sizes,
         };
       });
 
-      // TODO: entender esse imageURL
       return {
         publicId: product.publicId,
         name: product.name,
-        imageUrl: '',
-        active: product.active,
         variations,
       };
     });
@@ -105,7 +109,6 @@ export class CollectionService {
         totalStock,
         totalValue,
       },
-      products,
     };
   }
 

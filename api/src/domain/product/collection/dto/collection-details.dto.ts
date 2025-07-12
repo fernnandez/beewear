@@ -64,6 +64,6 @@ export class CollectionDetailsDto {
   @ApiProperty({ type: CollectionAggregationsDto })
   aggregations: CollectionAggregationsDto;
 
-  @ApiProperty({ type: [ProductWithVariationsDto] })
-  products: ProductWithVariationsDto[];
+  // @ApiProperty({ type: [ProductWithVariationsDto] })
+  // products: ProductWithVariationsDto[];
 }

@@ -4,8 +4,10 @@ import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { Collection } from './collection/collection.entity';
 import { CreateProductDto } from './dto/create-product.dto';
+import { StockDashboardDto } from './dto/stock-dashboard.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
+import { Size } from './productVariation/product-variation-size.entity';
 import { ProductVariationService } from './productVariation/product-variation.service';
 
 @Injectable()
@@ -134,5 +136,105 @@ export class ProductService {
 
     this.productRepo.merge(product, dto);
     return this.productRepo.save(product);
+  }
+
+  async getStockDashboard(): Promise<StockDashboardDto> {
+    const products = await this.productRepo.find({
+      relations: {
+        collection: true,
+        variations: {
+          sizes: {
+            stock: {
+              movements: true,
+            },
+          },
+        },
+      },
+    });
+
+    let totalProducts = 0;
+    let totalValue = 0;
+    let lowStockCount = 0;
+    let noStockCount = 0;
+
+    const lowStockAlerts: {
+      name: string;
+      category: string;
+      size: Size;
+      stock: number;
+      minStock: number;
+    }[] = [];
+
+    const recentMovementsFlat: {
+      createdAt: Date;
+      productName: string;
+      type: 'Compra' | 'Venda';
+      quantity: number;
+    }[] = [];
+
+    for (const product of products) {
+      for (const variation of product.variations) {
+        for (const size of variation.sizes) {
+          const stock = size.stock;
+          if (!stock) continue;
+
+          const qty = stock.quantity;
+          const min = 5;
+
+          totalProducts += 1;
+          totalValue += qty * Number(variation.price);
+
+          if (qty === 0) {
+            noStockCount += 1;
+          } else if (qty < min) {
+            lowStockCount += 1;
+            lowStockAlerts.push({
+              name: product.name,
+              category: product.collection?.name ?? 'Sem categoria',
+              size: size.size,
+              stock: qty,
+              minStock: min,
+            });
+          }
+
+          // pegar os últimos movimentos (no plano local)
+          const sortedMovements = [...(stock.movements ?? [])].sort(
+            (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+          );
+
+          for (const m of sortedMovements.slice(0, 1)) {
+            if (m.description != 'Estoque inicial') {
+              recentMovementsFlat.push({
+                createdAt: m.createdAt,
+                productName: product.name,
+                type: m.type === 'IN' ? 'Compra' : 'Venda',
+                quantity: m.type === 'IN' ? m.quantity : -m.quantity,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    const recentMovements = recentMovementsFlat
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, 5)
+      .map((m) => ({
+        productName: m.productName,
+        date: m.createdAt.toISOString().split('T')[0],
+        type: m.type,
+        quantity: m.quantity,
+      }));
+
+    return {
+      summary: {
+        totalProducts,
+        totalValue,
+        lowStockCount,
+        noStockCount,
+      },
+      lowStockAlerts,
+      recentMovements,
+    };
   }
 }
