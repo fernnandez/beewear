@@ -1,4 +1,12 @@
-import { Button, Group, Modal, Paper, Stack, Text } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Modal,
+  Paper,
+  Stack,
+  Text,
+  useMantineColorScheme,
+} from "@mantine/core";
 import { IconAlertTriangle, IconCheck } from "@tabler/icons-react";
 
 interface SaveConfirmationModalProps {
@@ -16,6 +24,10 @@ export function SaveConfirmationModal({
   originalData,
   editData,
 }: SaveConfirmationModalProps) {
+  const { colorScheme } = useMantineColorScheme();
+
+  const paperBg = colorScheme === "dark" ? "dark.6" : "blue.0";
+
   return (
     <Modal
       opened={opened}
@@ -34,7 +46,7 @@ export function SaveConfirmationModal({
           </div>
         </Group>
 
-        <Paper p="md" withBorder bg="var(--mantine-color-blue-0)">
+        <Paper p="md" withBorder bg={paperBg}>
           <Stack gap="xs">
             {editData.name !== originalData.name && (
               <div>

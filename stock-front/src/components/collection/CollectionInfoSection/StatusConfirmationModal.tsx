@@ -1,4 +1,12 @@
-import { Button, Group, Modal, Paper, Stack, Text } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Modal,
+  Paper,
+  Stack,
+  Text,
+  useMantineColorScheme,
+} from "@mantine/core";
 import {
   IconAlertTriangle,
   IconToggleLeft,
@@ -20,6 +28,18 @@ export function StatusConfirmationModal({
   collectionName,
   pendingStatus,
 }: StatusConfirmationModalProps) {
+  const { colorScheme } = useMantineColorScheme();
+
+  const paperBg = pendingStatus
+    ? colorScheme === "dark"
+      ? "dark.6"
+      : "green.0"
+    : colorScheme === "dark"
+    ? "dark.6"
+    : "orange.0";
+
+  const iconColor = pendingStatus ? "green.6" : "orange.6";
+
   return (
     <Modal
       opened={opened}
@@ -31,11 +51,7 @@ export function StatusConfirmationModal({
         <Group>
           <IconAlertTriangle
             size={24}
-            color={
-              pendingStatus
-                ? "var(--mantine-color-green-6)"
-                : "var(--mantine-color-orange-6)"
-            }
+            color={`var(--mantine-color-${iconColor})`}
           />
           <div>
             <Text fw={500}>
@@ -50,20 +66,18 @@ export function StatusConfirmationModal({
           </div>
         </Group>
 
-        <Paper
-          p="md"
-          withBorder
-          bg={
-            pendingStatus
-              ? "var(--mantine-color-green-0)"
-              : "var(--mantine-color-orange-0)"
-          }
-        >
+        <Paper p="md" withBorder bg={paperBg}>
           <Group>
             {pendingStatus ? (
-              <IconToggleRight size={20} color="var(--mantine-color-green-6)" />
+              <IconToggleRight
+                size={20}
+                color={`var(--mantine-color-green-6)`}
+              />
             ) : (
-              <IconToggleLeft size={20} color="var(--mantine-color-orange-6)" />
+              <IconToggleLeft
+                size={20}
+                color={`var(--mantine-color-orange-6)`}
+              />
             )}
             <div>
               <Text size="sm" fw={500}>

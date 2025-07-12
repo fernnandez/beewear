@@ -49,3 +49,15 @@ export async function updateCollection(
   const response = await api.patch(`/collection/${publicId}`, data);
   return response.data;
 }
+
+export async function updateCollectionImage(
+  collectionPublicId: string,
+  image: File
+) {
+  const imageUrl = await uploadImage(image);
+
+  const { data } = await api.patch(`/collection/${collectionPublicId}/image`, {
+    image: imageUrl,
+  });
+  return data;
+}

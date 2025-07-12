@@ -39,6 +39,7 @@ export default function CollectionDetailPage() {
         name={collection.name}
         description={collection.description}
         image={collection.imageUrl || null}
+        publicId={collection.publicId}
       />
     </Container>
   );

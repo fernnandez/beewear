@@ -14,6 +14,7 @@ import { CollectionDetailsDto } from './dto/collection-details.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionStatusDto } from './dto/update-collection-status.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { UpdateCollectionImageDto } from './dto/update-collection-image.dto';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Collection')
@@ -85,6 +86,25 @@ export class CollectionController {
     return {
       message: 'Coleção atualizada com sucesso',
       data: collection,
+    };
+  }
+
+  @Patch(':publicId/image')
+  @ApiOperation({ summary: 'Atualiza imagem da coleção' })
+  @ApiParam({
+    name: 'publicId',
+    description: 'PublicId da variação do produto',
+  })
+  @ApiResponse({ status: 200, description: 'Imagem atualizada com sucesso' })
+  @ApiResponse({ status: 404, description: 'Coleção não encontrada' })
+  async updateVariationImages(
+    @Param('publicId') publicId: string,
+    @Body() dto: UpdateCollectionImageDto,
+  ) {
+    await this.collectionService.updateCollectionImage(publicId, dto);
+
+    return {
+      message: 'Imagem atualizada com sucesso',
     };
   }
 }
