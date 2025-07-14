@@ -102,8 +102,8 @@ export function ProductVariationSectionCard({
 
           <Menu position="bottom-end" withArrow>
             <Menu.Target>
-              <ActionIcon variant="subtle" size="sm">
-                <IconDotsVertical size={14} />
+              <ActionIcon variant="subtle" size="md">
+                <IconDotsVertical size={24} />
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
@@ -137,7 +137,7 @@ export function ProductVariationSectionCard({
           </Menu>
         </Group>
 
-        <Accordion variant="separated">
+        <Accordion variant="contained">
           <Accordion.Item value={`sizes-${variation.publicId}`}>
             <Accordion.Control>
               Tamanhos e Estoque ({variation.sizes.length})

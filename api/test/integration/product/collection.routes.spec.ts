@@ -161,7 +161,6 @@ describe('CollectionController - Integration (HTTP)', () => {
           totalValue: expect.any(Number),
         }),
       );
-      expect(response.body.products).toBeDefined();
     });
 
     it('should return 404 Not Found if collection not found', async () => {
@@ -169,6 +168,39 @@ describe('CollectionController - Integration (HTTP)', () => {
 
       await request(app.getHttpServer())
         .get(`/collection/${notFoundPublicId}`)
+        .expect(404)
+        .expect({
+          statusCode: 404,
+          message: 'Coleção não encontrada',
+          error: 'Not Found',
+        });
+    });
+  });
+
+  describe('PATCH /collection/:publicId/image', () => {
+    it('should update collection image by publicId', async () => {
+      const listResponse = await request(app.getHttpServer()).get(
+        '/collection',
+      );
+      const firstCollection = listResponse.body[0];
+
+      const response = await request(app.getHttpServer())
+        .patch(`/collection/${firstCollection.publicId}/image`)
+        .send({ image: 'test-image' })
+        .expect(200);
+
+      console.log(response);
+
+      expect(response.body).toBeDefined();
+      expect(response.body.message).toBe('Imagem atualizada com sucesso');
+    });
+
+    it('should return 404 Not Found if collection not found', async () => {
+      const notFoundPublicId = 'b00cd611-df8d-4be1-85b1-171c042a69d2';
+
+      await request(app.getHttpServer())
+        .patch(`/collection/${notFoundPublicId}/image`)
+        .send({ image: 'test-image' })
         .expect(404)
         .expect({
           statusCode: 404,

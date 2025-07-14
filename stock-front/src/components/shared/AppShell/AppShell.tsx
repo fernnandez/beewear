@@ -50,12 +50,12 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
     keepTransitions: true,
   });
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
     <AppShell
       header={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
+      navbar={{ width: 210, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
     >
       <AppShell.Header>
@@ -67,10 +67,12 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
               hiddenFrom="sm"
               size="sm"
             />
-            <Group>
-              <Image w={30} src={"/favicon.svg"} />
-              <Title order={4}>Beewear Stock</Title>
-            </Group>
+            <UnstyledButton component={Link} to="/">
+              <Group>
+                <Image w={30} src={"/favicon.svg"} />
+                <Title order={4}>Beewear Stock</Title>
+              </Group>
+            </UnstyledButton>
           </Group>
 
           <Menu shadow="md" width={200} position="bottom-end">

@@ -11,6 +11,18 @@ items:
     publicId: "d3b5674c-5b20-574f-9133-9625e821959a"
     quantity: 35
     productVariationSize: "@size_camiseta_fem_m_preta"
+  
+  stock_camiseta_fem_g_branca:
+    id: 408
+    publicId: "d3b5674c-5b20-574f-9133-9625e821959a"
+    quantity: 0
+    productVariationSize: "@size_camiseta_fem_g_branca"
+  
+  stock_camiseta_fem_gg_branca:
+    id: 500
+    publicId: "d3b5674c-5b20-574f-9133-9625e821959a"
+    quantity: 4
+    productVariationSize: "@size_camiseta_fem_gg_branca"
 
   stock_jeans_masc_40_azul:
     id: 403

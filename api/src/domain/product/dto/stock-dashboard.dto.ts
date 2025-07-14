@@ -12,6 +12,13 @@ export interface StockDashboardDto {
     stock: number;
     minStock: number;
   }[];
+  noStockAlerts: {
+    name: string;
+    category: string;
+    size: string;
+    stock: number;
+    minStock: number;
+  }[];
   recentMovements: {
     productName: string;
     date: string;

@@ -17,6 +17,7 @@ const config: Config = {
     '<rootDir>/src/domain/domain.module.ts',
     '<rootDir>/src/infra/infra.module.ts',
     '<rootDir>/src/infra/database/database.module.ts',
+    '<rootDir>/src/infra/database/migrations/.*\\.ts',
     '<rootDir>/src/infra/database/datasource.ts',
     '<rootDir>/src/config/.*\\.ts',
     '<rootDir>/src/.*\\.module\\.ts',

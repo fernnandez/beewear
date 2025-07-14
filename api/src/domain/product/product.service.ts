@@ -165,6 +165,14 @@ export class ProductService {
       minStock: number;
     }[] = [];
 
+    const noStockAlerts: {
+      name: string;
+      category: string;
+      size: Size;
+      stock: number;
+      minStock: number;
+    }[] = [];
+
     const recentMovementsFlat: {
       createdAt: Date;
       productName: string;
@@ -186,11 +194,18 @@ export class ProductService {
 
           if (qty === 0) {
             noStockCount += 1;
+            noStockAlerts.push({
+              name: product.name,
+              category: product.collection?.name ?? 'Sem coleção',
+              size: size.size,
+              stock: qty,
+              minStock: min,
+            });
           } else if (qty < min) {
             lowStockCount += 1;
             lowStockAlerts.push({
               name: product.name,
-              category: product.collection?.name ?? 'Sem categoria',
+              category: product.collection?.name ?? 'Sem coleção',
               size: size.size,
               stock: qty,
               minStock: min,
@@ -233,6 +248,7 @@ export class ProductService {
         lowStockCount,
         noStockCount,
       },
+      noStockAlerts,
       lowStockAlerts,
       recentMovements,
     };

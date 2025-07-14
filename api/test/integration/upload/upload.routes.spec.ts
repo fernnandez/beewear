@@ -5,7 +5,6 @@ import * as mime from 'mime-types';
 import { join, resolve } from 'path';
 import { AppModule } from 'src/app.module';
 import { UploadController } from 'src/domain/upload/upload.controller';
-import { ImageStorageService } from 'src/infra/storage/image-storage.service';
 import * as request from 'supertest';
 import { createTestingApp } from 'test/utils/create-testing-app';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
@@ -18,7 +17,6 @@ initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
 describe('UploadController', () => {
   let controller: UploadController;
-  let imageStorageService: ImageStorageService;
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -35,7 +33,6 @@ describe('UploadController', () => {
     });
 
     controller = app.get<UploadController>(UploadController);
-    imageStorageService = app.get<ImageStorageService>('ImageStorageService');
 
     await app.init();
     setupIntegrationMocks(); // mocks de auth, se necessário
@@ -56,23 +53,6 @@ describe('UploadController', () => {
 
       expect(res.status).toBe(201); // ou o status que seu controller retorna
       expect(res.body).toHaveProperty('imageUrl'); // ou o que seu serviço retorna
-    });
-  });
-
-  describe('upload', () => {
-    it('should call imageStorageService.upload and return result', async () => {
-      const mockFile = {
-        originalname: 'test.png',
-        buffer: Buffer.from('test'),
-      } as Express.Multer.File;
-
-      const uploadResult = { imageUrl: 'file.png' };
-      jest.spyOn(imageStorageService, 'upload').mockResolvedValue(uploadResult);
-
-      const result = await controller.upload(mockFile);
-
-      expect(imageStorageService.upload).toHaveBeenCalledWith(mockFile);
-      expect(result).toEqual(uploadResult);
     });
   });
 

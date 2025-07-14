@@ -73,6 +73,7 @@ export interface StockDashboardDto {
     noStockCount: number;
   };
   lowStockAlerts: LowStockAlertDto[];
+  noStockAlerts: LowStockAlertDto[];
   recentMovements: StockMovementSummaryDto[];
 }
 
@@ -85,6 +86,8 @@ export interface LowStockAlertDto {
 }
 
 export interface StockMovementSummaryDto {
+  // TODO pegar o tamanho aqui também
+  productSize: string;
   productName: string;
   date: string; // formato ISO (ex: '2025-07-12')
   type: "Compra" | "Venda";

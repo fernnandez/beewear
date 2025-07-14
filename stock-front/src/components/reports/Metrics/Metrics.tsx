@@ -25,13 +25,17 @@ export const Metrics = ({
         value={totalProducts}
         description="itens cadastrados"
         icon={<IconPackage size={16} />}
+        iconColor="blue"
+        valueColor="blue"
       />
 
       <ValueCard
         title="Valor Total"
-        value={totalValue}
+        value={`R$ ${totalValue}`}
         description="em estoque"
         icon={<IconTrendingUp size={16} />}
+        iconColor="green"
+        valueColor="green"
       />
 
       <ValueCard

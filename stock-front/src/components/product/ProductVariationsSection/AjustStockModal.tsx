@@ -9,6 +9,7 @@ import {
   Text,
   Textarea,
   ThemeIcon,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
@@ -45,6 +46,12 @@ export const AdjustStockModal = ({
   productPublicId,
   size,
 }: AdjustStockModalProps) => {
+  const { colorScheme } = useMantineColorScheme();
+
+  function getBgColor(lightColor: string, darkColor: string) {
+    return colorScheme === "light" ? lightColor : darkColor;
+  }
+
   const form = useForm({
     initialValues: {
       newQuantity: size.stock.quantity,
@@ -116,11 +123,15 @@ export const AdjustStockModal = ({
       opened={opened}
       onClose={handleClose}
       title="Ajustar Estoque"
-      size="md"
+      size="xl"
     >
       <form onSubmit={handleSubmit}>
         <Stack>
-          <Paper p="md" withBorder bg="var(--mantine-color-gray-0)">
+          <Paper
+            p="md"
+            withBorder
+            bg={getBgColor("var(--mantine-color-gray-0)", "var(--mantine-color-dark-7)")}
+          >
             <Group>
               <Box
                 w={24}
@@ -182,9 +193,6 @@ export const AdjustStockModal = ({
           />
 
           <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={handleClose}>
-              Cancelar
-            </Button>
             <Button
               leftSection={<IconDeviceFloppy size={16} />}
               type="submit"

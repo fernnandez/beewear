@@ -64,11 +64,10 @@ export class CollectionService {
     let totalStock = 0;
     let totalValue = 0;
 
-    const products = collection.products.map((product) => {
+    collection.products.map((product) => {
       const variations = product.variations.map((variation) => {
         const sizes = variation.sizes.map((sizeRelation) => {
-          const stockQty = sizeRelation.stock?.quantity ?? 0;
-
+          const stockQty = sizeRelation.stock.quantity;
           totalStock += stockQty;
           totalValue += stockQty * Number(variation.price);
 

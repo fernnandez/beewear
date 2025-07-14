@@ -2,6 +2,7 @@ import { Metrics } from "@components/reports/Metrics/Metrics";
 import { QuickActions } from "@components/reports/QuickActions/QuickActions";
 import { RecentMovements } from "@components/reports/RecentMovements/RecentMovements";
 import { StockAlert } from "@components/reports/StockAlert/StockAlert";
+import { WithoutStock } from "@components/reports/WithoutStock/SithoutStock";
 import { Loading } from "@components/shared";
 import { Container, Group, SimpleGrid, Text, Title } from "@mantine/core";
 import { fetchStockDashboard } from "@services/product.service";
@@ -35,9 +36,10 @@ export default function ReportsPage() {
         noStockCount={reports.summary.noStockCount}
       />
 
-      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg" mb="xl">
+      <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg" mb="xl">
         <StockAlert alerts={reports.lowStockAlerts} />
 
+        <WithoutStock alerts={reports.noStockAlerts} />
         <RecentMovements movements={reports.recentMovements} />
       </SimpleGrid>
     </Container>

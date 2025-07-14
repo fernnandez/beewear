@@ -1,9 +1,9 @@
 import { Loading } from "@components/shared";
+import { ProductVariationSize } from "@localTypes/product";
 import { StockMovement } from "@localTypes/stock";
 import {
   Badge,
   Box,
-  Button,
   Flex,
   Group,
   Modal,
@@ -13,11 +13,8 @@ import {
   Table,
   Text,
   ThemeIcon,
+  useMantineColorScheme,
 } from "@mantine/core";
-
-import { useQuery } from "@tanstack/react-query";
-
-import { ProductVariationSize } from "@localTypes/product";
 import { fetchStockMovements } from "@services/stock.service";
 import {
   IconClock,
@@ -27,6 +24,7 @@ import {
   IconTrendingUp,
   IconUser,
 } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { formatDateShort } from "@utils/formatDate";
 
 interface MovementHistoryModalProps {
@@ -44,11 +42,26 @@ export const MovementHistoryModal = ({
   size,
   variationColor,
 }: MovementHistoryModalProps) => {
+  const { colorScheme } = useMantineColorScheme();
+
+  function getBgColor(lightColor: string, darkColor: string) {
+    return colorScheme === "light" ? lightColor : darkColor;
+  }
+
   const { data: movements, isLoading } = useQuery<StockMovement[]>({
     queryKey: ["movements", stockItemPublicId],
-    queryFn: () => fetchStockMovements(stockItemPublicId!),
+    queryFn: () => fetchStockMovements(stockItemPublicId),
     enabled: !!stockItemPublicId,
   });
+
+  const totalIn =
+    movements
+      ?.filter((m) => m.type === "IN")
+      .reduce((sum, m) => sum + m.quantity, 0) ?? 0;
+  const totalOut =
+    movements
+      ?.filter((m) => m.type === "OUT")
+      .reduce((sum, m) => sum + m.quantity, 0) ?? 0;
 
   return (
     <Modal
@@ -60,7 +73,15 @@ export const MovementHistoryModal = ({
       {isLoading && <Loading />}
       {movements && (
         <Stack>
-          <Paper p="md" withBorder bg="var(--mantine-color-gray-0)">
+          {/* Header com dados da variação */}
+          <Paper
+            p="md"
+            withBorder
+            bg={getBgColor(
+              "var(--mantine-color-gray-0)}",
+              "var(--mantine-color-dark-7)"
+            )}
+          >
             <Group>
               <Box
                 w={32}
@@ -75,7 +96,7 @@ export const MovementHistoryModal = ({
                 <Text size="sm" c="dimmed">
                   Estoque atual:{" "}
                   <Text span fw={500}>
-                    {size.stock.quantity} unidades
+                    {size?.stock?.quantity ?? 0} unidades
                   </Text>
                 </Text>
                 <Text size="sm" c="dimmed">
@@ -88,6 +109,7 @@ export const MovementHistoryModal = ({
             </Group>
           </Paper>
 
+          {/* Tabela de movimentações */}
           {movements.length > 0 ? (
             <Paper withBorder>
               <Table striped highlightOnHover>
@@ -117,22 +139,23 @@ export const MovementHistoryModal = ({
                       </Table.Td>
                       <Table.Td>
                         <Group gap="xs">
-                          {movement.type === "IN" ? (
-                            <ThemeIcon color="green" variant="light" size="sm">
+                          <ThemeIcon
+                            color={movement.type === "IN" ? "green" : "orange"}
+                            variant="light"
+                            size="sm"
+                          >
+                            {movement.type === "IN" ? (
                               <IconTrendingUp size={12} />
-                            </ThemeIcon>
-                          ) : (
-                            <ThemeIcon color="orange" variant="light" size="sm">
+                            ) : (
                               <IconTrendingDown size={12} />
-                            </ThemeIcon>
-                          )}
+                            )}
+                          </ThemeIcon>
                           <Badge
                             color={movement.type === "IN" ? "green" : "orange"}
                             variant="light"
                             size="sm"
                           >
-                            {movement.type.charAt(0).toUpperCase() +
-                              movement.type.slice(1)}
+                            {movement.type === "IN" ? "Entrada" : "Saída"}
                           </Badge>
                         </Group>
                       </Table.Td>
@@ -162,7 +185,8 @@ export const MovementHistoryModal = ({
                             size={14}
                             color="var(--mantine-color-gray-6)"
                           />
-                          <Text size="sm">admin</Text>
+                          <Text size="sm">admin</Text>{" "}
+                          {/* futuramente: movement.user.name */}
                         </Group>
                       </Table.Td>
                       <Table.Td>
@@ -173,10 +197,10 @@ export const MovementHistoryModal = ({
                           />
                           <Text
                             size="sm"
-                            style={{ maxWidth: "200px" }}
                             truncate
+                            style={{ maxWidth: "200px" }}
                           >
-                            {movement.description}
+                            {movement.description ?? "—"}
                           </Text>
                         </Group>
                       </Table.Td>
@@ -198,19 +222,24 @@ export const MovementHistoryModal = ({
             </Paper>
           )}
 
-          {/* Resumo das movimentações */}
+          {/* Resumo */}
           {movements.length > 0 && (
             <SimpleGrid cols={3} spacing="md">
-              <Paper p="md" withBorder bg="var(--mantine-color-green-0)">
+              <Paper
+                p="md"
+                withBorder
+                bg={getBgColor(
+                  "var(--mantine-color-green-0)}",
+                  "var(--mantine-color-dark-7)"
+                )}
+              >
                 <Group justify="space-between">
                   <div>
                     <Text size="sm" fw={500} c="green">
                       Total Entradas
                     </Text>
                     <Text fw={700} size="lg" c="green">
-                      {movements
-                        .filter((m) => m.type === "IN")
-                        .reduce((sum, m) => sum + m.quantity, 0)}
+                      {totalIn}
                     </Text>
                   </div>
                   <ThemeIcon color="green" variant="light">
@@ -219,16 +248,21 @@ export const MovementHistoryModal = ({
                 </Group>
               </Paper>
 
-              <Paper p="md" withBorder bg="var(--mantine-color-orange-0)">
+              <Paper
+                p="md"
+                withBorder
+                bg={getBgColor(
+                  "var(--mantine-color-orange-0)}",
+                  "var(--mantine-color-dark-7)"
+                )}
+              >
                 <Group justify="space-between">
                   <div>
                     <Text size="sm" fw={500} c="orange">
                       Total Saídas
                     </Text>
                     <Text fw={700} size="lg" c="orange">
-                      {movements
-                        .filter((m) => m.type === "OUT")
-                        .reduce((sum, m) => sum + m.quantity, 0)}
+                      {totalOut}
                     </Text>
                   </div>
                   <ThemeIcon color="orange" variant="light">
@@ -237,7 +271,14 @@ export const MovementHistoryModal = ({
                 </Group>
               </Paper>
 
-              <Paper p="md" withBorder bg="var(--mantine-color-blue-0)">
+              <Paper
+                p="md"
+                withBorder
+                bg={getBgColor(
+                  "var(--mantine-color-blue-0)}",
+                  "var(--mantine-color-dark-7)"
+                )}
+              >
                 <Group justify="space-between">
                   <div>
                     <Text size="sm" fw={500} c="blue">
@@ -254,12 +295,6 @@ export const MovementHistoryModal = ({
               </Paper>
             </SimpleGrid>
           )}
-
-          <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={onClose}>
-              Fechar
-            </Button>
-          </Group>
         </Stack>
       )}
     </Modal>

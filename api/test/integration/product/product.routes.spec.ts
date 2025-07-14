@@ -419,4 +419,40 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
       }),
     );
   });
+
+  describe('/product/dashboard/stock (GET)', () => {
+    it(
+      'should return stock dashboard summary and alerts',
+      runWithRollbackTransaction(async () => {
+        const response = await request(app.getHttpServer())
+          .get('/product/dashboard/stock')
+          .expect(200);
+
+        const body = response.body;
+
+        expect(body).toHaveProperty('summary');
+        expect(body.summary).toHaveProperty('totalProducts');
+        expect(body.summary).toHaveProperty('totalValue');
+        expect(body.summary).toHaveProperty('lowStockCount');
+        expect(body.summary).toHaveProperty('noStockCount');
+
+        expect(typeof body.summary.totalProducts).toBe('number');
+        expect(typeof body.summary.totalValue).toBe('number');
+        expect(typeof body.summary.lowStockCount).toBe('number');
+        expect(typeof body.summary.noStockCount).toBe('number');
+
+        expect(Array.isArray(body.lowStockAlerts)).toBe(true);
+        expect(Array.isArray(body.noStockAlerts)).toBe(true);
+        expect(Array.isArray(body.recentMovements)).toBe(true);
+
+        if (body.recentMovements.length > 0) {
+          const movement = body.recentMovements[0];
+          expect(movement).toHaveProperty('productName');
+          expect(movement).toHaveProperty('date');
+          expect(movement).toHaveProperty('type');
+          expect(movement).toHaveProperty('quantity');
+        }
+      }),
+    );
+  });
 });

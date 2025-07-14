@@ -7,6 +7,22 @@ items:
     productVariation: "@variation_camiseta_fem_branca"
     createdAt: "2024-01-08T13:01:00Z"
     updatedAt: "2024-01-08T13:01:00Z"
+  
+  size_camiseta_fem_gg_branca:
+    id: 309
+    publicId: "efc3bbbc-2290-47cd-ad95-5b547ee7b68c"
+    size: "XL"
+    productVariation: "@variation_camiseta_fem_branca"
+    createdAt: "2024-01-08T13:01:00Z"
+    updatedAt: "2024-01-08T13:01:00Z"
+
+  size_camiseta_fem_g_branca:
+    id: 309
+    publicId: "58364d8f-ae3b-4183-8f86-722c2b6bd7d4"
+    size: "L"
+    productVariation: "@variation_camiseta_fem_branca"
+    createdAt: "2024-01-08T13:01:00Z"
+    updatedAt: "2024-01-08T13:01:00Z"
 
   size_camiseta_fem_m_preta:
     id: 302

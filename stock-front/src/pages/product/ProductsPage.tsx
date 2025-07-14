@@ -169,7 +169,7 @@ export default function ProductsPage() {
                 <Table.Tr key={product.publicId}>
                   <Table.Td>
                     <Group>
-                      <Avatar color="blue" radius="sm" size="md">
+                      <Avatar color="yellow" radius="sm" size="md">
                         {product.name.charAt(0)}
                       </Avatar>
                       <div>
@@ -184,7 +184,7 @@ export default function ProductsPage() {
                   <Table.Td>
                     <Badge
                       variant="light"
-                      color={product.collection.active ? "blue" : "gray"}
+                      color={product.collection.active ? "yellow" : "gray"}
                       size="sm"
                     >
                       {product.collection.name}
@@ -250,7 +250,7 @@ export default function ProductsPage() {
                     <Menu position="bottom-end" withArrow>
                       <Menu.Target>
                         <ActionIcon variant="subtle">
-                          <IconDotsVertical size={16} />
+                          <IconDotsVertical size={20} />
                         </ActionIcon>
                       </Menu.Target>
                       <Menu.Dropdown>

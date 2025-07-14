@@ -22,7 +22,7 @@ export const RecentMovements = ({ movements }: RecentMovementsProps) => {
               <div>
                 <Text fw={500}>{movement.productName}</Text>
                 <Text size="sm" c="dimmed">
-                  {movement.date} • {movement.quantity}
+                  {movement.date}
                 </Text>
               </div>
               <Badge
