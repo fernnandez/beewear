@@ -14,10 +14,9 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { Response } from 'express';
 import { createReadStream, existsSync } from 'fs';
 import * as mime from 'mime-types';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { memoryStorage } from 'multer';
+import { basename, extname, join } from 'path';
 import { ImageStorageService } from 'src/infra/storage/image-storage.service';
-import { v4 as uuidv4 } from 'uuid';
 
 const uploadsDir = join(process.cwd(), 'uploads/images');
 
@@ -31,13 +30,10 @@ export class UploadController {
   @Post()
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: uploadsDir,
-        filename: (_, file, cb) => {
-          const uniqueName = `${uuidv4()}${extname(file.originalname)}`;
-          cb(null, uniqueName);
-        },
-      }),
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
     }),
   )
   @ApiConsumes('multipart/form-data')
@@ -53,7 +49,19 @@ export class UploadController {
     },
   })
   async upload(@UploadedFile() file: Express.Multer.File) {
-    return this.imageStorageService.upload(file);
+    // Gera nome baseado no nome original, sem extensão
+    const baseName = basename(file.originalname, extname(file.originalname));
+    const safeName = baseName.replace(/\s+/g, '_').toLowerCase();
+
+    const imageUrl = await this.imageStorageService.upload(
+      file.buffer,
+      safeName,
+    );
+
+    return {
+      url: imageUrl,
+      filename: file.originalname,
+    };
   }
 
   @Get(':filename')

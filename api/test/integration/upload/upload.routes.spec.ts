@@ -6,7 +6,7 @@ import { join, resolve } from 'path';
 import { AppModule } from 'src/app.module';
 import { UploadController } from 'src/domain/upload/upload.controller';
 import * as request from 'supertest';
-import { createTestingApp } from 'test/utils/create-testing-app';
+import { createTestingAppWithOverrides } from 'test/utils/create-testing-overrides-app';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
 import {
   initializeTransactionalContext,
@@ -15,19 +15,21 @@ import {
 
 initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
+const mockImageStorageService = {
+  upload: jest.fn().mockResolvedValue('https://mocked-url.com/image.png'),
+};
+
 describe('UploadController', () => {
   let controller: UploadController;
   let app: INestApplication;
 
   beforeAll(async () => {
-    app = await createTestingApp({
+    app = await createTestingAppWithOverrides({
       imports: [AppModule],
-      providers: [
+      overrideProviders: [
         {
           provide: 'ImageStorageService',
-          useValue: {
-            upload: jest.fn(),
-          },
+          useValue: mockImageStorageService,
         },
       ],
     });
@@ -51,8 +53,12 @@ describe('UploadController', () => {
         .post('/upload')
         .attach('file', filePath);
 
-      expect(res.status).toBe(201); // ou o status que seu controller retorna
-      expect(res.body).toHaveProperty('imageUrl'); // ou o que seu serviço retorna
+      expect(res.status).toBe(201);
+      expect(res.body).toHaveProperty(
+        'url',
+        'https://mocked-url.com/image.png',
+      );
+      expect(mockImageStorageService.upload).toHaveBeenCalled();
     });
   });
 

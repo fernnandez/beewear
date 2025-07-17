@@ -1,9 +1,7 @@
-// test/utils/create-testing-app.ts
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Type } from '@nestjs/common/interfaces';
 
-interface CreateTestingAppOptions {
+export interface CreateTestingAppOptions {
   imports?: any[];
   providers?: any[];
   controllers?: any[];

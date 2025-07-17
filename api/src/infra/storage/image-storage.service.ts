@@ -1,3 +1,3 @@
 export interface ImageStorageService {
-  upload(file: Express.Multer.File): Promise<{ imageUrl: string }>;
+  upload(fileBuffer: Buffer, filename: string): Promise<string>;
 }

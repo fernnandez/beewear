@@ -209,19 +209,22 @@ describe('CollectionController - Integration (HTTP)', () => {
   });
 
   describe('DELETE /collection/:publicId', () => {
-    it('should delete collection by publicId', async () => {
-      const listResponse = await request(app.getHttpServer()).get(
-        '/collection',
-      );
-      const firstCollection = listResponse.body[0];
+    it(
+      'should delete collection by publicId',
+      runWithRollbackTransaction(async () => {
+        const listResponse = await request(app.getHttpServer()).get(
+          '/collection',
+        );
+        const firstCollection = listResponse.body[0];
 
-      const response = await request(app.getHttpServer())
-        .delete(`/collection/${firstCollection.publicId}`)
-        .expect(200);
+        const response = await request(app.getHttpServer())
+          .delete(`/collection/${firstCollection.publicId}`)
+          .expect(200);
 
-      expect(response.body).toBeDefined();
-      expect(response.body.message).toBe('Coleção excluida com sucesso');
-    });
+        expect(response.body).toBeDefined();
+        expect(response.body.message).toBe('Coleção excluida com sucesso');
+      }),
+    );
 
     it('should return 404 Not Found if collection not found', async () => {
       const notFoundPublicId = 'b00cd611-df8d-4be1-85b1-171c042a69d2';

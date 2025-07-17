@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { LocalImageStorageService } from './local-image-storage.service';
+import { CloudinaryImageStorageService } from './cloudinary-image-storage.service';
 
 @Module({
   providers: [
     {
       provide: 'ImageStorageService',
       // TODO: usar useFactory para determinar implementação com base no env
-      useClass: LocalImageStorageService,
+      useClass: CloudinaryImageStorageService,
     },
   ],
   exports: ['ImageStorageService'],

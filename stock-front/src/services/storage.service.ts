@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "./api";
 
 export async function uploadImage(file: File): Promise<string> {
@@ -5,11 +6,11 @@ export async function uploadImage(file: File): Promise<string> {
   formData.append("file", file);
 
   const res = await api.post("/upload", formData);
-  return res.data.imageUrl;
+  return res.data.url;
 }
 
-export async function getImage(filename: string): Promise<string> {
-  const response = await api.get(`/upload/${filename}`, {
+export async function getImage(url: string): Promise<string> {
+  const response = await axios.get(`${url}`, {
     responseType: "blob",
   });
 
