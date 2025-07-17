@@ -34,11 +34,10 @@ export class Product {
   variations: ProductVariation[];
 
   @ManyToOne(() => Collection, (collection) => collection.products, {
-    nullable: true,
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
-  collection?: Collection;
+  collection: Collection;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -22,11 +22,13 @@ import { createProduct } from "@services/product.service";
 import { IconGavel, IconPackage } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ProductFormValues } from "src/types/product";
 import { ProductVariationActions } from "./ProductVariationActions";
 import { ProductVariationForm } from "./ProductVariationForm";
 
 export function NewProductForm() {
+  const navigate = useNavigate();
   const [modalOpened, { open: openModal, close: closeModal }] =
     useDisclosure(false);
   const [pendingAction, setPendingAction] = useState<() => void>(
@@ -97,6 +99,7 @@ export function NewProductForm() {
       color: "green",
     });
     form.reset();
+    navigate("/products");
   };
 
   const collectionOptions = collections.map((col) => ({

@@ -50,6 +50,11 @@ export async function updateCollection(
   return response.data;
 }
 
+export const deleteCollection = async (publicId: string) => {
+  const response = await api.delete(`/collection/${publicId}`);
+  return response.data;
+};
+
 export async function updateCollectionImage(
   collectionPublicId: string,
   image: File
