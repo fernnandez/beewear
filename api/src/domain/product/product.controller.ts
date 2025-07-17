@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -8,11 +16,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
+import { StockDashboardDto } from './dto/stock-dashboard.dto';
 import { UpdateProductStatusDto } from './dto/update-product-status.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
-import { StockDashboardDto } from './dto/stock-dashboard.dto';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Product')
@@ -91,5 +99,14 @@ export class ProductController {
   @Get('dashboard/stock')
   async getStockDashboard(): Promise<StockDashboardDto> {
     return this.productService.getStockDashboard();
+  }
+
+  @Delete(':publicId')
+  async delete(@Param('publicId') publicId: string) {
+    await this.productService.delete(publicId);
+
+    return {
+      message: 'Produto excluido com sucesso',
+    };
   }
 }

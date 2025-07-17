@@ -420,6 +420,46 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
     );
   });
 
+  describe('/product/:publicId (DELETE)', () => {
+    it(
+      'should delete a product by publicId',
+      runWithRollbackTransaction(async () => {
+        const existingProduct = await productRepo.findOneBy({
+          name: 'Calça Jeans Masculina Slim Fit',
+        });
+
+        expect(existingProduct).toBeDefined();
+
+        const response = await request(app.getHttpServer())
+          .delete(`/product/${existingProduct!.publicId}`)
+          .expect(200);
+
+        expect(response.body.message).toBe('Produto excluido com sucesso');
+
+        const deletedProduct = await productRepo.findOneBy({
+          id: existingProduct!.id,
+        });
+
+        expect(deletedProduct).toBeNull();
+      }),
+    );
+
+    it(
+      'should return 404 if product with given publicId does not exist',
+      runWithRollbackTransaction(async () => {
+        const response = await request(app.getHttpServer())
+          .delete('/product/00000000-0000-0000-0000-000000000000')
+          .expect(404);
+
+        expect(response.body).toEqual({
+          statusCode: 404,
+          message: 'Produto não encontrado',
+          error: 'Not Found',
+        });
+      }),
+    );
+  });
+
   describe('/product/dashboard/stock (GET)', () => {
     it(
       'should return stock dashboard summary and alerts',

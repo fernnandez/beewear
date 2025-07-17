@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -12,9 +20,9 @@ import { Collection } from './collection.entity';
 import { CollectionService } from './collection.service';
 import { CollectionDetailsDto } from './dto/collection-details.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { UpdateCollectionImageDto } from './dto/update-collection-image.dto';
 import { UpdateCollectionStatusDto } from './dto/update-collection-status.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
-import { UpdateCollectionImageDto } from './dto/update-collection-image.dto';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Collection')
@@ -105,6 +113,19 @@ export class CollectionController {
 
     return {
       message: 'Imagem atualizada com sucesso',
+    };
+  }
+
+  @Delete(':publicId')
+  @ApiOperation({ summary: 'Exclui uma coleção' })
+  @ApiParam({ name: 'publicId', type: String, required: true })
+  @ApiResponse({ status: 200, description: 'Coleção excluida com sucesso' })
+  @ApiResponse({ status: 404, description: 'Coleção nao encontrada' })
+  async delete(@Param('publicId') publicId: string) {
+    await this.collectionService.delete(publicId);
+
+    return {
+      message: 'Coleção excluida com sucesso',
     };
   }
 }

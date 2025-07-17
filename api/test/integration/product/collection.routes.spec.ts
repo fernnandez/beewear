@@ -189,8 +189,6 @@ describe('CollectionController - Integration (HTTP)', () => {
         .send({ image: 'test-image' })
         .expect(200);
 
-      console.log(response);
-
       expect(response.body).toBeDefined();
       expect(response.body.message).toBe('Imagem atualizada com sucesso');
     });
@@ -201,6 +199,35 @@ describe('CollectionController - Integration (HTTP)', () => {
       await request(app.getHttpServer())
         .patch(`/collection/${notFoundPublicId}/image`)
         .send({ image: 'test-image' })
+        .expect(404)
+        .expect({
+          statusCode: 404,
+          message: 'Coleção não encontrada',
+          error: 'Not Found',
+        });
+    });
+  });
+
+  describe('DELETE /collection/:publicId', () => {
+    it('should delete collection by publicId', async () => {
+      const listResponse = await request(app.getHttpServer()).get(
+        '/collection',
+      );
+      const firstCollection = listResponse.body[0];
+
+      const response = await request(app.getHttpServer())
+        .delete(`/collection/${firstCollection.publicId}`)
+        .expect(200);
+
+      expect(response.body).toBeDefined();
+      expect(response.body.message).toBe('Coleção excluida com sucesso');
+    });
+
+    it('should return 404 Not Found if collection not found', async () => {
+      const notFoundPublicId = 'b00cd611-df8d-4be1-85b1-171c042a69d2';
+
+      await request(app.getHttpServer())
+        .delete(`/collection/${notFoundPublicId}`)
         .expect(404)
         .expect({
           statusCode: 404,

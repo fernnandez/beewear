@@ -25,7 +25,8 @@
     "test:watch": "jest --watch --config jest.config.ts",
     "test:cov": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --coverage --config jest.config.ts",
     "test:unit": "jest --testRegex 'test/unit/.*\\.spec\\.ts$' --config jest.config.ts",
-    "badge:coverage": "coverage-badges --in=coverage/coverage-summary.json && node scripts/move-badge.cjs"
+    "badge:coverage": "coverage-badges --in=coverage/coverage-summary.json && node scripts/move-badge.cjs",
+    "swagger:generate": "ts-node -r tsconfig-paths/register scripts/generate-swagger.ts"
   },
   "dependencies": {
     "@mantine/dropzone": "^8.1.1",

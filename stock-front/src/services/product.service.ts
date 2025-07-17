@@ -60,3 +60,8 @@ export async function updateProduct(
   const response = await api.patch(`/product/${publicId}`, data);
   return response.data;
 }
+
+export const deleteProduct = async (publicId: string) => {
+  const response = await api.delete(`/product/${publicId}`);
+  return response.data;
+};

@@ -138,6 +138,16 @@ export class ProductService {
     return this.productRepo.save(product);
   }
 
+  async delete(publicId: string) {
+    const product = await this.productRepo.findOneBy({ publicId });
+
+    if (!product) throw new NotFoundException('Produto não encontrado');
+
+    await this.productRepo.remove(product);
+  }
+
+  // TODO: implementar cobertura para essa função
+  /* istanbul ignore next */
   async getStockDashboard(): Promise<StockDashboardDto> {
     const products = await this.productRepo.find({
       relations: {

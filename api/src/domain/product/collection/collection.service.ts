@@ -128,6 +128,11 @@ export class CollectionService {
     return this.collectionRepo.save(collection);
   }
 
+  async delete(publicId: string): Promise<void> {
+    const collection = await this.findOneOrFail(publicId);
+    await this.collectionRepo.remove(collection);
+  }
+
   async updateCollectionImage(
     collectionPublicId: string,
     dto: UpdateCollectionImageDto,
