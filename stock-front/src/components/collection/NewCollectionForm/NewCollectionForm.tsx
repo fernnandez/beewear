@@ -17,6 +17,8 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { createCollection } from "@services/collection.service";
 import { IconCheck, IconInfoCircle, IconPhoto } from "@tabler/icons-react";
+import { getAxiosErrorMessage } from "@utils/getAxiosErrorMessage";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CollectionPreview } from "../CollectionPreview/CollectionPreview";
 
@@ -29,6 +31,8 @@ interface FormValues {
 
 export const NewCollectionForm = () => {
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -53,20 +57,34 @@ export const NewCollectionForm = () => {
       return;
     }
 
-    await createCollection({
-      name: form.values.name,
-      description: form.values.description,
-      active: form.values.active,
-      imageFile: form.values.imageFile,
-    });
+    try {
+      setIsLoading(true);
+      await createCollection({
+        name: form.values.name,
+        description: form.values.description,
+        active: form.values.active,
+        imageFile: form.values.imageFile,
+      });
 
-    notifications.show({
-      title: "Coleção criada",
-      message: `Coleção "${form.values.name}" criada com sucesso.`,
-      color: "green",
-    });
+      notifications.show({
+        title: "Coleção criada",
+        message: `Coleção "${form.values.name}" criada com sucesso.`,
+        color: "green",
+      });
 
-    navigate("/collections");
+      navigate("/collections");
+    } catch (error) {
+      notifications.show({
+        title: "Erro",
+        message: getAxiosErrorMessage(
+          error,
+          "Erro desconhecido ao cadastrar a coleção."
+        ),
+        color: "red",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -143,6 +161,7 @@ export const NewCollectionForm = () => {
             type="submit"
             leftSection={<IconCheck size={16} />}
             disabled={!form.values.name}
+            loading={isLoading}
           >
             Criar Coleção
           </Button>

@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { ProductFormValues } from "src/types/product";
 import { ProductVariationActions } from "./ProductVariationActions";
 import { ProductVariationForm } from "./ProductVariationForm";
+import { getAxiosErrorMessage } from "@utils/getAxiosErrorMessage";
 
 export function NewProductForm() {
   const navigate = useNavigate();
@@ -35,7 +36,9 @@ export function NewProductForm() {
     () => () => {}
   );
 
-  const { data: collections = [], isLoading } = useQuery({
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { data: collections = [], isLoading: isLoadingCollections } = useQuery({
     queryKey: ["collections"],
     queryFn: fetchCollections,
   });
@@ -84,6 +87,7 @@ export function NewProductForm() {
       });
       return;
     }
+
     if (form.values.variations.some((v) => !v.color || !v.name)) {
       notifications.show({
         title: "Erro nas variações",
@@ -92,14 +96,30 @@ export function NewProductForm() {
       });
       return;
     }
-    await createProduct(form.values);
-    notifications.show({
-      title: "Produto criado",
-      message: `Produto "${form.values.name}" salvo.`,
-      color: "green",
-    });
-    form.reset();
-    navigate("/products");
+
+    setIsLoading(true);
+    try {
+      await createProduct(form.values);
+      notifications.show({
+        title: "Produto criado",
+        message: `Produto "${form.values.name}" salvo.`,
+        color: "green",
+      });
+      form.reset();
+      navigate("/products");
+
+    } catch (error) {
+      notifications.show({
+        title: "Erro",
+        message: getAxiosErrorMessage(
+          error,
+          "Erro desconhecido ao cadastrar o produto."
+        ),
+        color: "red",
+      });
+    }finally {
+      setIsLoading(false);
+    }
   };
 
   const collectionOptions = collections.map((col) => ({
@@ -136,7 +156,7 @@ export function NewProductForm() {
                 clearable
                 {...form.getInputProps("collectionPublicId")}
                 withAsterisk
-                disabled={isLoading}
+                disabled={isLoadingCollections}
               />
               <Stack gap={4} justify="center">
                 <Text size="sm" fw={500}>
@@ -183,7 +203,11 @@ export function NewProductForm() {
           </Card>
 
           <Group mb="md" justify="right">
-            <Button leftSection={<IconGavel size={16} />} type="submit">
+            <Button
+              leftSection={<IconGavel size={16} />}
+              type="submit"
+              loading={isLoading}
+            >
               Salvar Produto
             </Button>
           </Group>
