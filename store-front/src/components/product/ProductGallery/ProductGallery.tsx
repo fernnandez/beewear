@@ -895,7 +895,7 @@ export const ProductGallery = () => {
 
       <Grid gutter={{ base: "md", sm: "md", md: "md", lg: "lg" }}>
         {products.map((product, index) => (
-          <Grid.Col key={product.id} span={{ base: 6, lg: 4 }}>
+          <Grid.Col key={index} span={{ base: 6, lg: 4 }}>
             <Card
               onClick={
                 isMobile ? () => navigate(`/product/${product.id}`) : () => {}
@@ -974,10 +974,6 @@ export const ProductGallery = () => {
                       root: {
                         borderColor: "#dee2e6",
                         color: "#495057",
-                        // backgroundColor: "transparent",
-                        // "&:hover": {
-                        //   backgroundColor: "#7d7d7dff",
-                        // },
                       },
                     }}
                   >

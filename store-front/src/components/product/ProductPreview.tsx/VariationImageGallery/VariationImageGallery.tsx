@@ -78,7 +78,6 @@ export function VariationImageGallery({
                   orientation="vertical"
                   height={350}
                   slideSize="90px"
-                  // slideGap="xs"
                   withControls={false}
                   withIndicators={false}
                   getEmblaApi={setApi}
