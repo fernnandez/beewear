@@ -1,4 +1,4 @@
-import { ProductPreview } from "@components/product/ProductPreview.tsx/ProductPreview";
+import { ProductPreview } from "@components/product/ProductPreview/ProductPreview";
 import { Box, Container, Grid, Stack, Text } from "@mantine/core";
 import { IconTruck, IconUser } from "@tabler/icons-react";
 

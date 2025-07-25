@@ -10,7 +10,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <MantineProvider
-        defaultColorScheme="dark"
+        defaultColorScheme="light"
         theme={{ primaryColor: "yellow" }}
       >
         <Notifications position="top-right" />

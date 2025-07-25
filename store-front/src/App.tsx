@@ -3,6 +3,7 @@ import "@mantine/core/styles.css";
 
 import { AppShellLayout } from "@components/shared/AppShellLayout";
 import { ScrollToTop } from "@components/shared/ScrollToTop";
+import Account from "@pages/account/Account";
 import { Home } from "@pages/home/Home";
 import { Login } from "@pages/login/Login";
 import { Products } from "@pages/product/Products";
@@ -18,6 +19,7 @@ export default function App() {
       <AppShellLayout>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/" element={<Home />} />
           <Route path="/product/:publicId" element={<Products />} />

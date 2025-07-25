@@ -1,13 +1,13 @@
 import {
   ActionIcon,
   AppShell,
-  Avatar,
   Button,
   Center,
   Divider,
   Group,
   Image,
   Indicator,
+  Menu,
   Modal,
   Paper,
   Stack,
@@ -15,8 +15,16 @@ import {
   Title,
   UnstyledButton,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { IconMinus, IconPlus, IconShoppingCart } from "@tabler/icons-react";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import {
+  IconLogout,
+  IconMinus,
+  IconPlus,
+  IconSettings,
+  IconShoppingBagCheck,
+  IconShoppingCart,
+  IconUser,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
@@ -38,6 +46,8 @@ interface CartItem extends Product {
 }
 
 export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   const [cartOpened, { open: openCart, close: closeCart }] =
     useDisclosure(false);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -77,13 +87,10 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
-  const getTotalItems = () =>
-    cart.reduce((sum, item) => sum + item.quantity, 0);
-
   return (
     <AppShell header={{ height: 60 }} padding={0}>
       <AppShell.Header style={{ borderBottom: "1px solid #f1f3f4" }}>
-        <Group justify="space-between" p={"md"}>
+        <Group justify="space-between" h={"100%"} px={"md"}>
           <UnstyledButton component={Link} to="/">
             <Group>
               <Image w={30} src={"/favicon.svg"} />
@@ -93,28 +100,162 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
             </Group>
           </UnstyledButton>
 
-          <Group gap="lg">
-            <Button variant="subtle" color="dark" size="sm">
-              Pedidos
-            </Button>
-            <Indicator
-              label={getTotalItems()}
-              disabled={getTotalItems() === 0}
-              color="yellow"
-              size={16}
-            >
-              <ActionIcon variant="subtle" color="dark" onClick={openCart}>
-                <IconShoppingCart size={18} />
-              </ActionIcon>
-            </Indicator>
-            <ActionIcon variant="subtle" color="dark">
-              <Avatar size={28} color="dark" />
-            </ActionIcon>
-          </Group>
+          {!isMobile && (
+            <Group gap="lg">
+              <Indicator
+                label={2}
+                position="bottom-end"
+                disabled={false}
+                color="yellow"
+                size={20}
+                style={{
+                  // position: "absolute",
+                  // right: "50%",
+                  // bottom: 8,
+                  // transform: "translateX(50%)",
+                  // // "--indicator-bottom": 40,
+                  // // "--indicator-top": -5,
+                  "--indicator-translate-y": -5,
+                }}
+              >
+                <ActionIcon
+                  p={4}
+                  size={50}
+                  // disabled
+                  // bg={"yellow"}
+                  variant="light"
+                  color="yellow"
+                  radius="xl"
+                  onClick={openCart}
+                  style={{ display: "flex", justifyContent: "center", flex: 1 }}
+                >
+                  <IconShoppingCart
+                    // style={{ width: "70%", height: "70%" }}
+                    stroke={1.5}
+                  />
+                </ActionIcon>
+              </Indicator>
+              <Button
+                variant="subtle"
+                color="dark"
+                size="md"
+                leftSection={<IconShoppingBagCheck size={16} />}
+              >
+                Pedidos
+              </Button>
+              <Menu>
+                <Menu.Target>
+                  <Button
+                    variant="subtle"
+                    color="dark"
+                    size="md"
+                    leftSection={<IconUser size={16} />}
+                  >
+                    Perfil
+                  </Button>
+                </Menu.Target>
+
+                <Menu.Dropdown>
+                  <Menu.Item
+                    leftSection={<IconSettings size={14} />}
+                    component={Link}
+                    to="/account"
+                  >
+                    Meus dados
+                  </Menu.Item>
+
+                  <Menu.Divider />
+
+                  <Menu.Item color="red" leftSection={<IconLogout size={14} />}>
+                    Sair
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
+          )}
         </Group>
       </AppShell.Header>
 
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main style={{ backgroundColor: "#f8f9fa" }}>
+        {children}
+      </AppShell.Main>
+
+      {isMobile && (
+        <AppShell.Footer h={60} style={{ borderTop: "1px solid #f1f3f4" }}>
+          <Group justify="space-between" align="center" mih={60}>
+            <Button
+              variant="subtle"
+              color="dark"
+              size="md"
+              style={{ flex: 1 }}
+              leftSection={<IconShoppingBagCheck size={16} />}
+            >
+              Pedidos
+            </Button>
+
+            <div style={{ flex: 1 }} />
+            <Indicator
+              // label={2}
+              disabled={true}
+              color="yellow"
+              size={20}
+              style={{
+                position: "absolute",
+                right: "50%",
+                bottom: 8,
+                transform: "translateX(50%)",
+                // "--indicator-bottom": 40,
+                // "--indicator-top": -5,
+                "--indicator-translate-y": -5,
+              }}
+            >
+              <ActionIcon
+                p={4}
+                size={50}
+                disabled
+                // bg={"yellow"}
+                variant="light"
+                color="drak"
+                radius="xl"
+                onClick={openCart}
+                style={{ display: "flex", justifyContent: "center", flex: 1 }}
+              >
+                <IconShoppingCart
+                  // style={{ width: "70%", height: "70%" }}
+                  stroke={1.5}
+                />
+              </ActionIcon>
+            </Indicator>
+            <Menu>
+              <Menu.Target>
+                <Button
+                  variant="subtle"
+                  color="dark"
+                  size="md"
+                  style={{ flex: 1 }}
+                  leftSection={<IconUser size={16} />}
+                  component={Link}
+                  to="/account"
+                >
+                  Perfil
+                </Button>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Item leftSection={<IconSettings size={14} />}>
+                  Meus dados
+                </Menu.Item>
+
+                <Menu.Divider />
+
+                <Menu.Item color="red" leftSection={<IconLogout size={14} />}>
+                  Sair
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
+        </AppShell.Footer>
+      )}
 
       {/* Cart Modal */}
       <Modal

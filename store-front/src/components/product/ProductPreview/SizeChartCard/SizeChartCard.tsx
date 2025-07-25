@@ -13,7 +13,7 @@ const SIZE_GUIDE = [
 export function SizeGuideCard() {
   return (
     <Card withBorder radius="md" shadow="sm" p="md" style={{ width: "100%" }}>
-      <Accordion variant="separated">
+      <Accordion variant="separated" defaultValue="size-guide">
         <Accordion.Item value="size-guide">
           <Accordion.Control>
             <Title order={4}>Guia de Tamanhos</Title>

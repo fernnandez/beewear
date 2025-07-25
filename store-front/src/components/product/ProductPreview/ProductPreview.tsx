@@ -12,12 +12,7 @@ import {
   Title,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import {
-  IconHeart,
-  IconShare,
-  IconShoppingBag,
-  IconX,
-} from "@tabler/icons-react";
+import { IconShare, IconShoppingBag, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { SizeGuideCard } from "./SizeChartCard/SizeChartCard";
 import { VariationImageGallery } from "./VariationImageGallery/VariationImageGallery";
@@ -300,7 +295,7 @@ export function ProductPreview() {
             </Title>
             {selectedSize?.stock.quantity <= 5 &&
               selectedSize?.stock.quantity > 0 && (
-                <Badge size="sm" color="dark">
+                <Badge size="sm" color="yellow">
                   Últimas unidades
                 </Badge>
               )}
@@ -383,7 +378,7 @@ export function ProductPreview() {
           </Group>
 
           {/* Ações */}
-          <Stack gap="xs">
+          <Stack gap="sm">
             <Button
               color="dark"
               leftSection={<IconShoppingBag size={16} />}
@@ -393,9 +388,17 @@ export function ProductPreview() {
             >
               Adicionar ao Carrinho
             </Button>
+            <Button
+              variant="outline"
+              color="blue"
+              leftSection={<IconShare size={16} />}
+              fullWidth
+            >
+              Compartilhar
+            </Button>
 
             {/* Versão empilhada mobile */}
-            <Stack gap="xs" visibleFrom="base" hiddenFrom="sm">
+            {/* <Stack gap="xs" visibleFrom="base" hiddenFrom="sm">
               <Button
                 variant="outline"
                 color="red"
@@ -412,10 +415,10 @@ export function ProductPreview() {
               >
                 Compartilhar
               </Button>
-            </Stack>
+            </Stack> */}
 
             {/* Versão lado a lado no desktop */}
-            <Group grow visibleFrom="sm">
+            {/* <Group grow visibleFrom="sm">
               <Button
                 variant="outline"
                 color="red"
@@ -430,7 +433,7 @@ export function ProductPreview() {
               >
                 Compartilhar
               </Button>
-            </Group>
+            </Group> */}
           </Stack>
 
           <SizeGuideCard />
