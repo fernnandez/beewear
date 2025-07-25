@@ -53,7 +53,7 @@ const quickActions = [
   },
 ];
 
-export default function Account() { 
+export default function Account() {
   return (
     <Container size="xl" mt="xl" mb="xl">
       <Paper shadow="md" p="xl" mb="xl" radius="lg">
@@ -80,7 +80,6 @@ export default function Account() {
           </ActionIcon>
         </Flex>
       </Paper>
-      i
       <Grid>
         {/* Quick Actions */}
         <Grid.Col span={{ base: 12 }}>

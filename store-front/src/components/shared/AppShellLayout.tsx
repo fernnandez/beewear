@@ -1,3 +1,4 @@
+import { useAuth } from "@contexts/auth-context";
 import {
   ActionIcon,
   AppShell,
@@ -15,13 +16,12 @@ import {
   Title,
   UnstyledButton,
 } from "@mantine/core";
-import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import {
   IconLogout,
   IconMinus,
   IconPlus,
   IconSettings,
-  IconShoppingBagCheck,
   IconShoppingCart,
   IconUser,
 } from "@tabler/icons-react";
@@ -46,7 +46,7 @@ interface CartItem extends Product {
 }
 
 export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const { isAutenticated } = useAuth();
 
   const [cartOpened, { open: openCart, close: closeCart }] =
     useDisclosure(false);
@@ -100,49 +100,43 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
             </Group>
           </UnstyledButton>
 
-          {!isMobile && (
-            <Group gap="lg">
-              <Indicator
-                label={2}
-                position="bottom-end"
-                disabled={false}
+          <Group gap="lg">
+            <Indicator
+              disabled={!isAutenticated}
+              label={2}
+              position="bottom-end"
+              color="yellow"
+              size={20}
+              style={{
+                "--indicator-translate-y": -5,
+              }}
+            >
+              <ActionIcon
+                disabled={!isAutenticated}
+                p={4}
+                size={50}
+                variant="light"
                 color="yellow"
-                size={20}
-                style={{
-                  // position: "absolute",
-                  // right: "50%",
-                  // bottom: 8,
-                  // transform: "translateX(50%)",
-                  // // "--indicator-bottom": 40,
-                  // // "--indicator-top": -5,
-                  "--indicator-translate-y": -5,
-                }}
+                radius="xl"
+                onClick={openCart}
+                style={{ display: "flex", justifyContent: "center", flex: 1 }}
               >
-                <ActionIcon
-                  p={4}
-                  size={50}
-                  // disabled
-                  // bg={"yellow"}
-                  variant="light"
-                  color="yellow"
-                  radius="xl"
-                  onClick={openCart}
-                  style={{ display: "flex", justifyContent: "center", flex: 1 }}
-                >
-                  <IconShoppingCart
-                    // style={{ width: "70%", height: "70%" }}
-                    stroke={1.5}
-                  />
-                </ActionIcon>
-              </Indicator>
+                <IconShoppingCart stroke={1.5} />
+              </ActionIcon>
+            </Indicator>
+
+            {!isAutenticated ? (
               <Button
                 variant="subtle"
                 color="dark"
                 size="md"
-                leftSection={<IconShoppingBagCheck size={16} />}
+                leftSection={<IconUser size={16} />}
+                component={Link}
+                to="/login"
               >
-                Pedidos
+                Entrar
               </Button>
+            ) : (
               <Menu>
                 <Menu.Target>
                   <Button
@@ -171,91 +165,14 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
-            </Group>
-          )}
+            )}
+          </Group>
         </Group>
       </AppShell.Header>
 
       <AppShell.Main style={{ backgroundColor: "#f8f9fa" }}>
         {children}
       </AppShell.Main>
-
-      {isMobile && (
-        <AppShell.Footer h={60} style={{ borderTop: "1px solid #f1f3f4" }}>
-          <Group justify="space-between" align="center" mih={60}>
-            <Button
-              variant="subtle"
-              color="dark"
-              size="md"
-              style={{ flex: 1 }}
-              leftSection={<IconShoppingBagCheck size={16} />}
-            >
-              Pedidos
-            </Button>
-
-            <div style={{ flex: 1 }} />
-            <Indicator
-              // label={2}
-              disabled={true}
-              color="yellow"
-              size={20}
-              style={{
-                position: "absolute",
-                right: "50%",
-                bottom: 8,
-                transform: "translateX(50%)",
-                // "--indicator-bottom": 40,
-                // "--indicator-top": -5,
-                "--indicator-translate-y": -5,
-              }}
-            >
-              <ActionIcon
-                p={4}
-                size={50}
-                disabled
-                // bg={"yellow"}
-                variant="light"
-                color="drak"
-                radius="xl"
-                onClick={openCart}
-                style={{ display: "flex", justifyContent: "center", flex: 1 }}
-              >
-                <IconShoppingCart
-                  // style={{ width: "70%", height: "70%" }}
-                  stroke={1.5}
-                />
-              </ActionIcon>
-            </Indicator>
-            <Menu>
-              <Menu.Target>
-                <Button
-                  variant="subtle"
-                  color="dark"
-                  size="md"
-                  style={{ flex: 1 }}
-                  leftSection={<IconUser size={16} />}
-                  component={Link}
-                  to="/account"
-                >
-                  Perfil
-                </Button>
-              </Menu.Target>
-
-              <Menu.Dropdown>
-                <Menu.Item leftSection={<IconSettings size={14} />}>
-                  Meus dados
-                </Menu.Item>
-
-                <Menu.Divider />
-
-                <Menu.Item color="red" leftSection={<IconLogout size={14} />}>
-                  Sair
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
-        </AppShell.Footer>
-      )}
 
       {/* Cart Modal */}
       <Modal

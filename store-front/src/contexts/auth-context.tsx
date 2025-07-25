@@ -14,12 +14,14 @@ interface AuthContextType {
   login: (token: string) => void;
   logout: () => void;
   isLoading: boolean;
+  isAutenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isAutenticated, setIsAutenticated] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<{
     id: string;
@@ -52,16 +54,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (token: string) => {
     setToken(token);
     localStorage.setItem("token", token);
+    setIsAutenticated(true);
   };
 
   const logout = () => {
     setToken(null);
     localStorage.removeItem("token");
+    setIsAutenticated(false);
   };
 
   return (
     <AuthContext.Provider
-      value={{ token, login, logout, isLoading, setUser, user }}
+      value={{ token, login, logout, isLoading, setUser, user, isAutenticated }}
     >
       {children}
     </AuthContext.Provider>
