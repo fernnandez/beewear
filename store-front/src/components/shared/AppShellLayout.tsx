@@ -1,3 +1,4 @@
+import { AuthModal } from "@components/auth/authModal";
 import { useAuth } from "@contexts/auth-context";
 import {
   ActionIcon,
@@ -15,14 +16,18 @@ import {
   Text,
   Title,
   UnstyledButton,
+  useMantineColorScheme,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
+  IconLogin,
   IconLogout,
   IconMinus,
+  IconMoon,
   IconPlus,
   IconSettings,
   IconShoppingCart,
+  IconSun,
   IconUser,
 } from "@tabler/icons-react";
 import { useState } from "react";
@@ -46,9 +51,19 @@ interface CartItem extends Product {
 }
 
 export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
-  const { isAutenticated } = useAuth();
+  const isMinScreen = useMediaQuery("(max-width: 480px)");
+  const { isAutenticated, logout } = useAuth();
+
+  const { colorScheme, setColorScheme } = useMantineColorScheme({
+    keepTransitions: true,
+  });
+
+  const isDark = colorScheme === "dark";
 
   const [cartOpened, { open: openCart, close: closeCart }] =
+    useDisclosure(false);
+
+  const [authOpened, { open: openAuth, close: closeAuth }] =
     useDisclosure(false);
   const [cart, setCart] = useState<CartItem[]>([]);
 
@@ -89,35 +104,58 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AppShell header={{ height: 60 }} padding={0}>
-      <AppShell.Header style={{ borderBottom: "1px solid #f1f3f4" }}>
+      <AppShell.Header
+        style={{
+          borderBottom: isDark ? "1px solid #212529" : "1px solid #f8f9fa",
+        }}
+      >
         <Group justify="space-between" h={"100%"} px={"md"}>
           <UnstyledButton component={Link} to="/">
             <Group>
               <Image w={30} src={"/favicon.svg"} />
-              <Title order={4} fw={700} c="dark">
+              <Title order={4} fw={700} c={isDark ? "white" : "dark"}>
                 Beewear
               </Title>
             </Group>
           </UnstyledButton>
 
           <Group gap="lg">
+            {colorScheme === "dark" ? (
+              <ActionIcon
+                size={isMinScreen ? "md" : "xl"}
+                variant="transparent"
+                color="yellow"
+                onClick={() => setColorScheme("light")}
+              >
+                <IconSun size="1.5rem" />
+              </ActionIcon>
+            ) : (
+              <ActionIcon
+                size={isMinScreen ? "md" : "xl"}
+                variant="transparent"
+                color="dark"
+                onClick={() => setColorScheme("dark")}
+              >
+                <IconMoon size="1.5rem" />
+              </ActionIcon>
+            )}
+
             <Indicator
-              disabled={!isAutenticated}
-              label={2}
+              inline
+              size={25}
+              offset={-1}
               position="bottom-end"
+              withBorder
+              // label={0}
               color="yellow"
-              size={20}
-              style={{
-                "--indicator-translate-y": -5,
-              }}
+              // size={isMinScreen ? 12 : "sm"}
             >
               <ActionIcon
-                disabled={!isAutenticated}
+                size={isMinScreen ? "md" : "xl"}
                 p={4}
-                size={50}
                 variant="light"
                 color="yellow"
-                radius="xl"
+                radius="md"
                 onClick={openCart}
                 style={{ display: "flex", justifyContent: "center", flex: 1 }}
               >
@@ -128,11 +166,10 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
             {!isAutenticated ? (
               <Button
                 variant="subtle"
-                color="dark"
-                size="md"
-                leftSection={<IconUser size={16} />}
-                component={Link}
-                to="/login"
+                color={isDark ? "white" : "dark"}
+                size={isMinScreen ? "xs" : "md"}
+                leftSection={<IconLogin size={16} />}
+                onClick={openAuth}
               >
                 Entrar
               </Button>
@@ -141,8 +178,8 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
                 <Menu.Target>
                   <Button
                     variant="subtle"
-                    color="dark"
-                    size="md"
+                    color={isDark ? "white" : "dark"}
+                    size={isMinScreen ? "xs" : "md"}
                     leftSection={<IconUser size={16} />}
                   >
                     Perfil
@@ -160,7 +197,11 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
 
                   <Menu.Divider />
 
-                  <Menu.Item color="red" leftSection={<IconLogout size={14} />}>
+                  <Menu.Item
+                    color="red"
+                    leftSection={<IconLogout size={14} />}
+                    onClick={logout}
+                  >
                     Sair
                   </Menu.Item>
                 </Menu.Dropdown>
@@ -170,7 +211,9 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Main style={{ backgroundColor: "#f8f9fa" }}>
+      <AppShell.Main
+        style={{ backgroundColor: isDark ? "#212529" : "#f8f9fa" }}
+      >
         {children}
       </AppShell.Main>
 
@@ -281,13 +324,14 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
                   window.location.href = "/checkout";
                 }
               }}
-              disabled={cart.length === 0}
             >
               Finalizar Compra
             </Button>
           </Stack>
         )}
       </Modal>
+
+      <AuthModal opened={authOpened} onClose={closeAuth} />
     </AppShell>
   );
 };

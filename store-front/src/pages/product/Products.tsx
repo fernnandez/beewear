@@ -1,17 +1,30 @@
 import { ProductPreview } from "@components/product/ProductPreview/ProductPreview";
-import { Box, Container, Grid, Stack, Text } from "@mantine/core";
+import {
+  Box,
+  Container,
+  Grid,
+  Stack,
+  Text,
+  useMantineColorScheme,
+} from "@mantine/core";
 import { IconTruck, IconUser } from "@tabler/icons-react";
 
 export const Products = () => {
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === "dark";
+
   return (
     <>
       <ProductPreview />
-      <Box py={30} style={{ backgroundColor: "#fafafa" }}>
+      <Box py={30}>
         <Container size="xl">
           <Grid>
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack align="center" gap="sm">
-                <IconTruck size={32} color="var(--mantine-color-dark-6)" />
+                <IconTruck
+                  size={32}
+                  color={isDark ? "white" : "var(--mantine-color-dark-6)"}
+                />
                 <Text fw={500} size="md" ta="center">
                   Envio Grátis
                 </Text>
@@ -22,7 +35,10 @@ export const Products = () => {
             </Grid.Col>
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack align="center" gap="sm">
-                <IconUser size={32} color="var(--mantine-color-dark-6)" />
+                <IconUser
+                  size={32}
+                  color={isDark ? "white" : "var(--mantine-color-dark-6)"}
+                />
                 <Text fw={500} size="md" ta="center">
                   Qualidade Premium
                 </Text>
@@ -33,7 +49,10 @@ export const Products = () => {
             </Grid.Col>
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack align="center" gap="sm">
-                <IconTruck size={32} color="var(--mantine-color-dark-6)" />
+                <IconTruck
+                  size={32}
+                  color={isDark ? "white" : "var(--mantine-color-dark-6)"}
+                />
                 <Text fw={500} size="md" ta="center">
                   30 Dias
                 </Text>

@@ -1,19 +1,15 @@
 import { Carousel } from "@mantine/carousel";
 import {
-  ActionIcon,
   Center,
   Divider,
   Flex,
   Image,
   Paper,
-  Stack,
   Text,
-  useMantineColorScheme,
+  ThemeIcon,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconChevronDown, IconChevronUp, IconPhoto } from "@tabler/icons-react";
-import { EmblaCarouselType } from "node_modules/embla-carousel/esm/components/EmblaCarousel";
-import { useEffect, useState } from "react";
+import { IconArrowLeft, IconArrowRight, IconPhoto } from "@tabler/icons-react";
 
 interface Props {
   selectedVariation: {
@@ -24,41 +20,72 @@ interface Props {
   setSelectedImageIndex: (index: number) => void;
 }
 
-export function VariationImageGallery({
-  selectedVariation,
-  selectedImageIndex,
-  setSelectedImageIndex,
-}: Props) {
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === "dark";
-  
+export function Variation({ selectedVariation }: Props) {
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const imageCount = selectedVariation?.images?.length || 0;
-  const useCarousel = imageCount > 7;
 
-  const [api, setApi] = useState<EmblaCarouselType | null>(null);
-
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
-
-  useEffect(() => {
-    if (!api) return;
-
-    const updateButtons = () => {
-      setCanScrollPrev(api.canScrollPrev());
-      setCanScrollNext(api.canScrollNext());
-    };
-
-    updateButtons();
-    api.on("select", updateButtons);
-  }, [api]);
-
-  const handlePrev = () => api?.scrollPrev();
-  const handleNext = () => api?.scrollNext();
+  const images = selectedVariation?.images || [];
 
   return (
     <>
-      <Flex align="center" gap="md" direction={"row"}>
+      {images?.length > 0 ? (
+        <Carousel
+          withIndicators={true}
+          withControls
+          h={"auto"}
+          slideGap="xs"
+          maw={600}
+          nextControlIcon={
+            <ThemeIcon color="yellow.5">
+              <IconArrowRight size={18} />
+            </ThemeIcon>
+          }
+          previousControlIcon={
+            <ThemeIcon color="yellow.5">
+              <IconArrowLeft size={18} color="white" />
+            </ThemeIcon>
+          }
+          styles={(theme) => ({
+            indicator: {
+              backgroundColor: theme.colors.yellow[5],
+              width: 16,
+              height: 16,
+            },
+            controls: {
+              color: theme.colors.yellow[5],
+            },
+          })}
+        >
+          {images?.map((url) => (
+            <Carousel.Slide key={url}>
+              <Paper withBorder radius="md" p="xs">
+                <Center>
+                  <Image src={url} key={url} w="100%" maw={500} h={800} />
+                </Center>
+              </Paper>
+            </Carousel.Slide>
+          ))}
+        </Carousel>
+      ) : (
+        <Paper withBorder radius="md" p="xs" w="100%">
+          <Center>
+            <Flex
+              h={300}
+              align="center"
+              justify="center"
+              direction="column"
+              gap="md"
+              bg="var(--mantine-color-gray-0)"
+              w="100%"
+            >
+              <IconPhoto size={48} color="var(--mantine-color-gray-5)" />
+              <Text c="dimmed" size="sm">
+                Nenhuma imagem disponível
+              </Text>
+            </Flex>
+          </Center>
+        </Paper>
+      )}
+      {/* <Flex align="center" gap="md" direction={"row"}>
         {imageCount > 1 && (
           <Flex
             direction="column"
@@ -171,7 +198,7 @@ export function VariationImageGallery({
             )}
           </Center>
         </Paper>
-      </Flex>
+      </Flex> */}
       {isMobile && <Divider />}
     </>
   );

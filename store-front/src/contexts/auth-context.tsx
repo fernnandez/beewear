@@ -5,6 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useNavigate } from "react-router";
 import { getProfileInfo } from "../services/auth.service";
 
 interface AuthContextType {
@@ -20,9 +21,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [isAutenticated, setIsAutenticated] = useState(true);
+  const [isAutenticated, setIsAutenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+
   const [user, setUser] = useState<{
     id: string;
     name: string;
@@ -61,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     localStorage.removeItem("token");
     setIsAutenticated(false);
+    navigate("/");
   };
 
   return (

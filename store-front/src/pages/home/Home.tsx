@@ -8,18 +8,28 @@ import {
   Stack,
   Text,
   Title,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { IconTruck, IconUser } from "@tabler/icons-react";
 
 export const Home = () => {
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === "dark";
+
   return (
     <>
-      <Box py={40} style={{ backgroundColor: "#fafafa" }}>
+      <Box py={40}>
         <Container size="xl">
           <Grid align="center">
             <Grid.Col span={{ base: 12, md: 6 }}>
               <Stack gap="xs">
-                <Title order={1} size="2.5rem" fw={300} c="dark" lh={1.2}>
+                <Title
+                  order={1}
+                  size="2.5rem"
+                  fw={300}
+                  c={isDark ? "white" : "dark"}
+                  lh={1.2}
+                >
                   Roupa fitness
                 </Title>
                 <Text span fw={700} c="yellow.6">
@@ -48,12 +58,15 @@ export const Home = () => {
       <ProductGallery />
 
       {/* Features Section */}
-      <Box py={30} style={{ backgroundColor: "#fafafa" }}>
+      <Box py={30}>
         <Container size="xl">
           <Grid>
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack align="center" gap="sm">
-                <IconTruck size={32} color="var(--mantine-color-dark-6)" />
+                <IconTruck
+                  size={32}
+                  color={isDark ? "white" : "var(--mantine-color-dark-6)"}
+                />
                 <Text fw={500} size="md" ta="center">
                   Envio Grátis
                 </Text>
@@ -64,7 +77,10 @@ export const Home = () => {
             </Grid.Col>
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack align="center" gap="sm">
-                <IconUser size={32} color="var(--mantine-color-dark-6)" />
+                <IconUser
+                  size={32}
+                  color={isDark ? "white" : "var(--mantine-color-dark-6)"}
+                />
                 <Text fw={500} size="md" ta="center">
                   Qualidade Premium
                 </Text>
@@ -75,7 +91,10 @@ export const Home = () => {
             </Grid.Col>
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack align="center" gap="sm">
-                <IconTruck size={32} color="var(--mantine-color-dark-6)" />
+                <IconTruck
+                  size={32}
+                  color={isDark ? "white" : "var(--mantine-color-dark-6)"}
+                />
                 <Text fw={500} size="md" ta="center">
                   30 Dias
                 </Text>

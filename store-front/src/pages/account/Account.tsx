@@ -1,3 +1,4 @@
+import { useAuth } from "@contexts/auth-context";
 import {
   ActionIcon,
   Card,
@@ -10,9 +11,9 @@ import {
   Text,
   ThemeIcon,
   Title,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
-  IconCalendar,
   IconChevronRight,
   IconCreditCard,
   IconEdit,
@@ -54,37 +55,37 @@ const quickActions = [
 ];
 
 export default function Account() {
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === "dark";
+
+  const { user } = useAuth();
   return (
     <Container size="xl" mt="xl" mb="xl">
-      <Paper shadow="md" p="xl" mb="xl" radius="lg">
+      <Card shadow="md" p="xl" mb="xl" radius="lg">
         <Flex justify="space-between" gap={"md"}>
           <div>
-            <Title order={2} mb="xs">
-              Maria Silva
+            <Title order={2} mb="xs" c={isDark ? "white" : "dark"}>
+              {user?.name}
             </Title>
             <Group gap="xs" mb="xs">
               <IconMail size={16} />
               <Text size="sm" c="dimmed">
-                maria.silva@email.com
-              </Text>
-            </Group>
-            <Group gap="xs">
-              <IconCalendar size={16} />
-              <Text size="sm" c="dimmed">
-                Cliente desde Janeiro 2023
+                {user?.email}
               </Text>
             </Group>
           </div>
-          <ActionIcon size="lg" variant="light">
+          <ActionIcon size="lg" variant="light" radius="md">
             <IconEdit size={18} />
           </ActionIcon>
         </Flex>
-      </Paper>
+      </Card>
       <Grid>
         {/* Quick Actions */}
         <Grid.Col span={{ base: 12 }}>
-          <Card shadow="sm" p="lg" radius="lg" mb="xl">
-            <Title order={3}>Ações Rápidas</Title>
+          <Card shadow="md" p="lg" radius="lg" mb="xl">
+            <Title order={3} c={isDark ? "white" : "dark"}>
+              Ações Rápidas
+            </Title>
             <SimpleGrid cols={{ base: 1, sm: 2 }} mt="md">
               {quickActions.map((action) => (
                 <Paper
@@ -106,7 +107,12 @@ export default function Account() {
                   }}
                 >
                   <Group mb="xs">
-                    <ThemeIcon size="md" variant="light" color={action.color}>
+                    <ThemeIcon
+                      size="md"
+                      variant="light"
+                      color={action.color}
+                      radius="md"
+                    >
                       <action.icon size={16} />
                     </ThemeIcon>
                     <IconChevronRight
