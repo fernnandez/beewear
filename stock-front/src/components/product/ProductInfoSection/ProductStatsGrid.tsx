@@ -29,7 +29,7 @@ export function ProductStatsGrid({ product }: ProductStatsGridProps) {
 
       <ValueCard
         title="Valor Total"
-        value={`R$ ${totalValue.toFixed(2).replace(".", ",")}`}
+        value={`€ ${totalValue.toFixed(2).replace(".", ",")}`}
         description="valor em estoque"
         icon={<IconShoppingCart size={16} />}
         iconColor="green"

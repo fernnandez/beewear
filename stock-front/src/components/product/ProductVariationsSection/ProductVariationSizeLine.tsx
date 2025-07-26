@@ -1,5 +1,5 @@
 import { ProductVariationSize } from "@localTypes/product";
-import { ActionIcon, Badge, Group, Table, Text } from "@mantine/core";
+import { Badge, Button, Group, Table, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconEdit, IconHistory } from "@tabler/icons-react";
 import { AdjustStockModal } from "./AjustStockModal";
@@ -44,12 +44,25 @@ export const ProductVariationSizeLine = ({
         </Table.Td>
         <Table.Td>
           <Group gap="xs">
-            <ActionIcon variant="light" size="md" radius="xl">
-              <IconEdit size={16} onClick={openEditModal} />
-            </ActionIcon>
-            <ActionIcon variant="light" size="md" radius="xl">
-              <IconHistory size={16} onClick={openMovementHistoryModal} />
-            </ActionIcon>
+            <Button
+              variant="light"
+              size="sm"
+              radius="xl"
+              onClick={openEditModal}
+              leftSection={<IconEdit size={16} />}
+            >
+              Ajustar Estoque
+            </Button>
+            <Button
+              variant="light"
+              size="sm"
+              radius="xl"
+              color="blue"
+              leftSection={<IconHistory size={16} />}
+              onClick={openMovementHistoryModal}
+            >
+              Historico
+            </Button>
           </Group>
         </Table.Td>
       </Table.Tr>

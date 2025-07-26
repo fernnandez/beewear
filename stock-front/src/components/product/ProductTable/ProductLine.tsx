@@ -1,18 +1,10 @@
 import { ConfirmationModal } from "@components/shared/ConfirmationModal/ConfirmationModal";
 import { Product, ProductVariation } from "@localTypes/product";
-import {
-  ActionIcon,
-  Avatar,
-  Badge,
-  Group,
-  Menu,
-  Table,
-  Text,
-} from "@mantine/core";
+import { Avatar, Badge, Button, Group, Table, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { deleteProduct } from "@services/product.service";
-import { IconDotsVertical, IconEye, IconTrash } from "@tabler/icons-react";
+import { IconEye, IconTrash } from "@tabler/icons-react";
 import { getAxiosErrorMessage } from "@utils/getAxiosErrorMessage";
 import { queryClient } from "@utils/queryClient";
 import { useNavigate } from "react-router-dom";
@@ -57,13 +49,20 @@ export const ProductLine = ({ product }: { product: Product }) => {
 
   const priceRange = getPriceRange(product.variations);
 
+  const firstImage = product?.variations?.[0]?.images?.[0];
+
   const navigate = useNavigate();
   return (
     <>
       <Table.Tr key={product.publicId}>
         <Table.Td>
           <Group>
-            <Avatar color="yellow" radius="sm" size="md">
+            <Avatar
+              color="yellow"
+              radius="sm"
+              size="md"
+              src={firstImage ?? undefined}
+            >
               {product.name.charAt(0)}
             </Avatar>
             <div>
@@ -127,8 +126,8 @@ export const ProductLine = ({ product }: { product: Product }) => {
         <Table.Td>
           <Text fw={500}>
             {priceRange.min === priceRange.max
-              ? `R$ ${priceRange.min.toFixed(2)}`
-              : `R$ ${priceRange.min.toFixed(2)} - R$ ${priceRange.max.toFixed(
+              ? `€ ${priceRange.min.toFixed(2)}`
+              : `€ ${priceRange.min.toFixed(2)} - € ${priceRange.max.toFixed(
                   2
                 )}`}
           </Text>
@@ -141,29 +140,23 @@ export const ProductLine = ({ product }: { product: Product }) => {
         </Table.Td>
 
         <Table.Td>
-          <Menu position="bottom-end" withArrow>
-            <Menu.Target>
-              <ActionIcon variant="subtle">
-                <IconDotsVertical size={20} />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item
-                leftSection={<IconEye size={14} />}
-                onClick={() => navigate(`/products/${product.publicId}`)}
-              >
-                Ver Detalhes
-              </Menu.Item>
-              <Menu.Divider />
-              <Menu.Item
-                leftSection={<IconTrash size={14} />}
-                color="red"
-                onClick={openDeleteModal}
-              >
-                Excluir
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+          <Group>
+            <Button
+              variant="light"
+              leftSection={<IconEye size={14} />}
+              onClick={() => navigate(`/products/${product.publicId}`)}
+            >
+              Detalhes
+            </Button>
+            <Button
+              variant="light"
+              leftSection={<IconTrash size={14} />}
+              color="red"
+              onClick={openDeleteModal}
+            >
+              Excluir
+            </Button>
+          </Group>
         </Table.Td>
       </Table.Tr>
       <ConfirmationModal

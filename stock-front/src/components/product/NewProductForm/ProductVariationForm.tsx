@@ -42,7 +42,7 @@ export function ProductVariationForm({
         />
         <NumberInput
           label="Preço"
-          prefix="R$ "
+          prefix="€ "
           key={form.key(`variations.${index}.price`)}
           {...form.getInputProps(`variations.${index}.price`)}
           withAsterisk

@@ -157,7 +157,7 @@ export function StorePreview({ product }: { product: ProductDetails }) {
           {/* Preço */}
           <Group>
             <Title order={1} fw={400}>
-              R$ {selectedVariation?.price.toFixed(2).replace(".", ",")}
+              € {selectedVariation?.price.toFixed(2).replace(".", ",")}
             </Title>
             {selectedSize?.stock.quantity <= 5 &&
               selectedSize?.stock.quantity > 0 && (

@@ -26,7 +26,7 @@ export function CollectionAggregators({ aggregations }: Props) {
 
       <ValueCard
         title="Valor Total"
-        value={`R$ ${aggregations.totalValue.toFixed(2)}`}
+        value={`€ ${aggregations.totalValue.toFixed(2)}`}
         description="valor em estoque"
         icon={<IconShoppingCart size={16} />}
         iconColor="green"

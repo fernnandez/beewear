@@ -105,7 +105,7 @@ export function EditVariationModal({
             />
             <NumberInput
               label="Preço"
-              prefix="R$ "
+              prefix="€ "
               key={form.key("price")}
               {...form.getInputProps("price")}
               withAsterisk

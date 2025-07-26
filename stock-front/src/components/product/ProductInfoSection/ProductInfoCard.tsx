@@ -64,7 +64,7 @@ export function ProductInfoCard({
       closeModal();
 
       notifications.show({
-        title: "Coleção atualizada",
+        title: "Produto atualizado",
         message: "As informações foram salvas com sucesso.",
         color: "green",
       });
@@ -92,6 +92,8 @@ export function ProductInfoCard({
 
     mutation.mutate(form.values);
   };
+
+  const firstImage = product?.variations?.[0]?.images?.[0];
 
   return (
     <>
@@ -137,7 +139,7 @@ export function ProductInfoCard({
         ) : (
           <Stack>
             <Group>
-              <Avatar color="blue" radius="sm" size="lg">
+              <Avatar color="blue" radius="sm" size="lg" src={firstImage}>
                 {getInitials(product?.name || "")}
               </Avatar>
               <div>

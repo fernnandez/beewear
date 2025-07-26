@@ -2,23 +2,19 @@ import { ConfirmationModal } from "@components/shared/ConfirmationModal/Confirma
 import { ProductVariationSize } from "@localTypes/product";
 import {
   Accordion,
-  ActionIcon,
   Box,
+  Button,
   Card,
   Group,
   Menu,
   Table,
   Text,
+  Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { deleteProductVariation } from "@services/productVariaton.service";
-import {
-  IconDotsVertical,
-  IconEdit,
-  IconPhoto,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconEdit, IconPhoto, IconTrash } from "@tabler/icons-react";
 import { getAxiosErrorMessage } from "@utils/getAxiosErrorMessage";
 import { queryClient } from "@utils/queryClient";
 import { EditImagesModal } from "./EditImagesModal";
@@ -82,8 +78,8 @@ export function ProductVariationSectionCard({
         <Group justify="space-between" mb="md" align="center">
           <Group>
             <Box
-              w={32}
-              h={32}
+              w={36}
+              h={36}
               style={{
                 backgroundColor: variation.color,
                 borderRadius: "50%",
@@ -91,9 +87,11 @@ export function ProductVariationSectionCard({
               }}
             />
             <div>
-              <Text fw={500}>{variation.name}</Text>
-              <Text size="sm" c="dimmed">
-                R$ {variation.price.toFixed(2).replace(".", ",")} •{" "}
+              <Title order={4} fw={500}>
+                {variation.name}
+              </Title>
+              <Text size="md" c="dimmed">
+                € {variation.price.toFixed(2).replace(".", ",")} •{" "}
                 {variation.sizes.length} tamanhos •{" "}
                 {variation.images?.length || 0} imagens
               </Text>
@@ -102,9 +100,13 @@ export function ProductVariationSectionCard({
 
           <Menu position="bottom-end" withArrow>
             <Menu.Target>
-              <ActionIcon variant="subtle" size="md">
-                <IconDotsVertical size={24} />
-              </ActionIcon>
+              <Button
+                variant="light"
+                size="sm"
+                leftSection={<IconEdit size={14} />}
+              >
+                Gerenciar Variação
+              </Button>
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Item
@@ -137,7 +139,10 @@ export function ProductVariationSectionCard({
           </Menu>
         </Group>
 
-        <Accordion variant="contained">
+        <Accordion
+          variant="contained"
+          defaultValue={`sizes-${variation.publicId}`}
+        >
           <Accordion.Item value={`sizes-${variation.publicId}`}>
             <Accordion.Control>
               Tamanhos e Estoque ({variation.sizes.length})
