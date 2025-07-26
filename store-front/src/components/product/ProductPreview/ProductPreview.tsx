@@ -1,3 +1,4 @@
+import { useCart } from "@contexts/cart-context";
 import {
   Badge,
   Box,
@@ -229,6 +230,7 @@ const product = {
 };
 
 export function ProductPreview() {
+  const { addItem } = useCart();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -285,7 +287,7 @@ export function ProductPreview() {
         /> */}
 
           <Variation
-            key={selectedVariation.publicId} // <-- aqui
+            key={selectedVariation.publicId}
             selectedVariation={selectedVariation}
             selectedImageIndex={selectedImageIndex}
             setSelectedImageIndex={setSelectedImageIndex}
@@ -425,6 +427,16 @@ export function ProductPreview() {
                 disabled={!selectedSize || selectedSize.stock.quantity === 0}
                 size="md"
                 fullWidth={isMobile}
+                onClick={() => {
+                  addItem({
+                    name: product.name,
+                    publicId: selectedVariation.publicId,
+                    color: selectedVariation.color,
+                    price: selectedVariation.price,
+                    image: selectedVariation.images[0],
+                    size: selectedSize.size,
+                  });
+                }}
               >
                 Adicionar ao Carrinho
               </Button>

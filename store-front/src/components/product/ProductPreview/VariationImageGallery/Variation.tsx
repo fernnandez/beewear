@@ -34,6 +34,7 @@ export function Variation({ selectedVariation }: Props) {
           h={"auto"}
           slideGap="xs"
           maw={600}
+          miw={"100%"}
           nextControlIcon={
             <ThemeIcon color="yellow.5">
               <IconArrowRight size={18} />
@@ -59,7 +60,7 @@ export function Variation({ selectedVariation }: Props) {
             <Carousel.Slide key={url}>
               <Paper withBorder radius="md" p="xs">
                 <Center>
-                  <Image src={url} key={url} w="100%" maw={500} h={800} />
+                  <Image src={url} key={url} w="100%" maw={500} mah={600} />
                 </Center>
               </Paper>
             </Carousel.Slide>

@@ -92,10 +92,11 @@ export default function Account() {
                   key={action.title}
                   p="md"
                   radius="md"
+                  withBorder
                   style={{
                     cursor: "pointer",
                     transition: "all 0.2s ease",
-                    border: "1px solid #e9ecef",
+                    // border: "1px solid #edededff",
                   }}
                   styles={{
                     root: {

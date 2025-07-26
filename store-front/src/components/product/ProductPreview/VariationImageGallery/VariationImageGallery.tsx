@@ -8,7 +8,6 @@ import {
   Paper,
   Stack,
   Text,
-  useMantineColorScheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronDown, IconChevronUp, IconPhoto } from "@tabler/icons-react";
@@ -29,9 +28,9 @@ export function VariationImageGallery({
   selectedImageIndex,
   setSelectedImageIndex,
 }: Props) {
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === "dark";
-  
+  // const { colorScheme } = useMantineColorScheme();
+  // const isDark = colorScheme === "dark";
+
   const isMobile = useMediaQuery("(max-width: 768px)");
   const imageCount = selectedVariation?.images?.length || 0;
   const useCarousel = imageCount > 7;

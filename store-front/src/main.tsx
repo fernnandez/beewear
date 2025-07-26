@@ -1,4 +1,5 @@
 import { AuthProvider } from "@contexts/auth-context.tsx";
+import { CartProvider } from "@contexts/cart-context.tsx";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { StrictMode } from "react";
@@ -15,7 +16,9 @@ createRoot(document.getElementById("root")!).render(
       >
         <Notifications position="top-right" />
         <AuthProvider>
-          <App />
+          <CartProvider>
+            <App />
+          </CartProvider>
         </AuthProvider>
       </MantineProvider>
     </BrowserRouter>
