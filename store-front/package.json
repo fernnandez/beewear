@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "setup": "./scripts/dev-setup.sh",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@mantine/carousel": "^8.2.1",

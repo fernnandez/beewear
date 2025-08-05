@@ -23,6 +23,7 @@ import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionImageDto } from './dto/update-collection-image.dto';
 import { UpdateCollectionStatusDto } from './dto/update-collection-status.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { Public } from 'src/infra/auth/decorator/public.decorator';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Collection')
@@ -31,6 +32,7 @@ export class CollectionController {
   constructor(private readonly collectionService: CollectionService) {}
 
   @Get()
+  @Public()
   @ApiOkResponse({
     description: 'List of collections',
     type: Collection,

@@ -13,6 +13,7 @@ import {
   Title,
 } from "@mantine/core";
 import { IconPhoto } from "@tabler/icons-react";
+import { formatPrice } from "../../../../utils/formatPrice";
 
 const product = {
   id: 1,
@@ -306,9 +307,9 @@ export const ProductCard = () => {
           {/* <Text fw={500} size="md" c="dark">
             {product.name}
           </Text> */}
-          <Title order={2} c="dark">
-            €{product.variations[0]?.price.toFixed(2).replace(".", ",")}
-          </Title>
+                      <Title order={2} c="dark">
+              {formatPrice(product.variations[0]?.price)}
+            </Title>
         </Group>
 
         {/* Seleção de Cor */}

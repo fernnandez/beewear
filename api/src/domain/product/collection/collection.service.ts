@@ -6,6 +6,7 @@ import { CollectionDetailsDto } from './dto/collection-details.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionImageDto } from './dto/update-collection-image.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { CollectionListResponseDto } from './dto/collection-list-response.dto';
 
 @Injectable()
 export class CollectionService {
@@ -141,5 +142,20 @@ export class CollectionService {
 
     collection.imageUrl = dto.image;
     await this.collectionRepo.save(collection);
+  }
+
+  // Método para o frontend
+  async findAllActiveForFrontend(): Promise<CollectionListResponseDto[]> {
+    const collections = await this.collectionRepo.find({
+      where: { active: true },
+    });
+
+    return collections.map(collection => ({
+      publicId: collection.publicId,
+      name: collection.name,
+      active: collection.active,
+      description: collection.description,
+      imageUrl: collection.imageUrl,
+    }));
   }
 }

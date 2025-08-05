@@ -49,6 +49,30 @@ export function ProductVariationForm({
         />
       </SimpleGrid>
 
+      <SimpleGrid cols={{ base: 1, sm: 3 }} mb="md">
+        <NumberInput
+          label="Preço de compra"
+          prefix="€ "
+          key={form.key(`variations.${index}.price`)}
+          {...form.getInputProps(`variations.${index}.price`)}
+          withAsterisk
+        />
+        <NumberInput
+          label="Preço de venda"
+          prefix="€ "
+          key={form.key(`variations.${index}.price`)}
+          {...form.getInputProps(`variations.${index}.price`)}
+          withAsterisk
+        />
+        <NumberInput
+          label="IVA"
+          prefix="% "
+          key={form.key(`variations.${index}.price`)}
+          {...form.getInputProps(`variations.${index}.price`)}
+          withAsterisk
+        />
+      </SimpleGrid>
+
       <SimpleGrid cols={{ base: 1, sm: 1 }} mb="md">
         <FileInput
           leftSection={<IconUpload size={16} />}

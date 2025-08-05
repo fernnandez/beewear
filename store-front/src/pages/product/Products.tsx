@@ -6,16 +6,50 @@ import {
   Stack,
   Text,
   useMantineColorScheme,
+  Center,
 } from "@mantine/core";
 import { IconTruck, IconUser } from "@tabler/icons-react";
+import { useParams } from "react-router";
+import { useProduct } from "../../hooks/useProducts";
+import { Loading } from "../../components/shared/Loading/Loading";
 
 export const Products = () => {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
+  const { publicId } = useParams<{ publicId: string }>();
+  
+  const { data: product, isLoading, error } = useProduct(publicId || "");
+
+  if (isLoading) {
+    return (
+      <Container size="xl" py={60}>
+        <Center>
+          <Loading />
+        </Center>
+      </Container>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <Container size="xl" py={60}>
+        <Center>
+          <Stack align="center" gap="md">
+            <Text size="lg" c="red">
+              Produto não encontrado
+            </Text>
+            <Text size="sm" c="dimmed">
+              O produto que você está procurando não existe ou foi removido.
+            </Text>
+          </Stack>
+        </Center>
+      </Container>
+    );
+  }
 
   return (
     <>
-      <ProductPreview />
+      <ProductPreview product={product} />
       <Box py={30}>
         <Container size="xl">
           <Grid>

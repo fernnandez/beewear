@@ -22,6 +22,7 @@ import {
   IconShoppingCart,
   IconTrash,
 } from "@tabler/icons-react";
+import { formatPrice } from "../../utils/formatPrice";
 
 interface CartModalProps {
   opened: boolean;
@@ -110,7 +111,7 @@ export function CartModal({ opened, onClose }: CartModalProps) {
                     </Badge>
                   </Group>
                   <Text size="xs" c="dimmed">
-                    Preço unitário: €{item.price.toFixed(2)}
+                    Preço unitário: {formatPrice(item.price)}
                   </Text>
 
                   <Group gap="xs">

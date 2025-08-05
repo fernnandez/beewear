@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_CONFIG } from "../utils/constants";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_CONFIG.BASE_URL,
 });
 
 api.interceptors.request.use((config) => {
@@ -13,5 +14,18 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+// Interceptor para tratamento de erros
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expirado ou inválido
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

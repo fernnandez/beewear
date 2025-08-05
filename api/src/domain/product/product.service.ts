@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { Collection } from './collection/collection.entity';
 import { CreateProductDto } from './dto/create-product.dto';
+import { ProductDetailsResponseDto } from './dto/product-details-response.dto';
+import { ProductListResponseDto } from './dto/product-list-response.dto';
 import { StockDashboardDto } from './dto/stock-dashboard.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
@@ -262,5 +264,80 @@ export class ProductService {
       lowStockAlerts,
       recentMovements,
     };
+  }
+
+  // Métodos para o frontend
+  async findAllForFrontend(): Promise<ProductListResponseDto[]> {
+    const products = await this.productRepo.find({
+      where: { active: true },
+      relations: {
+        variations: {
+          sizes: {
+            stock: true,
+          },
+        },
+        collection: true,
+      },
+    });
+
+    return products.map((product) => this.mapToProductListResponse(product));
+  }
+
+  async getProductDetailsForFrontend(
+    publicId: string,
+  ): Promise<ProductDetailsResponseDto> {
+    const product = await this.productRepo.findOne({
+      where: { publicId, active: true },
+      relations: {
+        variations: {
+          sizes: {
+            stock: true,
+          },
+        },
+        collection: true,
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Produto não encontrado');
+    }
+
+    return this.mapToProductDetailsResponse(product);
+  }
+
+  private mapToProductListResponse(product: Product): ProductListResponseDto {
+    return {
+      publicId: product.publicId,
+      name: product.name,
+      active: product.active,
+      collection: product.collection
+        ? {
+            publicId: product.collection.publicId,
+            name: product.collection.name,
+            active: product.collection.active,
+            description: product.collection.description,
+            imageUrl: product.collection.imageUrl,
+          }
+        : undefined,
+      variations: product.variations.map((variation) => ({
+        publicId: variation.publicId,
+        color: variation.color,
+        name: variation.name,
+        price: Number(variation.price),
+        images: variation.images,
+        sizes: variation.sizes.map((size) => ({
+          size: size.size,
+          stock: {
+            quantity: size.stock.quantity,
+          },
+        })),
+      })),
+    };
+  }
+
+  private mapToProductDetailsResponse(
+    product: Product,
+  ): ProductDetailsResponseDto {
+    return this.mapToProductListResponse(product);
   }
 }
