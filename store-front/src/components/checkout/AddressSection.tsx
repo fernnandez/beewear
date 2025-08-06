@@ -11,72 +11,61 @@ import {
   Title,
   useMantineColorScheme,
 } from "@mantine/core";
+import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
 import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { AddressService } from "../../services/address.service";
+import {
+  Address as AddressType,
+  CreateOrUpdateAddressDto,
+} from "../../types/address";
 import { AddressModal } from "./AddressModal";
 
-interface Address {
-  id: string;
-  name: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  isDefault: boolean;
-}
-
 export function AddressSection() {
+  const queryClient = useQueryClient();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
-  const [selectedAddress, setSelectedAddress] = useState<string>("");
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: "1",
-      name: "Casa",
-      street: "Rua das Flores",
-      number: "123",
-      complement: "",
-      neighborhood: "Centro",
-      city: "Lisboa",
-      state: "Lisboa",
-      postalCode: "1000-001",
-      country: "Portugal",
-      isDefault: true,
-    },
-    {
-      id: "2",
-      name: "Trabalho",
-      street: "Avenida da Liberdade",
-      number: "456",
-      complement: "Sala 101",
-      neighborhood: "Baixa",
-      city: "Porto",
-      state: "Porto",
-      postalCode: "4000-001",
-      country: "Portugal",
-      isDefault: false,
-    },
-  ]);
+  const { data: addresses = [] } = useQuery<AddressType[]>({
+    queryKey: ["addresses"],
+    queryFn: AddressService.findAll,
+  });
+  const [editingAddress, setEditingAddress] = useState<AddressType | null>(
+    null
+  );
+  const [selectedAddress, setSelectedAddress] = useState<number | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
-  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
-  // Selecionar o endereço padrão por padrão
-  useEffect(() => {
-    const defaultAddress = addresses.find((addr) => addr.isDefault);
-    if (defaultAddress) {
-      setSelectedAddress(defaultAddress.id);
-    }
-  }, [addresses]);
-
-  const handleDeleteAddress = (id: string) => {
-    setAddresses((prev) => prev.filter((addr) => addr.id !== id));
-    if (selectedAddress === id) {
-      setSelectedAddress("");
-    }
+  const handleDeleteAddress = async (id: number) => {
+    modals.openConfirmModal({
+      title: "Confirmar exclusão",
+      children:
+        "Tem certeza que deseja remover este endereço? Esta ação não pode ser desfeita.",
+      labels: { confirm: "Sim, remover", cancel: "Cancelar" },
+      confirmProps: { color: "red" },
+      cancelProps: { variant: "outline" },
+      onConfirm: async () => {
+        try {
+          await AddressService.remove(id);
+          if (selectedAddress === id) {
+            setSelectedAddress(null);
+          }
+          queryClient.invalidateQueries({ queryKey: ["addresses"] });
+          notifications.show({
+            title: "Sucesso",
+            message: "Endereço removido com sucesso",
+            color: "green",
+          });
+        } catch {
+          notifications.show({
+            title: "Erro",
+            message: "Erro ao remover endereço. Tente novamente.",
+            color: "red",
+          });
+        }
+      },
+    });
   };
 
   const handleAddAddress = () => {
@@ -84,29 +73,18 @@ export function AddressSection() {
     setModalOpened(true);
   };
 
-  const handleEditAddress = (address: Address) => {
+  const handleEditAddress = (address: AddressType) => {
     setEditingAddress(address);
     setModalOpened(true);
   };
 
-  const handleSaveAddress = (addressData: any) => {
+  const handleSaveAddress = async (addressData: CreateOrUpdateAddressDto) => {
     if (editingAddress) {
-      // Editar endereço existente
-      setAddresses((prev) =>
-        prev.map((addr) =>
-          addr.id === editingAddress.id
-            ? { ...addressData, id: addr.id }
-            : addr
-        )
-      );
+      await AddressService.update(editingAddress.id, addressData);
     } else {
-      // Adicionar novo endereço
-      const newAddress = {
-        ...addressData,
-        id: Date.now().toString(),
-      };
-      setAddresses((prev) => [...prev, newAddress]);
+      await AddressService.create(addressData);
     }
+    queryClient.invalidateQueries({ queryKey: ["addresses"] });
   };
 
   return (
@@ -122,9 +100,9 @@ export function AddressSection() {
         <Title order={2} fw={700} size={rem(24)}>
           Meus Endereços
         </Title>
-        <Button 
-          leftSection={<IconPlus size={16} />} 
-          size="sm" 
+        <Button
+          leftSection={<IconPlus size={16} />}
+          size="sm"
           color="dark"
           onClick={handleAddAddress}
         >
@@ -164,10 +142,10 @@ export function AddressSection() {
               <Group justify="space-between" align="flex-start">
                 <Group align="flex-start" gap="md" style={{ flex: 1 }}>
                   <Radio
-                    value={address.id}
+                    value={address.id.toString()}
                     checked={selectedAddress === address.id}
                     onChange={(event) =>
-                      setSelectedAddress(event.currentTarget.value)
+                      setSelectedAddress(Number(event.currentTarget.value))
                     }
                     label=""
                   />
@@ -176,11 +154,6 @@ export function AddressSection() {
                       <Text fw={600} size="sm">
                         {address.name}
                       </Text>
-                      {address.isDefault && (
-                        <Text size="xs" c="dimmed">
-                          (Padrão)
-                        </Text>
-                      )}
                     </Group>
                     <Text size="sm" c="dimmed">
                       {address.street}, {address.number}

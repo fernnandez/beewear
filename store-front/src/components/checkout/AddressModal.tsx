@@ -4,97 +4,104 @@ import {
   Modal,
   Stack,
   TextInput,
-  Title,
   useMantineColorScheme,
   useMantineTheme,
-  Checkbox,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import {
-  IconHome,
-  IconMapPin,
-  IconBuilding,
-  IconMail,
-  IconPhone,
-} from "@tabler/icons-react";
-import { useState } from "react";
-
-interface AddressFormData {
-  name: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  isDefault: boolean;
-}
+import { IconBuilding, IconHome, IconMapPin } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { CreateOrUpdateAddressDto } from "../../types/address";
 
 interface AddressModalProps {
   opened: boolean;
   onClose: () => void;
-  onSave: (address: AddressFormData) => void;
-  initialData?: Partial<AddressFormData>;
+  onSave: (address: CreateOrUpdateAddressDto) => Promise<void>;
+  initialData?: Partial<CreateOrUpdateAddressDto>;
   isEditing?: boolean;
 }
 
-export const AddressModal = ({ 
-  opened, 
-  onClose, 
-  onSave, 
+export const AddressModal = ({
+  opened,
+  onClose,
+  onSave,
   initialData,
-  isEditing = false 
+  isEditing = false,
 }: AddressModalProps) => {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<AddressFormData>({
+  const form = useForm<CreateOrUpdateAddressDto>({
     initialValues: {
-      name: initialData?.name || "",
-      street: initialData?.street || "",
-      number: initialData?.number || "",
-      complement: initialData?.complement || "",
-      neighborhood: initialData?.neighborhood || "",
-      city: initialData?.city || "",
-      state: initialData?.state || "",
-      postalCode: initialData?.postalCode || "",
-      country: initialData?.country || "Portugal",
-      isDefault: initialData?.isDefault || false,
+      name: "",
+      street: "",
+      number: "",
+      complement: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "Portugal",
     },
     validate: {
-      name: (value) => (value.trim().length === 0 ? "Nome é obrigatório" : null),
-      street: (value) => (value.trim().length === 0 ? "Rua é obrigatória" : null),
-      number: (value) => (value.trim().length === 0 ? "Número é obrigatório" : null),
-      neighborhood: (value) => (value.trim().length === 0 ? "Bairro é obrigatório" : null),
-      city: (value) => (value.trim().length === 0 ? "Cidade é obrigatória" : null),
-      state: (value) => (value.trim().length === 0 ? "Estado é obrigatório" : null),
-      postalCode: (value) => (value.trim().length === 0 ? "CEP é obrigatório" : null),
-      country: (value) => (value.trim().length === 0 ? "País é obrigatório" : null),
+      name: (value: string) =>
+        value.trim().length === 0 ? "Nome é obrigatório" : null,
+      street: (value: string) =>
+        value.trim().length === 0 ? "Rua é obrigatória" : null,
+      number: (value: string) =>
+        value.trim().length === 0 ? "Número é obrigatório" : null,
+      neighborhood: (value: string) =>
+        value.trim().length === 0 ? "Bairro é obrigatório" : null,
+      city: (value: string) =>
+        value.trim().length === 0 ? "Cidade é obrigatória" : null,
+      state: (value: string) =>
+        value.trim().length === 0 ? "Estado é obrigatório" : null,
+      postalCode: (value: string) =>
+        value.trim().length === 0 ? "CEP é obrigatório" : null,
+      country: (value: string | undefined) =>
+        value?.trim().length === 0 ? "País é obrigatório" : null,
     },
   });
+
+  useEffect(() => {
+    if (opened) {
+      if (initialData) {
+        form.setValues({
+          name: initialData.name || "",
+          street: initialData.street || "",
+          number: initialData.number || "",
+          complement: initialData.complement || "",
+          neighborhood: initialData.neighborhood || "",
+          city: initialData.city || "",
+          state: initialData.state || "",
+          postalCode: initialData.postalCode || "",
+          country: initialData.country || "Portugal",
+        });
+      } else {
+        form.reset();
+      }
+    }
+  }, [opened, initialData]);
 
   const handleSubmit = async () => {
     if (!form.validate().hasErrors) {
       setIsLoading(true);
       try {
         await onSave(form.values);
-        
+
         notifications.show({
           title: isEditing ? "Endereço atualizado" : "Endereço cadastrado",
-          message: isEditing 
-            ? "Endereço atualizado com sucesso" 
+          message: isEditing
+            ? "Endereço atualizado com sucesso"
             : "Endereço cadastrado com sucesso",
           color: "green",
         });
-        
+
         onClose();
         form.reset();
-      } catch (error) {
+      } catch {
         notifications.show({
           title: "Erro",
           message: "Erro ao salvar endereço. Tente novamente.",
@@ -112,11 +119,11 @@ export const AddressModal = ({
   };
 
   return (
-    <Modal 
-      opened={opened} 
-      onClose={handleClose} 
+    <Modal
+      opened={opened}
+      onClose={handleClose}
       title={isEditing ? "Editar Endereço" : "Novo Endereço"}
-      size="md" 
+      size="md"
       centered
       radius="md"
       styles={{
@@ -217,12 +224,6 @@ export const AddressModal = ({
             </Grid.Col>
           </Grid>
 
-          {/* Endereço Padrão */}
-          <Checkbox
-            label="Definir como endereço padrão"
-            {...form.getInputProps("isDefault", { type: "checkbox" })}
-          />
-
           {/* Botões */}
           <Stack gap="sm" mt="md">
             <Button
@@ -234,17 +235,16 @@ export const AddressModal = ({
                 color: isDark ? theme.black : undefined,
               }}
             >
-              {isLoading 
-                ? (isEditing ? "Atualizando..." : "Salvando...") 
-                : (isEditing ? "Atualizar Endereço" : "Salvar Endereço")
-              }
+              {isLoading
+                ? isEditing
+                  ? "Atualizando..."
+                  : "Salvando..."
+                : isEditing
+                ? "Atualizar Endereço"
+                : "Salvar Endereço"}
             </Button>
-            
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              fullWidth
-            >
+
+            <Button variant="outline" onClick={handleClose} fullWidth>
               Cancelar
             </Button>
           </Stack>
@@ -252,4 +252,4 @@ export const AddressModal = ({
       </form>
     </Modal>
   );
-}; 
+};

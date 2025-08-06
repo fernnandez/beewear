@@ -1,6 +1,7 @@
 import { AuthProvider } from "@contexts/auth-context.tsx";
 import { CartProvider } from "@contexts/cart-context.tsx";
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -14,12 +15,14 @@ createRoot(document.getElementById("root")!).render(
         defaultColorScheme="light"
         theme={{ primaryColor: "yellow" }}
       >
-        <Notifications position="top-right" />
-        <AuthProvider>
-          <CartProvider>
-            <App />
-          </CartProvider>
-        </AuthProvider>
+        <Notifications position="bottom-right" />
+        <ModalsProvider>
+          <AuthProvider>
+            <CartProvider>
+              <App />
+            </CartProvider>
+          </AuthProvider>
+        </ModalsProvider>
       </MantineProvider>
     </BrowserRouter>
   </StrictMode>
