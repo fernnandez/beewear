@@ -1,4 +1,6 @@
+import { useAuth } from "@contexts/auth-context";
 import { useCart } from "@contexts/cart-context";
+import { useNavigate } from "react-router";
 import {
   ActionIcon,
   Badge,
@@ -16,6 +18,7 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import {
+  IconLogin,
   IconMinus,
   IconPlus,
   IconShoppingBagCheck,
@@ -27,13 +30,16 @@ import { formatPrice } from "../../utils/formatPrice";
 interface CartModalProps {
   opened: boolean;
   onClose: () => void;
+  openAuthModal: () => void;
 }
 
-export function CartModal({ opened, onClose }: CartModalProps) {
+export function CartModal({ opened, onClose, openAuthModal }: CartModalProps) {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
+  const navigate = useNavigate();
 
   const { items, updateQuantity, removeItem, getTotalPrice } = useCart();
+  const { isAutenticated } = useAuth();
 
   const isEmpty = items.length === 0;
 
@@ -45,7 +51,6 @@ export function CartModal({ opened, onClose }: CartModalProps) {
       size="lg"
       centered
       radius="md"
-      //   padding="lg"
       styles={{
         header: {
           borderBottom: "1px solid #e9ecef",
@@ -103,7 +108,7 @@ export function CartModal({ opened, onClose }: CartModalProps) {
                       color={isDark ? "white" : "dark"}
                       styles={(theme) => ({
                         label: {
-                          color: isDark ? theme.black : theme.white, // ou qualquer cor que desejar
+                          color: isDark ? theme.black : theme.white,
                         },
                       })}
                     >
@@ -168,14 +173,33 @@ export function CartModal({ opened, onClose }: CartModalProps) {
             </Text>
           </Group>
 
-          <Button
-            leftSection={<IconShoppingBagCheck size={16} />}
-            size="md"
-            color="dark"
-            fullWidth
-          >
-            Finalizar compra
-          </Button>
+          {isAutenticated ? (
+            <Button
+              leftSection={<IconShoppingBagCheck size={16} />}
+              size="md"
+              color="dark"
+              fullWidth
+              onClick={() => {
+                onClose();
+                navigate("/checkout");
+              }}
+            >
+              Finalizar compra
+            </Button>
+          ) : (
+            <Button
+              leftSection={<IconLogin size={16} />}
+              size="md"
+              color="dark"
+              fullWidth
+              onClick={() => {
+                onClose();
+                openAuthModal();
+              }}
+            >
+              Fazer login para finalizar compra
+            </Button>
+          )}
         </Stack>
       )}
     </Modal>

@@ -20,6 +20,7 @@ export interface StockItem {
 }
 
 export interface ProductVariationSize {
+  publicId: string;
   size: string;
   stock: StockItem;
 }

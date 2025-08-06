@@ -159,7 +159,11 @@ export const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
       </AppShell.Main>
 
       <AuthModal opened={authOpened} onClose={closeAuth} />
-      <CartModal opened={cartOpened} onClose={closeCart} />
+      <CartModal
+        opened={cartOpened}
+        onClose={closeCart}
+        openAuthModal={openAuth}
+      />
     </AppShell>
   );
 };

@@ -58,10 +58,25 @@ export function Variation({ selectedVariation }: Props) {
         >
           {images?.map((url) => (
             <Carousel.Slide key={url}>
-              <Paper withBorder radius="md" p="xs">
-                <Center>
-                  <Image src={url} key={url} w="100%" maw={500} mah={600} />
-                </Center>
+              <Paper
+                withBorder
+                radius="md"
+                p="xs"
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Image
+                  src={url}
+                  key={url}
+                  w="100%"
+                  maw={500}
+                  mih={{ base: 300, sm: 600, md: 600, lg: 750 }}
+                  h={{ sm: 600, md: 750 }}
+                />
               </Paper>
             </Carousel.Slide>
           ))}

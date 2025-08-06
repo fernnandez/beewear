@@ -12,6 +12,7 @@ import { Products } from "@pages/product/Products";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@utils/queryClient";
 import { Route, Routes } from "react-router";
+import { Checkout } from "@pages/checkout/Checkout";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/account" element={<Account />} />
             <Route path="/product/:publicId" element={<Products />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </AppShellLayout>

@@ -14,11 +14,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import {
-  getProfileInfo,
-  loginFunction,
-  register,
-} from "@services/auth.service";
+import { loginFunction, register } from "@services/auth.service";
 import {
   IconAlertCircle,
   IconLetterA,
@@ -34,7 +30,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
-  const { login, setUser } = useAuth();
+  const { login } = useAuth();
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
@@ -65,8 +61,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
     try {
       const token = await loginFunction(loginForm.values);
       login(token);
-      const profile = await getProfileInfo();
-      setUser(profile);
+
       notifications.show({
         title: "Login realizado com sucesso",
         message: "",
@@ -91,8 +86,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
     try {
       const token = await register(registerForm.values);
       login(token);
-      const profile = await getProfileInfo();
-      setUser(profile);
+      // O perfil será carregado automaticamente pelo useEffect do contexto
       notifications.show({
         title: "Registro realizado com sucesso",
         message: "",

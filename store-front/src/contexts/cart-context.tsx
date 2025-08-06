@@ -1,5 +1,3 @@
-"use client";
-
 import React, {
   createContext,
   useCallback,
@@ -7,6 +5,24 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
+// Funções utilitárias para cookies
+const getCookie = (name: string): string | null => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+  return null;
+};
+
+const setCookie = (name: string, value: string, days: number = 30): void => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+};
+
+const deleteCookie = (name: string): void => {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+};
 
 interface CartItem {
   publicId: string;
@@ -30,17 +46,26 @@ interface CartContextType {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  // Load cart from localStorage on initial mount
+  // Load cart from cookie on initial mount
   useEffect(() => {
-    const storedItems = localStorage.getItem("beewear-cart-local");
+    const storedItems = getCookie("beewear-cart");
     if (storedItems) {
-      setItems(JSON.parse(storedItems));
+      try {
+        setItems(JSON.parse(storedItems));
+      } catch (error) {
+        console.error("Erro ao carregar carrinho do cookie:", error);
+        deleteCookie("beewear-cart");
+      }
     }
   }, []);
 
-  // Persist cart to localStorage whenever items change
+  // Persist cart to cookie whenever items change
   useEffect(() => {
-    localStorage.setItem("beewear-cart-local", JSON.stringify(items));
+    if (items.length > 0) {
+      setCookie("beewear-cart", JSON.stringify(items), 30); // 30 dias
+    } else {
+      deleteCookie("beewear-cart");
+    }
   }, [items]);
 
   const addItem = useCallback((newItem: Omit<CartItem, "quantity">) => {
@@ -58,22 +83,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return [...prevItems, { ...newItem, quantity: 1 }];
       }
     });
-    // notifications.show({
-    //   title: "Item Adicionado",
-    //   message: `${newItem.name} foi adicionado ao carrinho.`,
-    //   color: "blue",
-    // });
   }, []);
 
   const removeItem = useCallback((publicId: string) => {
     setItems((prevItems) =>
       prevItems.filter((item) => item.publicId !== publicId)
     );
-    // notifications.show({
-    //   title: "Item Removido",
-    //   message: "O item foi removido do carrinho.",
-    //   color: "red",
-    // });
   }, []);
 
   const updateQuantity = useCallback(
@@ -93,11 +108,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([]);
-    // notifications.show({
-    //   title: "Carrinho Limpo",
-    //   message: "Todos os itens foram removidos do carrinho.",
-    //   color: "orange",
-    // });
+    deleteCookie("beewear-cart");
   }, []);
 
   const getTotalItems = useCallback(() => {

@@ -13,10 +13,11 @@ import {
   Title,
   useMantineColorScheme,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { useClipboard, useMediaQuery } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconShare, IconShoppingBag, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { Product } from "../../../types/product";
+import { Product, ProductVariationSize } from "../../../types/product";
 import { formatPrice } from "../../../utils/formatPrice";
 import { SizeGuideCard } from "./SizeChartCard/SizeChartCard";
 import { Variation } from "./VariationImageGallery/Variation";
@@ -27,6 +28,8 @@ interface ProductPreviewProps {
 
 export function ProductPreview({ product }: ProductPreviewProps) {
   const { addItem } = useCart();
+  const clipboard = useClipboard({ timeout: 500 });
+
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -62,8 +65,19 @@ export function ProductPreview({ product }: ProductPreviewProps) {
     }
   };
 
-  const handleSizeChange = (size: any) => {
+  const handleSizeChange = (size: ProductVariationSize) => {
     setSelectedSize(size);
+  };
+
+  const handleShare = () => {
+    const currentUrl = window.location.href;
+    clipboard.copy(currentUrl);
+
+    notifications.show({
+      title: "Link copiado!",
+      message: "O link da página foi copiado para a área de transferência.",
+      color: "green",
+    });
   };
 
   return (
@@ -220,7 +234,7 @@ export function ProductPreview({ product }: ProductPreviewProps) {
                 onClick={() => {
                   addItem({
                     name: product.name,
-                    publicId: selectedVariation.publicId,
+                    publicId: selectedSize.publicId,
                     color: selectedVariation.color,
                     price: selectedVariation.price,
                     image: selectedVariation.images[0],
@@ -235,8 +249,9 @@ export function ProductPreview({ product }: ProductPreviewProps) {
                 color="blue"
                 leftSection={<IconShare size={16} />}
                 fullWidth
+                onClick={handleShare}
               >
-                Compartilhar
+                {clipboard.copied ? "Link copiado!" : "Compartilhar"}
               </Button>
             </Stack>
 
