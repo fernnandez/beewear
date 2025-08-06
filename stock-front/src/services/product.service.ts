@@ -49,7 +49,6 @@ export const updateProductStatus = async (
   publicId: string,
   isActive: boolean
 ) => {
-  console.log("alou");
   await api.patch(`/product/${publicId}/status`, { isActive });
 };
 

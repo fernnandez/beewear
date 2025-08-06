@@ -20,8 +20,6 @@ export const createCollection = async (
     ? await uploadImage(createCollectionParams.imageFile)
     : null;
 
-  console.log(createCollectionParams);
-
   await api.post("/collection", { ...createCollectionParams, imageUrl });
 };
 

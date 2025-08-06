@@ -14,6 +14,8 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+import { useClipboard } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import {
   IconCheck,
   IconEye,
@@ -29,6 +31,8 @@ import { useEffect, useState } from "react";
 
 // TODO: ajustar tipagem aqui
 export function StorePreview({ product }: { product: ProductDetails }) {
+  const clipboard = useClipboard({ timeout: 500 });
+  
   const [selectedVariation, setSelectedVariation] = useState(
     product.variations[0]
   );
@@ -61,6 +65,17 @@ export function StorePreview({ product }: { product: ProductDetails }) {
 
   const handleSizeChange = (size: any) => {
     setSelectedSize(size);
+  };
+
+  const handleShare = () => {
+    const currentUrl = window.location.href;
+    clipboard.copy(currentUrl);
+    
+    notifications.show({
+      title: "Link copiado!",
+      message: "O link da página foi copiado para a área de transferência.",
+      color: "green",
+    });
   };
 
   return (
@@ -256,8 +271,12 @@ export function StorePreview({ product }: { product: ProductDetails }) {
               <Button variant="outline" leftSection={<IconHeart size={16} />}>
                 Favoritar
               </Button>
-              <Button variant="outline" leftSection={<IconShare size={16} />}>
-                Compartilhar
+              <Button 
+                variant="outline" 
+                leftSection={<IconShare size={16} />}
+                onClick={handleShare}
+              >
+                {clipboard.copied ? "Link copiado!" : "Compartilhar"}
               </Button>
             </Group>
           </Stack>
