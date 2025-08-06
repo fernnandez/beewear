@@ -12,7 +12,11 @@ import { UserService } from 'src/domain/user/user.service';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
 
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
@@ -117,6 +121,21 @@ describe('UserService (with Real DB Interaction)', () => {
           password: 'wrong-pass',
         }),
       ).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('findOneOrFail', () => {
+    it('should throw if user not found', async () => {
+      await expect(service.findOneOrFail(999)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should return user if found', async () => {
+      const user = await userRepo.findOneBy({ email: 'email@example.com' });
+
+      const result = await service.findOneOrFail(user.id);
+      expect(result).toEqual(user);
     });
   });
 });

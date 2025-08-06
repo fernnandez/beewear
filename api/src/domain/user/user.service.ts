@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -56,5 +57,11 @@ export class UserService {
         role: user.role,
       }),
     };
+  }
+
+  async findOneOrFail(id: number) {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+    return user;
   }
 }

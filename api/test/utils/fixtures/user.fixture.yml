@@ -8,3 +8,11 @@ items:
     email: "email@example.com"
     password: "12345678"
     role: 'admin'
+
+  user_regular:
+    id: 2
+    publicId: "8f7b39c2-4fef-63cc-c412-c79328de8558"
+    name: "Jane Smith"
+    email: "jane@example.com"
+    password: "12345678"
+    role: 'user'

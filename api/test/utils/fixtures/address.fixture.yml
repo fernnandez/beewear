@@ -1,0 +1,30 @@
+entity: Address
+processor: ./processor/addressProcessor
+items:
+  address_casa:
+    id: 1
+    name: "Casa"
+    street: "Rua das Flores"
+    number: "123"
+    complement: "Apto 101"
+    neighborhood: "Centro"
+    city: "Lisboa"
+    state: "Lisboa"
+    postalCode: "1000-001"
+    country: "Portugal"
+    isDefault: true
+    user: '@user_regular'
+
+  address_trabalho:
+    id: 2
+    name: "Trabalho"
+    street: "Avenida da Liberdade"
+    number: "456"
+    complement: "Sala 201"
+    neighborhood: "Baixa"
+    city: "Porto"
+    state: "Porto"
+    postalCode: "4000-001"
+    country: "Portugal"
+    isDefault: false
+    user: '@user_regular'

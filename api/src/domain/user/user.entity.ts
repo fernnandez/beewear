@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Address } from './address/address.entity';
 
 export enum Role {
   USER = 'user',
@@ -28,6 +30,9 @@ export class User {
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
+
+  @OneToMany(() => Address, (address) => address.user)
+  addresses: Address[];
 
   @CreateDateColumn()
   createdAt: Date;

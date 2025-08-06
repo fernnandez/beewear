@@ -54,6 +54,7 @@ export class ProductService {
 
     return savedProduct;
   }
+
   async findAll() {
     return this.productRepo.find({
       relations: {
@@ -326,6 +327,7 @@ export class ProductService {
         price: Number(variation.price),
         images: variation.images,
         sizes: variation.sizes.map((size) => ({
+          publicId: size.publicId,
           size: size.size,
           stock: {
             quantity: size.stock.quantity,

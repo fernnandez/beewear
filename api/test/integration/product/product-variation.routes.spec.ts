@@ -231,8 +231,6 @@ describe('ProductVariationController (Integration - Routes) with Fixtures', () =
           relations: ['variations'],
         });
 
-        console.log(product);
-
         const variation = product!.variations[0];
 
         const updateDto = {

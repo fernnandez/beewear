@@ -25,7 +25,9 @@ const config: Config = {
     '<rootDir>/src/infra/auth/decorator/.*\\.ts',
     '<rootDir>/src/infra/auth/guard/.*\\.ts',
   ],
-  silent: false,
+  // Configurações de Log
+  silent: false, // true = suprime todos os logs
+  verbose: false, // true = mostra logs detalhados
   testEnvironment: 'node',
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/src/$1',

@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 export interface CreateTestingAppOptions {
@@ -6,6 +6,7 @@ export interface CreateTestingAppOptions {
   providers?: any[];
   controllers?: any[];
   globalPipes?: boolean;
+  enableLogs?: boolean;
 }
 
 export async function createTestingApp(
@@ -19,6 +20,31 @@ export async function createTestingApp(
 
   const app = moduleRef.createNestApplication();
 
+  // Habilitar logs detalhados durante os testes
+  if (options.enableLogs !== false) {
+    const logger = new Logger('TestApp');
+
+    // Log de todas as requisições
+    app.use((req, res, next) => {
+      logger.log(
+        `[${req.method}] ${req.url} - Body: ${JSON.stringify(req.body)}`,
+      );
+      next();
+    });
+
+    // Log de erros
+    app.use((err, req, res, next) => {
+      logger.error(
+        `Error in ${req.method} ${req.url}: ${err.message}`,
+        err.stack,
+      );
+      next(err);
+    });
+
+    // Habilitar logs do NestJS
+    app.useLogger(['error', 'warn', 'log', 'debug', 'verbose']);
+  }
+
   if (options.globalPipes !== false) {
     app.useGlobalPipes(
       new ValidationPipe({
@@ -29,6 +55,7 @@ export async function createTestingApp(
     );
   }
 
+  app.useLogger(['error', 'warn', 'log', 'debug', 'verbose']);
   await app.init();
   return app;
 }

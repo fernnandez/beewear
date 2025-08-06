@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 
 const extraConfig = {
   ...config,
+  synchronize: true,
   entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
 };
 

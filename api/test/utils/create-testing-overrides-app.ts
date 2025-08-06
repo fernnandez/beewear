@@ -40,6 +40,7 @@ export async function createTestingAppWithOverrides(
     );
   }
 
+  app.useLogger(['error', 'warn', 'log', 'debug', 'verbose']);
   await app.init();
   return app;
 }
