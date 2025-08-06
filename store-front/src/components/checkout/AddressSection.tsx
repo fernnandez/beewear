@@ -13,12 +13,17 @@ import {
 } from "@mantine/core";
 import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { AddressModal } from "./AddressModal";
 
 interface Address {
   id: string;
   name: string;
   street: string;
+  number: string;
+  complement: string;
+  neighborhood: string;
   city: string;
+  state: string;
   postalCode: string;
   country: string;
   isDefault: boolean;
@@ -32,8 +37,12 @@ export function AddressSection() {
     {
       id: "1",
       name: "Casa",
-      street: "Rua das Flores, 123",
+      street: "Rua das Flores",
+      number: "123",
+      complement: "",
+      neighborhood: "Centro",
       city: "Lisboa",
+      state: "Lisboa",
       postalCode: "1000-001",
       country: "Portugal",
       isDefault: true,
@@ -41,13 +50,19 @@ export function AddressSection() {
     {
       id: "2",
       name: "Trabalho",
-      street: "Avenida da Liberdade, 456",
+      street: "Avenida da Liberdade",
+      number: "456",
+      complement: "Sala 101",
+      neighborhood: "Baixa",
       city: "Porto",
+      state: "Porto",
       postalCode: "4000-001",
       country: "Portugal",
       isDefault: false,
     },
   ]);
+  const [modalOpened, setModalOpened] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
   // Selecionar o endereço padrão por padrão
   useEffect(() => {
@@ -64,6 +79,36 @@ export function AddressSection() {
     }
   };
 
+  const handleAddAddress = () => {
+    setEditingAddress(null);
+    setModalOpened(true);
+  };
+
+  const handleEditAddress = (address: Address) => {
+    setEditingAddress(address);
+    setModalOpened(true);
+  };
+
+  const handleSaveAddress = (addressData: any) => {
+    if (editingAddress) {
+      // Editar endereço existente
+      setAddresses((prev) =>
+        prev.map((addr) =>
+          addr.id === editingAddress.id
+            ? { ...addressData, id: addr.id }
+            : addr
+        )
+      );
+    } else {
+      // Adicionar novo endereço
+      const newAddress = {
+        ...addressData,
+        id: Date.now().toString(),
+      };
+      setAddresses((prev) => [...prev, newAddress]);
+    }
+  };
+
   return (
     <Paper
       p="xl"
@@ -77,7 +122,12 @@ export function AddressSection() {
         <Title order={2} fw={700} size={rem(24)}>
           Meus Endereços
         </Title>
-        <Button leftSection={<IconPlus size={16} />} size="sm" color="dark">
+        <Button 
+          leftSection={<IconPlus size={16} />} 
+          size="sm" 
+          color="dark"
+          onClick={handleAddAddress}
+        >
           Adicionar
         </Button>
       </Group>
@@ -133,13 +183,14 @@ export function AddressSection() {
                       )}
                     </Group>
                     <Text size="sm" c="dimmed">
-                      {address.street}
+                      {address.street}, {address.number}
+                      {address.complement && ` - ${address.complement}`}
                     </Text>
                     <Text size="sm" c="dimmed">
-                      {address.city}, {address.postalCode}
+                      {address.neighborhood}, {address.city} - {address.state}
                     </Text>
                     <Text size="sm" c="dimmed">
-                      {address.country}
+                      {address.postalCode}, {address.country}
                     </Text>
                   </Stack>
                 </Group>
@@ -150,6 +201,7 @@ export function AddressSection() {
                     variant="subtle"
                     color="dark"
                     title="Editar"
+                    onClick={() => handleEditAddress(address)}
                   >
                     <IconEdit size={16} />
                   </ActionIcon>
@@ -168,6 +220,14 @@ export function AddressSection() {
           ))}
         </Stack>
       )}
+
+      <AddressModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        onSave={handleSaveAddress}
+        initialData={editingAddress || undefined}
+        isEditing={!!editingAddress}
+      />
     </Paper>
   );
 }

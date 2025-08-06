@@ -22,8 +22,20 @@ Implementação de uma tela de checkout completa seguindo o padrão de estiliza�
   - Botões de adicionar, editar e excluir endereços
   - Estado vazio quando não há endereços
   - Seleção automática do endereço padrão
+  - **Modal de cadastro**: Formulário completo para adicionar/editar endereços
 
-### 3. Seção de Pagamento (`PaymentSection.tsx`)
+### 3. Modal de Endereço (`AddressModal.tsx`)
+- **Localização**: `src/components/checkout/AddressModal.tsx`
+- **Funcionalidades**:
+  - Formulário completo de endereço com validação
+  - Campos: nome, rua, número, complemento, bairro, cidade, estado, CEP, país
+  - Opção para definir como endereço padrão
+  - Modo de edição e criação
+  - Validação de campos obrigatórios
+  - Notificações de sucesso/erro
+  - Layout responsivo com grid
+
+### 4. Seção de Pagamento (`PaymentSection.tsx`)
 - **Localização**: `src/components/checkout/PaymentSection.tsx`
 - **Funcionalidades**:
   - Lista de métodos de pagamento cadastrados
@@ -33,7 +45,7 @@ Implementação de uma tela de checkout completa seguindo o padrão de estiliza�
   - Estado vazio quando não há métodos cadastrados
   - Seleção automática do método padrão
 
-### 4. Resumo do Pedido (`OrderSummary.tsx`)
+### 5. Resumo do Pedido (`OrderSummary.tsx`)
 - **Localização**: `src/components/checkout/OrderSummary.tsx`
 - **Funcionalidades**:
   - Lista dos itens do carrinho com imagens (100x100px)
@@ -125,6 +137,7 @@ src/
 │   └── checkout/
 │       ├── index.ts
 │       ├── AddressSection.tsx
+│       ├── AddressModal.tsx
 │       ├── PaymentSection.tsx
 │       └── OrderSummary.tsx
 └── App.tsx (rota adicionada)
