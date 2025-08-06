@@ -7,6 +7,7 @@ import {
   Divider,
   Group,
   Image,
+  Paper,
   rem,
   Stack,
   Text,
@@ -14,17 +15,28 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { IconMinus, IconPlus, IconShoppingBagCheck, IconTrash } from "@tabler/icons-react";
+import {
+  IconMinus,
+  IconPlus,
+  IconShoppingBagCheck,
+  IconTrash,
+} from "@tabler/icons-react";
 import { formatPrice } from "@utils/formatPrice";
+import { useNavigate } from "react-router";
 
-export function OrderSummary() {
+interface OrderSummaryProps {
+  isCheckoutComplete: boolean;
+}
+
+export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
   const { items, getTotalPrice, updateQuantity, removeItem } = useCart();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
-  
+  const navigate = useNavigate();
+
   const handleFinalizePurchase = () => {
-    // Implementar lógica de finalização da compra
-    console.log("Finalizando compra...");
+    // Redirecionar para a página de revisão
+    navigate("/order-review");
   };
 
   const handleQuantityChange = (publicId: string, newQuantity: number) => {
@@ -35,7 +47,7 @@ export function OrderSummary() {
     modals.openConfirmModal({
       centered: true,
       title: "Remover item",
-      children: `Tem certeza que deseja remover "${itemName}" do carrinho?`,
+      children: `Tem certeza que deseja remover "${itemName}" do pedido?`,
       labels: { confirm: "Sim, remover", cancel: "Cancelar" },
       confirmProps: { color: "red" },
       cancelProps: { variant: "outline" },
@@ -60,83 +72,102 @@ export function OrderSummary() {
         <>
           <Stack gap="md">
             {items.map((item) => (
-              <Group key={item.publicId} align="start" wrap="nowrap">
-                <Image
-                  src={item.image || "/placeholder.svg"}
-                  alt={item.name}
-                  w={100}
-                  h={100}
-                  radius="sm"
-                  style={{ objectFit: "cover", flexShrink: 0 }}
-                />
-
-                <Stack gap={4} style={{ flex: 1 }}>
-                  <Text fw={600} size="sm" lineClamp={1}>
-                    {item.name}
-                  </Text>
-                  <Group gap={"xs"}>
-                    <Box
-                      key={item.color}
-                      w={20}
-                      h={20}
-                      style={{
-                        backgroundColor: item.color,
-                        borderRadius: "50%",
-                      }}
+              <Paper
+                p="sm"
+                style={{
+                  border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
+                  borderRadius: rem(8),
+                  backgroundColor: isDark ? "#2c2e33" : "#f8f9fa",
+                }}
+              >
+                <Stack gap="sm">
+                  <Group align="start" wrap="nowrap">
+                    <Image
+                      src={item.image || "/placeholder.svg"}
+                      alt={item.name}
+                      w={{ base: 80, sm: 100 }}
+                      h={{ base: 80, sm: 100 }}
+                      radius="sm"
+                      style={{ objectFit: "cover", flexShrink: 0 }}
                     />
-                    <Badge
-                      size="sm"
-                      color={isDark ? "white" : "dark"}
-                      styles={(theme) => ({
-                        label: {
-                          color: isDark ? theme.black : theme.white,
-                        },
-                      })}
-                    >
-                      {item.size}
-                    </Badge>
-                  </Group>
-                  <Text size="xs" c="dimmed">
-                    Preço unitário: {formatPrice(item.price)}
-                  </Text>
 
-                  <Group gap="xs">
-                    <ActionIcon
-                      size="xs"
-                      variant="light"
-                      onClick={() => handleQuantityChange(item.publicId, item.quantity - 1)}
-                      disabled={item.quantity <= 1}
-                    >
-                      <IconMinus size={14} />
-                    </ActionIcon>
-                    <Text size="sm" fw={500} w={20} ta="center">
-                      {item.quantity}
-                    </Text>
-                    <ActionIcon
-                      size="xs"
-                      variant="light"
-                      onClick={() => handleQuantityChange(item.publicId, item.quantity + 1)}
-                    >
-                      <IconPlus size={18} />
-                    </ActionIcon>
+                    <Stack gap={6} style={{ flex: 1 }}>
+                      <Text fw={600} size="sm" lineClamp={1}>
+                        {item.name}
+                      </Text>
+                      <Group gap={"xs"}>
+                        <Box
+                          key={item.color}
+                          w={20}
+                          h={20}
+                          style={{
+                            backgroundColor: item.color,
+                            borderRadius: "50%",
+                          }}
+                        />
+                        <Badge
+                          size="sm"
+                          color={isDark ? "white" : "dark"}
+                          variant="outline"
+                        >
+                          {item.size}
+                        </Badge>
+                      </Group>
+                      <Text size="xs" c="dimmed">
+                        {formatPrice(item.price)}
+                      </Text>
+
+                      <Group gap="xs">
+                        <ActionIcon
+                          size="xs"
+                          variant="light"
+                          onClick={() =>
+                            handleQuantityChange(
+                              item.publicId,
+                              item.quantity - 1
+                            )
+                          }
+                          disabled={item.quantity <= 1}
+                        >
+                          <IconMinus size={14} />
+                        </ActionIcon>
+                        <Text size="sm" fw={500} w={20} ta="center">
+                          {item.quantity}
+                        </Text>
+                        <ActionIcon
+                          size="xs"
+                          variant="light"
+                          onClick={() =>
+                            handleQuantityChange(
+                              item.publicId,
+                              item.quantity + 1
+                            )
+                          }
+                        >
+                          <IconPlus size={18} />
+                        </ActionIcon>
+                      </Group>
+                    </Stack>
+
+                    <Stack align="flex-end" justify="space-between" h="100%">
+                      <Text fw={600} size="sm">
+                        {formatPrice(item.price * item.quantity)}
+                      </Text>
+                      <ActionIcon
+                        size="sm"
+                        variant="subtle"
+                        color="red"
+                        onClick={() =>
+                          handleRemoveItem(item.publicId, item.name)
+                        }
+                        title="Remover"
+                      >
+                        <IconTrash size={18} />
+                      </ActionIcon>
+                      </Stack>
                   </Group>
                 </Stack>
-
-                <Stack gap={4} align="flex-end">
-                  <Text fw={600} size="sm">
-                    {formatPrice(item.price * item.quantity)}
-                  </Text>
-                  <ActionIcon
-                    size="xs"
-                    variant="subtle"
-                    color="red"
-                    onClick={() => handleRemoveItem(item.publicId, item.name)}
-                    title="Remover"
-                  >
-                    <IconTrash size={18} />
-                  </ActionIcon>
-                </Stack>
-              </Group>
+              </Paper>
             ))}
           </Stack>
 
@@ -162,7 +193,7 @@ export function OrderSummary() {
         fullWidth
         onClick={handleFinalizePurchase}
         style={{ marginTop: rem(16) }}
-        disabled={items.length === 0}
+        disabled={items.length === 0 || !isCheckoutComplete}
       >
         Finalizar Compra
       </Button>

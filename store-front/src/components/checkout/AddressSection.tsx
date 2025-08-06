@@ -23,7 +23,12 @@ import {
 } from "../../types/address";
 import { AddressModal } from "./AddressModal";
 
-export function AddressSection() {
+interface AddressSectionProps {
+  selectedAddress: number | null;
+  onAddressSelect: (addressId: number | null) => void;
+}
+
+export function AddressSection({ selectedAddress, onAddressSelect }: AddressSectionProps) {
   const queryClient = useQueryClient();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
@@ -34,7 +39,6 @@ export function AddressSection() {
   const [editingAddress, setEditingAddress] = useState<AddressType | null>(
     null
   );
-  const [selectedAddress, setSelectedAddress] = useState<number | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
 
   const handleDeleteAddress = async (id: number) => {
@@ -50,7 +54,7 @@ export function AddressSection() {
         try {
           await AddressService.remove(id);
           if (selectedAddress === id) {
-            setSelectedAddress(null);
+            onAddressSelect(null);
           }
           queryClient.invalidateQueries({ queryKey: ["addresses"] });
           notifications.show({
@@ -146,7 +150,7 @@ export function AddressSection() {
                     value={address.id.toString()}
                     checked={selectedAddress === address.id}
                     onChange={(event) =>
-                      setSelectedAddress(Number(event.currentTarget.value))
+                      onAddressSelect(Number(event.currentTarget.value))
                     }
                     label=""
                   />

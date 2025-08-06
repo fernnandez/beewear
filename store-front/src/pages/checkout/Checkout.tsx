@@ -1,29 +1,35 @@
-import { useCart } from "@contexts/cart-context";
+import { AddressSection } from "@components/checkout/AddressSection";
+import { OrderSummary } from "@components/checkout/OrderSummary";
+import { PaymentSection } from "@components/checkout/PaymentSection";
 import { useAuth } from "@contexts/auth-context";
+import { useCart } from "@contexts/cart-context";
+import { useCheckout } from "@contexts/checkout-context";
 import {
+  Button,
   Container,
   Grid,
-  Paper,
-  Title,
-  Text,
-  Button,
   Group,
-  Stack,
-  Divider,
-  useMantineColorScheme,
+  Paper,
   rem,
+  Stack,
+  Title,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { Link, Navigate } from "react-router";
-import { AddressSection } from "@components/checkout/AddressSection";
-import { PaymentSection } from "@components/checkout/PaymentSection";
-import { OrderSummary } from "@components/checkout/OrderSummary";
 
 export function Checkout() {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
-  const { items, getTotalPrice } = useCart();
+  const { items } = useCart();
   const { isAutenticated } = useAuth();
+  const { 
+    selectedAddressId, 
+    selectedPaymentId, 
+    setSelectedAddressId, 
+    setSelectedPaymentId, 
+    isCheckoutComplete 
+  } = useCheckout();
 
   // Redirecionar se não estiver autenticado ou se o carrinho estiver vazio
   if (!isAutenticated) {
@@ -58,8 +64,14 @@ export function Checkout() {
           {/* Left Column - Address and Payment */}
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap="xl">
-              <AddressSection />
-              <PaymentSection />
+              <AddressSection 
+                selectedAddress={selectedAddressId}
+                onAddressSelect={setSelectedAddressId}
+              />
+              <PaymentSection 
+                selectedPayment={selectedPaymentId}
+                onPaymentSelect={setSelectedPaymentId}
+              />
             </Stack>
           </Grid.Col>
 
@@ -75,11 +87,11 @@ export function Checkout() {
                 top: rem(80),
               }}
             >
-              <OrderSummary />
+              <OrderSummary isCheckoutComplete={isCheckoutComplete} />
             </Paper>
           </Grid.Col>
         </Grid>
       </Stack>
     </Container>
   );
-} 
+}

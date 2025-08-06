@@ -28,10 +28,14 @@ interface PaymentMethod {
   isDefault: boolean;
 }
 
-export function PaymentSection() {
+interface PaymentSectionProps {
+  selectedPayment: string;
+  onPaymentSelect: (paymentId: string) => void;
+}
+
+export function PaymentSection({ selectedPayment, onPaymentSelect }: PaymentSectionProps) {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
-  const [selectedPayment, setSelectedPayment] = useState<string>("");
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
     {
       id: "1",
@@ -60,15 +64,15 @@ export function PaymentSection() {
   // Selecionar o método de pagamento padrão por padrão
   useEffect(() => {
     const defaultPayment = paymentMethods.find((pay) => pay.isDefault);
-    if (defaultPayment) {
-      setSelectedPayment(defaultPayment.id);
+    if (defaultPayment && !selectedPayment) {
+      onPaymentSelect(defaultPayment.id);
     }
-  }, [paymentMethods]);
+  }, [paymentMethods, selectedPayment, onPaymentSelect]);
 
   const handleDeletePayment = (id: string) => {
     setPaymentMethods((prev) => prev.filter((pay) => pay.id !== id));
     if (selectedPayment === id) {
-      setSelectedPayment("");
+      onPaymentSelect("");
     }
   };
 
@@ -153,7 +157,7 @@ export function PaymentSection() {
                     value={payment.id}
                     checked={selectedPayment === payment.id}
                     onChange={(event) =>
-                      setSelectedPayment(event.currentTarget.value)
+                      onPaymentSelect(event.currentTarget.value)
                     }
                     label=""
                   />
