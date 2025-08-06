@@ -39,6 +39,7 @@ export function AddressSection() {
 
   const handleDeleteAddress = async (id: number) => {
     modals.openConfirmModal({
+      centered: true,
       title: "Confirmar exclusão",
       children:
         "Tem certeza que deseja remover este endereço? Esta ação não pode ser desfeita.",

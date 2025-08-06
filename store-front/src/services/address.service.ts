@@ -1,5 +1,5 @@
 import api from "./api";
-import { Address, CreateAddressDto, UpdateAddressDto } from "../types/address";
+import { Address, CreateOrUpdateAddressDto } from "../types/address";
 
 export class AddressService {
   static async findAll(): Promise<Address[]> {
@@ -7,12 +7,12 @@ export class AddressService {
     return response.data;
   }
 
-  static async create(dto: CreateAddressDto): Promise<Address> {
+  static async create(dto: CreateOrUpdateAddressDto): Promise<Address> {
     const response = await api.post<Address>("/addresses", dto);
     return response.data;
   }
 
-  static async update(id: number, dto: UpdateAddressDto): Promise<Address> {
+  static async update(id: number, dto: CreateOrUpdateAddressDto): Promise<Address> {
     const response = await api.put<Address>(`/addresses/${id}`, dto);
     return response.data;
   }

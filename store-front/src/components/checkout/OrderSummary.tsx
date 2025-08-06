@@ -13,6 +13,7 @@ import {
   Title,
   useMantineColorScheme,
 } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { IconMinus, IconPlus, IconShoppingBagCheck, IconTrash } from "@tabler/icons-react";
 import { formatPrice } from "@utils/formatPrice";
 
@@ -30,8 +31,18 @@ export function OrderSummary() {
     updateQuantity(publicId, newQuantity);
   };
 
-  const handleRemoveItem = (publicId: string) => {
-    removeItem(publicId);
+  const handleRemoveItem = (publicId: string, itemName: string) => {
+    modals.openConfirmModal({
+      centered: true,
+      title: "Remover item",
+      children: `Tem certeza que deseja remover "${itemName}" do carrinho?`,
+      labels: { confirm: "Sim, remover", cancel: "Cancelar" },
+      confirmProps: { color: "red" },
+      cancelProps: { variant: "outline" },
+      onConfirm: () => {
+        removeItem(publicId);
+      },
+    });
   };
 
   return (
@@ -119,7 +130,7 @@ export function OrderSummary() {
                     size="xs"
                     variant="subtle"
                     color="red"
-                    onClick={() => handleRemoveItem(item.publicId)}
+                    onClick={() => handleRemoveItem(item.publicId, item.name)}
                     title="Remover"
                   >
                     <IconTrash size={18} />
