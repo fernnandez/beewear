@@ -27,6 +27,7 @@ export function Checkout() {
     selectedAddressId, 
     selectedPaymentId, 
     setSelectedAddressId, 
+    setSelectedAddress,
     setSelectedPaymentId, 
     isCheckoutComplete 
   } = useCheckout();
@@ -67,6 +68,7 @@ export function Checkout() {
               <AddressSection 
                 selectedAddress={selectedAddressId}
                 onAddressSelect={setSelectedAddressId}
+                onAddressSelectFull={setSelectedAddress}
               />
               <PaymentSection 
                 selectedPayment={selectedPaymentId}

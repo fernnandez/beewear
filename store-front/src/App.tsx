@@ -2,14 +2,17 @@ import "@mantine/carousel/styles.css";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 
-import { CheckoutProvider } from "@contexts/checkout-context";
 import { AppShellLayout } from "@components/shared/AppShellLayout";
-import { ScrollToTop } from "@components/shared/ScrollToTop";
-import { OrderReview } from "@pages/checkout/OrderReview";
-import { OrderSuccess } from "@pages/checkout/OrderSuccess";
 import { ErrorBoundary } from "@components/shared/ErrorBoundary/ErrorBoundary";
-import { Checkout } from "@pages/checkout/Checkout";
+import { ScrollToTop } from "@components/shared/ScrollToTop";
+import { CheckoutProvider } from "@contexts/checkout-context";
 import Account from "@pages/account/Account";
+import { Checkout } from "@pages/checkout/Checkout";
+import { OrderReview } from "@pages/checkout/OrderReview";
+
+import { ProtectedRoute } from "@components/shared/ProtectedRoute/ProtectedRoute";
+import { OrderDetailsPage } from "@pages/account/OrderDetailsPage";
+import { OrdersPage } from "@pages/account/OrdersPage";
 import { Home } from "@pages/home/Home";
 import { NotFoundPage } from "@pages/notFound/NotFound";
 import { Products } from "@pages/product/Products";
@@ -23,17 +26,55 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <ScrollToTop />
         <AppShellLayout>
-          <CheckoutProvider>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/product/:publicId" element={<Products />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/order-review" element={<OrderReview />} />
-              <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </CheckoutProvider>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/product/:publicId" element={<Products />} />
+            <Route
+              path="/account"
+              element={
+                <ProtectedRoute>
+                  <Account />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/:orderId"
+              element={
+                <ProtectedRoute>
+                  <OrderDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                <CheckoutProvider>
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                </CheckoutProvider>
+              }
+            />
+            <Route
+              path="/checkout/order-review"
+              element={
+                <CheckoutProvider>
+                  <ProtectedRoute>
+                    <OrderReview />
+                  </ProtectedRoute>
+                </CheckoutProvider>
+              }
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
         </AppShellLayout>
       </QueryClientProvider>
     </ErrorBoundary>

@@ -1,23 +1,25 @@
 import { ProductPreview } from "@components/product/ProductPreview/ProductPreview";
 import {
   Box,
+  Button,
+  Center,
   Container,
   Grid,
+  Group,
   Stack,
   Text,
   useMantineColorScheme,
-  Center,
 } from "@mantine/core";
-import { IconTruck, IconUser } from "@tabler/icons-react";
-import { useParams } from "react-router";
-import { useProduct } from "../../hooks/useProducts";
+import { IconArrowLeft, IconTruck, IconUser } from "@tabler/icons-react";
+import { Link, useParams } from "react-router";
 import { Loading } from "../../components/shared/Loading/Loading";
+import { useProduct } from "../../hooks/useProducts";
 
 export const Products = () => {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
   const { publicId } = useParams<{ publicId: string }>();
-  
+
   const { data: product, isLoading, error } = useProduct(publicId || "");
 
   if (isLoading) {
@@ -48,7 +50,19 @@ export const Products = () => {
   }
 
   return (
-    <>
+    <Container size="xl" py="xl">
+      {/* Header */}
+      <Group>
+        <Button
+          variant="subtle"
+          leftSection={<IconArrowLeft size={16} />}
+          component={Link}
+          to="/"
+          color={isDark ? "white" : "dark"}
+        >
+          Voltar
+        </Button>
+      </Group>
       <ProductPreview product={product} />
       <Box py={30}>
         <Container size="xl">
@@ -98,6 +112,6 @@ export const Products = () => {
           </Grid>
         </Container>
       </Box>
-    </>
+    </Container>
   );
 };

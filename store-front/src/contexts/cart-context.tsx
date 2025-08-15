@@ -25,7 +25,8 @@ const deleteCookie = (name: string): void => {
 };
 
 interface CartItem {
-  publicId: string;
+  productVariationSizePublicId: string; // ID da variação do tamanho (ProductVariationSize.publicId)
+  productVariationPublicId: string; // ID da variação do produto (ProductVariation.publicId)
   name: string;
   price: number;
   image: string;
@@ -42,7 +43,15 @@ interface CartContextType {
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  getOrderItems: () => Array<{
+    productVariationSizePublicId: string;
+    productVariationPublicId: string;
+    quantity: number;
+  }>;
 }
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
@@ -51,7 +60,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const storedItems = getCookie("beewear-cart");
     if (storedItems) {
       try {
-        setItems(JSON.parse(storedItems));
+        const parsedItems = JSON.parse(storedItems);
+        // Validar se os itens têm a estrutura correta
+        const validItems = parsedItems.filter(
+          (item: any) =>
+            item.productVariationSizePublicId &&
+            item.productVariationPublicId &&
+            item.name &&
+            item.price !== undefined &&
+            item.image &&
+            item.size &&
+            item.color
+        );
+
+        if (validItems.length !== parsedItems.length) {
+          console.warn(
+            "Alguns itens do carrinho foram removidos por não terem a estrutura correta"
+          );
+          // Limpar carrinho se houver itens inválidos
+          if (validItems.length === 0) {
+            deleteCookie("beewear-cart");
+          }
+        }
+
+        setItems(validItems);
       } catch (error) {
         console.error("Erro ao carregar carrinho do cookie:", error);
         deleteCookie("beewear-cart");
@@ -71,11 +103,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = useCallback((newItem: Omit<CartItem, "quantity">) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find(
-        (item) => item.publicId === newItem.publicId
+        (item) =>
+          item.productVariationSizePublicId ===
+          newItem.productVariationSizePublicId
       );
       if (existingItem) {
         return prevItems.map((item) =>
-          item.publicId === newItem.publicId
+          item.productVariationSizePublicId ===
+          newItem.productVariationSizePublicId
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -87,7 +122,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeItem = useCallback((publicId: string) => {
     setItems((prevItems) =>
-      prevItems.filter((item) => item.publicId !== publicId)
+      prevItems.filter((item) => item.productVariationSizePublicId !== publicId)
     );
   }, []);
 
@@ -99,7 +134,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       setItems((prevItems) =>
         prevItems.map((item) =>
-          item.publicId === publicId ? { ...item, quantity } : item
+          item.productVariationSizePublicId === publicId
+            ? { ...item, quantity }
+            : item
         )
       );
     },
@@ -108,7 +145,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([]);
-    deleteCookie("beewear-cart");
   }, []);
 
   const getTotalItems = useCallback(() => {
@@ -119,33 +155,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return items.reduce((total, item) => total + item.price * item.quantity, 0);
   }, [items]);
 
-  const value = React.useMemo(
-    () => ({
-      items,
-      addItem,
-      removeItem,
-      updateQuantity,
-      clearCart,
-      getTotalItems,
-      getTotalPrice,
-    }),
-    [
-      items,
-      addItem,
-      removeItem,
-      updateQuantity,
-      clearCart,
-      getTotalItems,
-      getTotalPrice,
-    ]
-  );
+  // Função para obter apenas os campos necessários para o pedido
+  const getOrderItems = useCallback(() => {
+    return items.map((item) => ({
+      productVariationSizePublicId: item.productVariationSizePublicId,
+      productVariationPublicId: item.productVariationPublicId,
+      quantity: item.quantity,
+    }));
+  }, [items]);
+
+  const value = {
+    items,
+    addItem,
+    removeItem,
+    updateQuantity,
+    clearCart,
+    getTotalItems,
+    getTotalPrice,
+    getOrderItems,
+  };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
-
-export const CartContext = createContext<CartContextType | undefined>(
-  undefined
-);
 
 export function useCart() {
   const context = useContext(CartContext);

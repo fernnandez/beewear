@@ -234,7 +234,8 @@ export function ProductPreview({ product }: ProductPreviewProps) {
                 onClick={() => {
                   addItem({
                     name: product.name,
-                    publicId: selectedSize.publicId,
+                    productVariationSizePublicId: selectedSize.publicId,
+                    productVariationPublicId: selectedVariation.publicId,
                     color: selectedVariation.color,
                     price: selectedVariation.price,
                     image: selectedVariation.images[0],

@@ -38,25 +38,23 @@ export function PaymentSection({ selectedPayment, onPaymentSelect }: PaymentSect
   const isDark = colorScheme === "dark";
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
     {
-      id: "1",
+      id: "credit_card",
       type: "card",
-      name: "Cartão Principal",
+      name: "Cartão de Crédito",
       lastFour: "1234",
       brand: "Visa",
       isDefault: true,
     },
     {
-      id: "2",
-      type: "card",
-      name: "Cartão Secundário",
-      lastFour: "5678",
-      brand: "Mastercard",
+      id: "pix",
+      type: "pix",
+      name: "PIX",
       isDefault: false,
     },
     {
-      id: "3",
-      type: "pix",
-      name: "PIX",
+      id: "bank_transfer",
+      type: "bank_transfer",
+      name: "Transferência Bancária",
       isDefault: false,
     },
   ]);

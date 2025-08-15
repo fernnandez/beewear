@@ -17,54 +17,42 @@ import {
   Title,
   useMantineColorScheme,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import {
   IconArrowLeft,
   IconCheck,
   IconCreditCard,
   IconMapPin,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { formatPrice } from "@utils/formatPrice";
-import { Link, Navigate, useNavigate } from "react-router";
-import { AddressService } from "../../services/address.service";
-import { Address } from "../../types/address";
+import { Link, Navigate } from "react-router";
 
 export function OrderReview() {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
-  const { items, getTotalPrice } = useCart();
+  const { items, getTotalPrice, clearCart } = useCart();
   const { isAutenticated } = useAuth();
-  const navigate = useNavigate();
-  const { selectedAddressId, selectedPaymentId } = useCheckout();
 
-  const { data: addresses = [] } = useQuery<Address[]>({
-    queryKey: ["addresses"],
-    queryFn: AddressService.findAll,
-  });
-
-  const selectedAddress = addresses.find(
-    (addr) => addr.id === selectedAddressId
-  );
+  const { selectedAddress, selectedPaymentId, createOrder, isCreatingOrder } =
+    useCheckout();
 
   const paymentMethods = [
     {
-      id: "1",
+      id: "credit_card",
       type: "card",
-      name: "Cartão Principal",
+      name: "Cartão de Crédito",
       lastFour: "1234",
       brand: "Visa",
     },
     {
-      id: "2",
-      type: "card",
-      name: "Cartão Secundário",
-      lastFour: "5678",
-      brand: "Mastercard",
-    },
-    {
-      id: "3",
+      id: "pix",
       type: "pix",
       name: "PIX",
+    },
+    {
+      id: "bank_transfer",
+      type: "transfer",
+      name: "Transferência Bancária",
     },
   ];
 
@@ -87,19 +75,22 @@ export function OrderReview() {
 
   const handleConfirmOrder = async () => {
     try {
-      // Aqui seria feita a chamada para a API para criar o pedido
-      console.log("Criando pedido...", {
-        items,
-        address: selectedAddress,
-        payment: selectedPayment,
+      await createOrder();
+      clearCart();
+
+      notifications.show({
+        title: "Pedido criado com sucesso",
+        message: "Você pode visualizar o pedido no seu perfil.",
+        color: "green",
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Erro ao criar pedido",
+        message:
+          "Ocorreu um erro ao tentar criar seu pedido. Por favor, tente novamente.",
+        color: "red",
       });
 
-      // Simular criação do pedido
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Redirecionar para página de sucesso
-      navigate("/order-success");
-    } catch (error) {
       console.error("Erro ao criar pedido:", error);
     }
   };
@@ -143,6 +134,7 @@ export function OrderReview() {
                 <Stack gap="md">
                   {items.map((item) => (
                     <Paper
+                      key={item.productVariationSizePublicId}
                       p="sm"
                       style={{
                         border: isDark
@@ -152,7 +144,11 @@ export function OrderReview() {
                         backgroundColor: isDark ? "#2c2e33" : "#f8f9fa",
                       }}
                     >
-                      <Group key={item.publicId} align="start" wrap="nowrap">
+                      <Group
+                        key={item.productVariationSizePublicId}
+                        align="start"
+                        wrap="nowrap"
+                      >
                         <Image
                           src={item.image || "/placeholder.svg"}
                           alt={item.name}
@@ -321,21 +317,14 @@ export function OrderReview() {
                     color="dark"
                     fullWidth
                     onClick={handleConfirmOrder}
+                    loading={isCreatingOrder}
+                    disabled={isCreatingOrder}
                     style={{
                       backgroundColor: isDark ? "#fbbf24" : undefined,
                       color: isDark ? "#000" : undefined,
                     }}
                   >
-                    Confirmar Pedido
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    component={Link}
-                    to="/checkout"
-                    fullWidth
-                  >
-                    Voltar e Editar
+                    {isCreatingOrder ? "Processando..." : "Confirmar Pedido"}
                   </Button>
                 </Stack>
 

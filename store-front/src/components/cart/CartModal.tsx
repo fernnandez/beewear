@@ -79,7 +79,7 @@ export function CartModal({ opened, onClose, openAuthModal }: CartModalProps) {
         <Stack gap="lg">
           <Stack gap="md" px="sm" style={{ maxHeight: 400, overflowY: "auto" }}>
             {items.map((item) => (
-              <Group key={item.publicId} align="start" wrap="nowrap" mt="md">
+              <Group key={item.productVariationSizePublicId} align="start" wrap="nowrap" mt="md">
                 <Image
                   src={item.image || "/placeholder.svg"}
                   alt={item.name}
@@ -124,7 +124,7 @@ export function CartModal({ opened, onClose, openAuthModal }: CartModalProps) {
                       size="xs"
                       variant="light"
                       onClick={() =>
-                        updateQuantity(item.publicId, item.quantity - 1)
+                        updateQuantity(item.productVariationSizePublicId, item.quantity - 1)
                       }
                     >
                       <IconMinus size={14} />
@@ -136,7 +136,7 @@ export function CartModal({ opened, onClose, openAuthModal }: CartModalProps) {
                       size="xs"
                       variant="light"
                       onClick={() =>
-                        updateQuantity(item.publicId, item.quantity + 1)
+                        updateQuantity(item.productVariationSizePublicId, item.quantity + 1)
                       }
                     >
                       <IconPlus size={18} />
@@ -152,7 +152,7 @@ export function CartModal({ opened, onClose, openAuthModal }: CartModalProps) {
                     size="xs"
                     variant="subtle"
                     color="red"
-                    onClick={() => removeItem(item.publicId)}
+                    onClick={() => removeItem(item.productVariationSizePublicId)}
                     title="Remover"
                   >
                     <IconTrash size={18} />

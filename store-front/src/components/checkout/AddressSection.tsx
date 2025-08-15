@@ -26,9 +26,14 @@ import { AddressModal } from "./AddressModal";
 interface AddressSectionProps {
   selectedAddress: number | null;
   onAddressSelect: (addressId: number | null) => void;
+  onAddressSelectFull?: (address: AddressType | null) => void;
 }
 
-export function AddressSection({ selectedAddress, onAddressSelect }: AddressSectionProps) {
+export function AddressSection({ 
+  selectedAddress, 
+  onAddressSelect, 
+  onAddressSelectFull 
+}: AddressSectionProps) {
   const queryClient = useQueryClient();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
@@ -149,9 +154,14 @@ export function AddressSection({ selectedAddress, onAddressSelect }: AddressSect
                   <Radio
                     value={address.id.toString()}
                     checked={selectedAddress === address.id}
-                    onChange={(event) =>
-                      onAddressSelect(Number(event.currentTarget.value))
-                    }
+                    onChange={(event) => {
+                      const addressId = Number(event.currentTarget.value);
+                      onAddressSelect(addressId);
+                      // Também definir o endereço completo no contexto
+                      if (onAddressSelectFull) {
+                        onAddressSelectFull(address);
+                      }
+                    }}
                     label=""
                   />
                   <Stack gap={4} style={{ flex: 1 }}>

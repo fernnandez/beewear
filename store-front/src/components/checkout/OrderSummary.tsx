@@ -29,21 +29,27 @@ interface OrderSummaryProps {
 }
 
 export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
-  const { items, getTotalPrice, updateQuantity, removeItem } = useCart();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
   const navigate = useNavigate();
 
-  const handleFinalizePurchase = () => {
-    // Redirecionar para a página de revisão
-    navigate("/order-review");
+  const { items, getTotalPrice, updateQuantity, removeItem } = useCart();
+
+  const handleConfirmOrder = async () => {
+    navigate("/checkout/order-review");
   };
 
-  const handleQuantityChange = (publicId: string, newQuantity: number) => {
-    updateQuantity(publicId, newQuantity);
+  const handleQuantityChange = (
+    productVariationSizePublicId: string,
+    newQuantity: number
+  ) => {
+    updateQuantity(productVariationSizePublicId, newQuantity);
   };
 
-  const handleRemoveItem = (publicId: string, itemName: string) => {
+  const handleRemoveItem = (
+    productVariationSizePublicId: string,
+    itemName: string
+  ) => {
     modals.openConfirmModal({
       centered: true,
       title: "Remover item",
@@ -52,7 +58,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
       confirmProps: { color: "red" },
       cancelProps: { variant: "outline" },
       onConfirm: () => {
-        removeItem(publicId);
+        removeItem(productVariationSizePublicId);
       },
     });
   };
@@ -73,6 +79,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
           <Stack gap="md">
             {items.map((item) => (
               <Paper
+                key={item.productVariationSizePublicId}
                 p="sm"
                 style={{
                   border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
@@ -123,7 +130,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
                           variant="light"
                           onClick={() =>
                             handleQuantityChange(
-                              item.publicId,
+                              item.productVariationSizePublicId,
                               item.quantity - 1
                             )
                           }
@@ -139,7 +146,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
                           variant="light"
                           onClick={() =>
                             handleQuantityChange(
-                              item.publicId,
+                              item.productVariationSizePublicId,
                               item.quantity + 1
                             )
                           }
@@ -158,13 +165,16 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
                         variant="subtle"
                         color="red"
                         onClick={() =>
-                          handleRemoveItem(item.publicId, item.name)
+                          handleRemoveItem(
+                            item.productVariationSizePublicId,
+                            item.name
+                          )
                         }
                         title="Remover"
                       >
                         <IconTrash size={18} />
                       </ActionIcon>
-                      </Stack>
+                    </Stack>
                   </Group>
                 </Stack>
               </Paper>
@@ -191,7 +201,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
         size="md"
         color="dark"
         fullWidth
-        onClick={handleFinalizePurchase}
+        onClick={handleConfirmOrder}
         style={{ marginTop: rem(16) }}
         disabled={items.length === 0 || !isCheckoutComplete}
       >
