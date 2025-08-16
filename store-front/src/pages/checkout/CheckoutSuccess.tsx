@@ -15,6 +15,7 @@ import {
 } from "@mantine/core";
 import api from "@services/api";
 import { IconAlertCircle, IconCheck, IconPackage } from "@tabler/icons-react";
+import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
@@ -36,12 +37,53 @@ export function CheckoutSuccess() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // ✅ Adicionar estado para controlar se já foi verificado
   const [hasChecked, setHasChecked] = useState(false);
 
   const sessionId = searchParams.get("session_id");
 
   useEffect(() => {
+    const checkOrderStatus = async (sessionId: string) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Verificar diretamente na Stripe se o pagamento foi aprovado
+        const response = await api.get(`/payments/verify-payment/${sessionId}`);
+
+        if (response.data.success && response.data.paymentStatus === "paid") {
+          const orderData = response.data.order;
+          if (orderData) {
+            setOrder({
+              publicId: orderData.publicId || "N/A",
+              totalAmount: orderData.totalAmount,
+              status: orderData.status || "PENDING",
+              createdAt: orderData.createdAt || new Date().toISOString(),
+            });
+
+            clearCart();
+          } else {
+            setError("Dados do pedido não encontrados");
+          }
+        } else {
+          setError(
+            "Pagamento não foi aprovado. Verifique o status na sua conta Stripe."
+          );
+        }
+      } catch (error: unknown) {
+        if (error instanceof AxiosError && error.response?.status === 404) {
+          setError(
+            "Sessão não encontrada. Verifique se o pagamento foi processado."
+          );
+        } else {
+          setError(
+            "Erro ao verificar status do pagamento. Tente novamente em alguns instantes."
+          );
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     // ✅ Só executar depois da autenticação estar completa
     if (authLoading) {
       return; // Aguardar autenticação
@@ -61,54 +103,7 @@ export function CheckoutSuccess() {
       setError("ID da sessão não encontrado");
       setIsLoading(false);
     }
-  }, [sessionId, hasChecked, authLoading, user]);
-
-  const checkOrderStatus = async (sessionId: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      console.log("�� Verificando status do pagamento para sessão:", sessionId);
-
-      // Verificar diretamente na Stripe se o pagamento foi aprovado
-      const response = await api.get(`/payments/verify-payment/${sessionId}`);
-
-      if (response.data.success && response.data.paymentStatus === "paid") {
-        const orderData = response.data.order;
-        if (orderData) {
-          setOrder({
-            publicId: orderData.publicId || "N/A",
-            totalAmount: orderData.totalAmount,
-            status: orderData.status || "PENDING",
-            createdAt: orderData.createdAt || new Date().toISOString(),
-          });
-
-          clearCart();
-        } else {
-          setError("Dados do pedido não encontrados");
-        }
-      } else {
-        console.log("❌ Pagamento não foi aprovado:", response.data);
-        setError(
-          "Pagamento não foi aprovado. Verifique o status na sua conta Stripe."
-        );
-      }
-    } catch (error: any) {
-      console.error("❌ Erro ao verificar pagamento:", error);
-
-      if (error.response?.status === 404) {
-        setError(
-          "Sessão não encontrada. Verifique se o pagamento foi processado."
-        );
-      } else {
-        setError(
-          "Erro ao verificar status do pagamento. Tente novamente em alguns instantes."
-        );
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [sessionId, hasChecked, authLoading, user, clearCart]);
 
   if (authLoading || isLoading) {
     return (

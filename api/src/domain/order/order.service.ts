@@ -6,9 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductVariationSize } from '../product/productVariation/product-variation-size.entity';
-import { ProductVariation } from '../product/productVariation/product-variation.entity';
 import { StockItem } from '../product/stock/stock-item.entity';
-import { Address } from '../user/address/address.entity';
 import { User } from '../user/user.entity';
 import {
   OrderItemResponseDto,
@@ -32,10 +30,6 @@ export class OrderService {
     private readonly orderItemRepo: Repository<OrderItem>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-    @InjectRepository(Address)
-    private readonly addressRepo: Repository<Address>,
-    @InjectRepository(ProductVariation)
-    private readonly productVariationRepo: Repository<ProductVariation>,
     @InjectRepository(ProductVariationSize)
     private readonly productVariationSizeRepo: Repository<ProductVariationSize>,
     @InjectRepository(StockItem)
@@ -45,70 +39,64 @@ export class OrderService {
   async validateStockBeforeCheckout(
     validateStockDto: ValidateStockDto,
   ): Promise<ValidateStockResponseDto> {
-    try {
-      const stockItems: ValidateStockItemResponseDto[] = [];
-      let totalAmount = 0;
-      let isValid = true;
+    const stockItems: ValidateStockItemResponseDto[] = [];
+    let totalAmount = 0;
+    let isValid = true;
 
-      for (const item of validateStockDto.items) {
-        // Buscar ProductVariationSize com suas relações
-        const productVariationSize =
-          await this.productVariationSizeRepo.findOne({
-            where: { publicId: item.productVariationSizePublicId },
-            relations: ['productVariation', 'productVariation.product'],
-          });
+    for (const item of validateStockDto.items) {
+      // Buscar ProductVariationSize com suas relações
+      const productVariationSize = await this.productVariationSizeRepo.findOne({
+        where: { publicId: item.productVariationSizePublicId },
+        relations: ['productVariation', 'productVariation.product'],
+      });
 
-        if (!productVariationSize) {
-          throw new BadRequestException(
-            `Produto não encontrado: ${item.productVariationSizePublicId}`,
-          );
-        }
-
-        // Buscar estoque
-        const stockItem = await this.stockItemRepo.findOne({
-          where: {
-            productVariationSize: {
-              publicId: item.productVariationSizePublicId,
-            },
-          },
-        });
-
-        const availableQuantity = stockItem?.quantity || 0;
-        const isItemAvailable = availableQuantity >= item.quantity;
-        const itemPrice = productVariationSize.productVariation.price;
-        const itemTotal = itemPrice * item.quantity;
-
-        if (!isItemAvailable) {
-          isValid = false;
-        }
-
-        stockItems.push({
-          productVariationSizePublicId: item.productVariationSizePublicId,
-          productName: productVariationSize.productVariation.product.name,
-          variationName: productVariationSize.productVariation.name,
-          size: productVariationSize.size.toString(),
-          color: productVariationSize.productVariation.color,
-          requestedQuantity: item.quantity,
-          availableQuantity,
-          isAvailable: isItemAvailable,
-          price: itemPrice,
-        });
-
-        totalAmount += itemTotal;
+      if (!productVariationSize) {
+        throw new BadRequestException(
+          `Produto não encontrado: ${item.productVariationSizePublicId}`,
+        );
       }
 
-      return {
-        isValid,
-        items: stockItems,
-        totalAmount,
-        message: isValid
-          ? 'Estoque disponível para todos os itens'
-          : 'Alguns itens não possuem estoque suficiente',
-      };
-    } catch (error) {
-      console.error('❌ Erro ao validar estoque:', error);
-      throw error;
+      // Buscar estoque
+      const stockItem = await this.stockItemRepo.findOne({
+        where: {
+          productVariationSize: {
+            publicId: item.productVariationSizePublicId,
+          },
+        },
+      });
+
+      const availableQuantity = stockItem?.quantity || 0;
+      const isItemAvailable = availableQuantity >= item.quantity;
+      const itemPrice = productVariationSize.productVariation.price;
+      const itemTotal = itemPrice * item.quantity;
+
+      if (!isItemAvailable) {
+        isValid = false;
+      }
+
+      stockItems.push({
+        productVariationSizePublicId: item.productVariationSizePublicId,
+        productName: productVariationSize.productVariation.product.name,
+        variationName: productVariationSize.productVariation.name,
+        size: productVariationSize.size.toString(),
+        color: productVariationSize.productVariation.color,
+        requestedQuantity: item.quantity,
+        availableQuantity,
+        isAvailable: isItemAvailable,
+        price: itemPrice,
+      });
+
+      totalAmount += itemTotal;
     }
+
+    return {
+      isValid,
+      items: stockItems,
+      totalAmount,
+      message: isValid
+        ? 'Estoque disponível para todos os itens'
+        : 'Alguns itens não possuem estoque suficiente',
+    };
   }
 
   async createOrderFromPayment(paymentData: any): Promise<OrderResponseDto> {
@@ -233,10 +221,8 @@ export class OrderService {
       throw new NotFoundException('Pedido não encontrado');
     }
 
-    // Validar transição de status
     this.validateStatusTransition(order.status, updateDto.status);
 
-    // Atualizar status
     order.status = updateDto.status;
     if (updateDto.notes) {
       order.notes = updateDto.notes;
@@ -244,7 +230,6 @@ export class OrderService {
 
     const updatedOrder = await this.orderRepo.save(order);
 
-    // Atualizar estoque baseado no novo status
     await this.handleStockUpdate(updatedOrder);
 
     return this.mapToResponseDto(updatedOrder);
@@ -272,7 +257,6 @@ export class OrderService {
   }
 
   private async handleStockUpdate(order: Order): Promise<void> {
-    // TODO: Implementar lógica de atualização de estoque baseada no status
     console.log(
       `Atualizando estoque para pedido ${order.publicId} com status ${order.status}`,
     );

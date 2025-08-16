@@ -18,7 +18,6 @@ import {
 import {
   IconArrowLeft,
   IconChevronRight,
-  IconCreditCard,
   IconEdit,
   IconMail,
   IconMapPin,
@@ -48,14 +47,8 @@ const quickActions = [
     description: "Senha e autenticação",
     icon: IconShield,
     color: "violet",
-    href: "#security",
-  },
-  {
-    title: "Formas de pagamento",
-    description: "Veja toas as formas cadastradas",
-    icon: IconCreditCard,
-    color: "blue",
-    href: "#security",
+    href: "/account/security",
+    disabled: true,
   },
 ];
 
@@ -67,12 +60,7 @@ export default function Account() {
   const { user } = useAuth();
 
   const handleActionClick = (href: string) => {
-    if (href.startsWith("/")) {
-      navigate(href);
-    } else {
-      // Para links internos (#), você pode implementar scroll ou outras ações
-      console.log("Ação interna:", href);
-    }
+    navigate(href);
   };
 
   return (
@@ -141,10 +129,10 @@ export default function Account() {
                     radius="md"
                     withBorder
                     style={{
+                      opacity: action.disabled ? 0.5 : 1,
                       backgroundColor: isDark ? DARK_BORDER_COLOR : "white",
-                      cursor: "pointer",
+                      cursor: action.disabled ? "not-allowed" : "pointer",
                       transition: "all 0.2s ease",
-                      // border: "1px solid #edededff",
                     }}
                     styles={{
                       root: {
@@ -154,7 +142,10 @@ export default function Account() {
                         },
                       },
                     }}
-                    onClick={() => handleActionClick(action.href)}
+                    onClick={() => {
+                      if (action.disabled) return;
+                      handleActionClick(action.href);
+                    }}
                   >
                     <Group mb="xs">
                       <ThemeIcon

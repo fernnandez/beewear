@@ -61,7 +61,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (storedItems) {
       try {
         const parsedItems = JSON.parse(storedItems);
-        // Validar se os itens têm a estrutura correta
         const validItems = parsedItems.filter(
           (item: any) =>
             item.productVariationSizePublicId &&
@@ -72,20 +71,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             item.size &&
             item.color
         );
-
-        if (validItems.length !== parsedItems.length) {
-          console.warn(
-            "Alguns itens do carrinho foram removidos por não terem a estrutura correta"
-          );
-          // Limpar carrinho se houver itens inválidos
+  
+        if (validItems.length !== parsedItems.length) { 
           if (validItems.length === 0) {
             deleteCookie("beewear-cart");
           }
         }
-
+  
         setItems(validItems);
-      } catch (error) {
-        console.error("Erro ao carregar carrinho do cookie:", error);
+      } catch {
         deleteCookie("beewear-cart");
       }
     }
