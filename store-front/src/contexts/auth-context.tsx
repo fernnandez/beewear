@@ -1,3 +1,4 @@
+import { User } from "@services/auth.service";
 import {
   createContext,
   useContext,
@@ -27,8 +28,8 @@ const deleteCookie = (name: string): void => {
 };
 
 interface AuthContextType {
-  user: any;
-  setUser: (data: any) => void;
+  user: User | null;
+  setUser: (data: User) => void;
   token: string | null;
   login: (token: string) => void;
   logout: () => void;
@@ -43,62 +44,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAutenticated, setIsAutenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-
   const [user, setUser] = useState<{
     id: string;
     name: string;
     email: string;
   } | null>(null);
 
-  // Inicialização do auth na primeira carga
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = getCookie("beewear-auth-token");
+      try {
+        const storedToken = getCookie("beewear-auth-token");
 
-      if (token) {
-        setToken(token);
+        if (storedToken) {
+          setToken(storedToken);
+
+          try {
+            const profileInfo = await getProfileInfo();
+            setUser(profileInfo);
+            setIsAutenticated(true);
+          } catch (error) {
+            console.warn("Token inválido, limpando dados:", error);
+
+            setToken(null);
+            deleteCookie("beewear-auth-token");
+            setIsAutenticated(false);
+          }
+        }
+      } catch (error) {
+        console.warn("Erro ao inicializar auth:", error);
+
+        deleteCookie("beewear-auth-token");
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     initializeAuth();
   }, []);
 
-  // Carregar perfil quando o token mudar
-  useEffect(() => {
-    const loadProfile = async () => {
-      if (token) {
-        try {
-          const profileInfo = await getProfileInfo();
-          setUser(profileInfo);
-          setIsAutenticated(true);
-        } catch (error) {
-          console.error("Erro ao buscar perfil do usuário:", error);
-          // Limpar dados inválidos
-          setToken(null);
-          deleteCookie("beewear-auth-token");
-          setIsAutenticated(false);
-        }
-      } else {
-        setUser(null);
-        setIsAutenticated(false);
-      }
-    };
-
-    if (!isLoading) {
-      loadProfile();
-    }
-  }, [token, isLoading]);
-
   const login = (token: string) => {
     setToken(token);
-    setCookie("beewear-auth-token", token, 30); // 30 dias
+    setCookie("beewear-auth-token", token, 30);
     setIsAutenticated(true);
   };
 
   const logout = () => {
     setToken(null);
+    setUser(null);
     deleteCookie("beewear-auth-token");
     setIsAutenticated(false);
     navigate("/");

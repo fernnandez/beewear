@@ -18,16 +18,6 @@ export class StripeController {
     return this.stripeService.createCheckoutSession(data);
   }
 
-  @Get('session/:sessionId')
-  async getSession(@Param('sessionId') sessionId: string) {
-    return this.stripeService.retrieveSession(sessionId);
-  }
-
-  @Get('payment-methods')
-  async getAvailablePaymentMethods() {
-    return this.stripeService.getAvailablePaymentMethods();
-  }
-
   // Endpoint para verificar status do pagamento
   @Get('verify-payment/:sessionId')
   async verifyPayment(@Req() req: any, @Param('sessionId') sessionId: string) {
