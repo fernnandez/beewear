@@ -41,7 +41,7 @@ const quickActions = [
     description: "Veja todos os seus pedidos",
     icon: IconPackage,
     color: "orange",
-    href: "/orders",
+    href: "/account/orders",
   },
   {
     title: "Segurança",

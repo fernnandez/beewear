@@ -1,4 +1,11 @@
 import {
+  getPaymentMethodText,
+  getStatusColor,
+  getStatusIcon,
+  getStatusText,
+  useOrders,
+} from "@hooks/useOrders";
+import {
   Alert,
   Badge,
   Button,
@@ -17,87 +24,19 @@ import {
   IconAlertCircle,
   IconArrowLeft,
   IconCalendar,
-  IconCheck,
   IconCreditCard,
   IconPackage,
-  IconTruck,
-  IconX,
 } from "@tabler/icons-react";
 import { DARK_COLOR } from "@utils/constants";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import orderService, { OrderListResponse } from "../../services/order.service";
 import { formatPrice } from "../../utils/formatPrice";
 
-export function OrdersPage() {
-  const [orders, setOrders] = useState<OrderListResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function Orders() {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
-
-  const loadOrders = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const ordersData = await orderService.findUserOrders();
-      setOrders(ordersData);
-    } catch (err: any) {
-      setError(err.message || "Erro ao carregar pedidos");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    const statusColors: Record<string, string> = {
-      PENDING: "yellow",
-      CONFIRMED: "blue",
-      PROCESSING: "indigo",
-      SHIPPED: "purple",
-      DELIVERED: "green",
-      CANCELLED: "red",
-    };
-    return statusColors[status] || "gray";
-  };
-
-  const getStatusText = (status: string) => {
-    const statusTexts: Record<string, string> = {
-      PENDING: "Aguardando Pagamento",
-      CONFIRMED: "Pagamento Confirmado",
-      PROCESSING: "Em Preparação",
-      SHIPPED: "Enviado",
-      DELIVERED: "Entregue",
-      CANCELLED: "Cancelado",
-    };
-    return statusTexts[status] || status;
-  };
-
-  const getStatusIcon = (status: string) => {
-    const statusIcons: Record<string, any> = {
-      PENDING: IconPackage,
-      CONFIRMED: IconCheck,
-      PROCESSING: IconPackage,
-      SHIPPED: IconTruck,
-      DELIVERED: IconCheck,
-      CANCELLED: IconX,
-    };
-    return statusIcons[status] || IconPackage;
-  };
-
-  const getPaymentMethodText = (method: string) => {
-    const methodTexts: Record<string, string> = {
-      CREDIT_CARD: "Cartão de Crédito",
-      PIX: "PIX",
-      BANK_TRANSFER: "Transferência Bancária",
-    };
-    return methodTexts[method] || method;
-  };
+  const { data: orders, isLoading: loading, error, refetch } = useOrders();
 
   if (loading) {
     return (
@@ -116,10 +55,10 @@ export function OrdersPage() {
           color="red"
           variant="light"
         >
-          {error}
+          {error.message}
         </Alert>
         <Center mt="md">
-          <Button onClick={loadOrders} variant="outline">
+          <Button onClick={() => refetch()} variant="outline">
             Tentar Novamente
           </Button>
         </Center>
@@ -144,7 +83,7 @@ export function OrdersPage() {
         </Group>
 
         {/* Orders List */}
-        {orders.length === 0 ? (
+        {orders?.length === 0 ? (
           <Card
             p="xl"
             radius="md"
@@ -171,7 +110,7 @@ export function OrdersPage() {
           </Card>
         ) : (
           <Stack gap="md">
-            {orders.map((order) => {
+            {orders?.map((order) => {
               const StatusIcon = getStatusIcon(order.status);
               return (
                 <Paper
@@ -192,7 +131,7 @@ export function OrdersPage() {
                       },
                     },
                   }}
-                  onClick={() => navigate(`/orders/${order.publicId}`)}
+                  onClick={() => navigate(`/account/orders/${order.publicId}`)}
                 >
                   <Group justify="space-between" align="start">
                     <Stack gap="sm" style={{ flex: 1 }}>

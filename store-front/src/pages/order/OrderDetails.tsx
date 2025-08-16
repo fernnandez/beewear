@@ -1,5 +1,12 @@
 import { OrderStatusStepper } from "@components/shared/OrderStatusStepper";
 import {
+  getPaymentMethodText,
+  getStatusColor,
+  getStatusIcon,
+  getStatusText,
+  useOrder,
+} from "@hooks/useOrders";
+import {
   Alert,
   Badge,
   Box,
@@ -21,93 +28,20 @@ import {
 import {
   IconAlertCircle,
   IconArrowLeft,
-  IconCheck,
   IconMapPin,
-  IconPackage,
-  IconTruck,
-  IconX,
 } from "@tabler/icons-react";
 import { DARK_BORDER_COLOR, DARK_COLOR } from "@utils/constants";
-import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import orderService, { OrderResponse } from "../../services/order.service";
 import { formatPrice } from "../../utils/formatPrice";
 
-export function OrderDetailsPage() {
-  const [order, setOrder] = useState<OrderResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function OrderDetails() {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
   const navigate = useNavigate();
+
   const { orderId } = useParams<{ orderId: string }>();
 
-  useEffect(() => {
-    if (orderId) {
-      loadOrder();
-    }
-  }, [orderId]);
-
-  const loadOrder = async () => {
-    if (!orderId) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-      const orderData = await orderService.findOrderByPublicId(orderId);
-      setOrder(orderData);
-      console.log(orderData);
-    } catch (err: any) {
-      setError(err.message || "Erro ao carregar detalhes do pedido");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getPaymentMethodText = (method: string) => {
-    const methodTexts: Record<string, string> = {
-      CREDIT_CARD: "Cartão de Crédito",
-      PIX: "PIX",
-      BANK_TRANSFER: "Transferência Bancária",
-    };
-    return methodTexts[method] || method;
-  };
-
-  const getOrderStatusColor = (status: string) => {
-    const statusColors: Record<string, string> = {
-      PENDING: "yellow",
-      CONFIRMED: "blue",
-      PROCESSING: "indigo",
-      SHIPPED: "purple",
-      DELIVERED: "green",
-      CANCELLED: "red",
-    };
-    return statusColors[status] || "gray";
-  };
-
-  const getOrderStatusText = (status: string) => {
-    const statusTexts: Record<string, string> = {
-      PENDING: "Aguardando Pagamento",
-      CONFIRMED: "Pedido Confirmado",
-      PROCESSING: "Em Preparação",
-      SHIPPED: "Enviado",
-      DELIVERED: "Entregue",
-      CANCELLED: "Cancelado",
-    };
-    return statusTexts[status] || status;
-  };
-
-  const getOrderStatusIcon = (status: string) => {
-    const statusIcons: Record<string, any> = {
-      PENDING: IconPackage,
-      CONFIRMED: IconCheck,
-      PROCESSING: IconPackage,
-      SHIPPED: IconTruck,
-      DELIVERED: IconCheck,
-      CANCELLED: IconX,
-    };
-    return statusIcons[status] || IconPackage;
-  };
+  const { data: order, isLoading: loading, error } = useOrder(orderId!);
 
   if (loading) {
     return (
@@ -126,10 +60,10 @@ export function OrderDetailsPage() {
           color="red"
           variant="light"
         >
-          {error || "Pedido não encontrado"}
+          Pedido não encontrado
         </Alert>
         <Center mt="md">
-          <Button onClick={() => navigate("/orders")} variant="outline">
+          <Button onClick={() => navigate("/account/orders")} variant="outline">
             Voltar para Pedidos
           </Button>
         </Center>
@@ -140,13 +74,12 @@ export function OrderDetailsPage() {
   return (
     <Container size="lg" py="xl">
       <Stack gap="xl">
-        {/* Header */}
         <Group justify="space-between" align="center">
           <Group gap="md">
             <Button
               variant="subtle"
               leftSection={<IconArrowLeft size={16} />}
-              onClick={() => navigate("/orders")}
+              onClick={() => navigate("/account/orders")}
             >
               Voltar
             </Button>
@@ -156,7 +89,6 @@ export function OrderDetailsPage() {
           </Text>
         </Group>
 
-        {/* Order Items */}
         <Card
           shadow="md"
           p="lg"
@@ -251,14 +183,14 @@ export function OrderDetailsPage() {
             {/* Badge de Status */}
             <Badge
               size="lg"
-              color={getOrderStatusColor(order.status)}
+              color={getStatusColor(order.status)}
               variant="light"
               leftSection={(() => {
-                const StatusIcon = getOrderStatusIcon(order.status);
+                const StatusIcon = getStatusIcon(order.status);
                 return <StatusIcon size={18} />;
               })()}
             >
-              {getOrderStatusText(order.status)}
+              {getStatusText(order.status)}
             </Badge>
 
             {/* Stepper (apenas para pedidos não cancelados) */}

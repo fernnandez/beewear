@@ -8,14 +8,14 @@ import { ScrollToTop } from "@components/shared/ScrollToTop";
 import { CheckoutProvider } from "@contexts/checkout-context";
 import Account from "@pages/account/Account";
 import { Checkout } from "@pages/checkout/Checkout";
-import { OrderReview } from "@pages/checkout/OrderReview";
 import { CheckoutSuccess } from "@pages/checkout/CheckoutSuccess";
+import { OrderReview } from "@pages/checkout/OrderReview";
 
 import { ProtectedRoute } from "@components/shared/ProtectedRoute/ProtectedRoute";
-import { OrderDetailsPage } from "@pages/account/OrderDetailsPage";
-import { OrdersPage } from "@pages/account/OrdersPage";
 import { Home } from "@pages/home/Home";
 import { NotFoundPage } from "@pages/notFound/NotFound";
+import { OrderDetails } from "@pages/order/OrderDetails";
+import { Orders } from "@pages/order/Orders";
 import { Products } from "@pages/product/Products";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@utils/queryClient";
@@ -39,18 +39,18 @@ export default function App() {
               }
             />
             <Route
-              path="/orders"
+              path="/account/orders"
               element={
                 <ProtectedRoute>
-                  <OrdersPage />
+                  <Orders />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/orders/:orderId"
+              path="/account/orders/:orderId"
               element={
                 <ProtectedRoute>
-                  <OrderDetailsPage />
+                  <OrderDetails />
                 </ProtectedRoute>
               }
             />
