@@ -23,6 +23,7 @@ import {
   IconTruck,
   IconX,
 } from "@tabler/icons-react";
+import { DARK_COLOR } from "@utils/constants";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import orderService, { OrderListResponse } from "../../services/order.service";
@@ -179,8 +180,7 @@ export function OrdersPage() {
                   radius="md"
                   withBorder
                   style={{
-                    // border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
-                    backgroundColor: isDark ? "#212529" : "white",
+                    backgroundColor: isDark ? DARK_COLOR : "white",
                     cursor: "pointer",
                     transition: "all 0.2s ease",
                   }}

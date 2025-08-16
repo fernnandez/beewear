@@ -9,7 +9,6 @@ import {
   Container,
   Grid,
   Group,
-  Paper,
   rem,
   Stack,
   Title,
@@ -79,18 +78,7 @@ export function Checkout() {
 
           {/* Right Column - Order Summary */}
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <Paper
-              p="xl"
-              radius="md"
-              style={{
-                border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
-                backgroundColor: isDark ? "#212529" : "white",
-                position: "sticky",
-                top: rem(80),
-              }}
-            >
-              <OrderSummary isCheckoutComplete={isCheckoutComplete} />
-            </Paper>
+                          <OrderSummary isCheckoutComplete={isCheckoutComplete} selectedPaymentMethod={selectedPaymentId} />
           </Grid.Col>
         </Grid>
       </Stack>

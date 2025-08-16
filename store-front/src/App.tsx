@@ -9,6 +9,7 @@ import { CheckoutProvider } from "@contexts/checkout-context";
 import Account from "@pages/account/Account";
 import { Checkout } from "@pages/checkout/Checkout";
 import { OrderReview } from "@pages/checkout/OrderReview";
+import { CheckoutSuccess } from "@pages/checkout/CheckoutSuccess";
 
 import { ProtectedRoute } from "@components/shared/ProtectedRoute/ProtectedRoute";
 import { OrderDetailsPage } from "@pages/account/OrderDetailsPage";
@@ -69,6 +70,16 @@ export default function App() {
                 <CheckoutProvider>
                   <ProtectedRoute>
                     <OrderReview />
+                  </ProtectedRoute>
+                </CheckoutProvider>
+              }
+            />
+            <Route
+              path="/checkout/success"
+              element={
+                <CheckoutProvider>
+                  <ProtectedRoute>
+                    <CheckoutSuccess />
                   </ProtectedRoute>
                 </CheckoutProvider>
               }

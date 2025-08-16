@@ -1,8 +1,8 @@
 import {
-  ActionIcon,
+  Alert,
   Box,
-  Button,
   Group,
+  LoadingOverlay,
   Paper,
   Radio,
   rem,
@@ -11,96 +11,73 @@ import {
   Title,
   useMantineColorScheme,
 } from "@mantine/core";
-import {
-  IconCreditCard,
-  IconEdit,
-  IconPlus,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconInfoCircle, IconCreditCard } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-
-interface PaymentMethod {
-  id: string;
-  type: "card" | "pix" | "bank_transfer";
-  name: string;
-  lastFour?: string;
-  brand?: string;
-  isDefault: boolean;
-}
+import paymentService, { PaymentMethod } from "@services/payment.service";
 
 interface PaymentSectionProps {
   selectedPayment: string;
   onPaymentSelect: (paymentId: string) => void;
 }
 
-export function PaymentSection({ selectedPayment, onPaymentSelect }: PaymentSectionProps) {
+export function PaymentSection({
+  selectedPayment,
+  onPaymentSelect,
+}: PaymentSectionProps) {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-    {
-      id: "credit_card",
-      type: "card",
-      name: "Cartão de Crédito",
-      lastFour: "1234",
-      brand: "Visa",
-      isDefault: true,
-    },
-    {
-      id: "pix",
-      type: "pix",
-      name: "PIX",
-      isDefault: false,
-    },
-    {
-      id: "bank_transfer",
-      type: "bank_transfer",
-      name: "Transferência Bancária",
-      isDefault: false,
-    },
-  ]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Selecionar o método de pagamento padrão por padrão
+  // Carregar métodos de pagamento disponíveis
   useEffect(() => {
-    const defaultPayment = paymentMethods.find((pay) => pay.isDefault);
-    if (defaultPayment && !selectedPayment) {
-      onPaymentSelect(defaultPayment.id);
-    }
-  }, [paymentMethods, selectedPayment, onPaymentSelect]);
+    loadPaymentMethods();
+  }, []);
 
-  const handleDeletePayment = (id: string) => {
-    setPaymentMethods((prev) => prev.filter((pay) => pay.id !== id));
-    if (selectedPayment === id) {
-      onPaymentSelect("");
+  const loadPaymentMethods = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const methods = await paymentService.getAvailablePaymentMethods();
+      setPaymentMethods(methods);
+
+      // Selecionar cartão de crédito por padrão se nenhum estiver selecionado
+      if (methods.length > 0 && !selectedPayment) {
+        const defaultMethod = methods.find((m) => m.isActive) || methods[0];
+        onPaymentSelect(defaultMethod.id);
+      }
+    } catch (err) {
+      setError("Erro ao carregar métodos de pagamento");
+      console.error("Erro ao carregar métodos:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getPaymentIcon = (type: string) => {
-    switch (type) {
-      case "card":
-        return <IconCreditCard size={20} />;
-      case "pix":
-        return (
-          <Text size="sm" fw={600}>
-            PIX
-          </Text>
-        );
-      case "bank_transfer":
-        return (
-          <Text size="sm" fw={600}>
-            Transferência
-          </Text>
-        );
-      default:
-        return <IconCreditCard size={20} />;
+  const getPaymentIcon = (method: PaymentMethod) => {
+    if (method.icon === "💳") {
+      return <IconCreditCard size={24} />;
     }
+    return <span style={{ fontSize: "24px" }}>{method.icon}</span>;
   };
 
-  const getPaymentDisplayName = (payment: PaymentMethod) => {
-    if (payment.type === "card") {
-      return `${payment.brand} •••• ${payment.lastFour}`;
-    }
-    return payment.name;
-  };
+  if (isLoading) {
+    return (
+      <Paper
+        p="xl"
+        radius="md"
+        style={{
+          border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
+          backgroundColor: isDark ? "#212529" : "white",
+        }}
+        pos="relative"
+      >
+        <LoadingOverlay visible={true} />
+        <Text ta="center">Carregando métodos de pagamento...</Text>
+      </Paper>
+    );
+  }
 
   return (
     <Paper
@@ -111,37 +88,78 @@ export function PaymentSection({ selectedPayment, onPaymentSelect }: PaymentSect
         backgroundColor: isDark ? "#212529" : "white",
       }}
     >
-      <Group justify="space-between" mb="md">
+      <Stack gap="lg">
         <Title order={2} fw={700} size={rem(24)}>
-          Meus Métodos de Pagamento
+          Método de Pagamento
         </Title>
-        <Button leftSection={<IconPlus size={16} />} size="sm" color="dark">
-          Adicionar
-        </Button>
-      </Group>
 
-      <Text size="sm" c="dimmed" mb="lg">
-        Selecione um método de pagamento *
-      </Text>
+        <Text size="sm" c="dimmed">
+          Seu pagamento será processado de forma segura pela Stripe
+        </Text>
 
-      {paymentMethods.length === 0 ? (
-        <Box
-          p="xl"
-          style={{
-            border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
-            borderRadius: rem(8),
-            backgroundColor: isDark ? "#2c2e33" : "#f8f9fa",
-          }}
-        >
-          <Text ta="center" c="dimmed">
-            Nenhum método de pagamento cadastrado
-          </Text>
-        </Box>
-      ) : (
-        <Stack gap="md">
-          {paymentMethods.map((payment) => (
+        {error ? (
+          <Alert color="red" title="Erro" variant="light">
+            <Text size="sm">{error}</Text>
+          </Alert>
+        ) : (
+          <>
+            {/* Métodos de Pagamento Disponíveis */}
+            <Stack gap="md">
+              {paymentMethods
+                .filter((method) => method.isActive) // Mostrar apenas métodos ativos
+                .map((method) => (
+                  <Box
+                    key={method.id}
+                    p="md"
+                    style={{
+                      border: isDark
+                        ? "1px solid #212529"
+                        : "1px solid #e9ecef",
+                      borderRadius: rem(8),
+                      backgroundColor: isDark ? "#2c2e33" : "#f8f9fa",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => onPaymentSelect(method.id)}
+                  >
+                    <Group gap="md" align="center">
+                      <Radio
+                        value={method.id}
+                        checked={selectedPayment === method.id}
+                        onChange={() => onPaymentSelect(method.id)}
+                        label=""
+                      />
+                      <Group gap="sm" align="center">
+                        {getPaymentIcon(method)}
+                        <Stack gap={4}>
+                          <Text fw={600} size="sm">
+                            {method.name}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            {method.description}
+                          </Text>
+                        </Stack>
+                      </Group>
+                    </Group>
+                  </Box>
+                ))}
+            </Stack>
+
+            {/* Info Alert */}
+            <Alert
+              icon={<IconInfoCircle size={16} />}
+              title="Pagamento Seguro"
+              color="blue"
+              variant="light"
+            >
+              <Text size="sm">
+                Seus dados de pagamento são criptografados e processados pela
+                Stripe, uma das plataformas de pagamento mais seguras do mundo.
+                Não armazenamos informações do seu cartão.
+              </Text>
+            </Alert>
+
+            {/* Informações sobre cartão */}
             <Box
-              key={payment.id}
               p="md"
               style={{
                 border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
@@ -149,60 +167,18 @@ export function PaymentSection({ selectedPayment, onPaymentSelect }: PaymentSect
                 backgroundColor: isDark ? "#2c2e33" : "#f8f9fa",
               }}
             >
-              <Group justify="space-between" align="flex-start">
-                <Group align="flex-start" gap="md" style={{ flex: 1 }}>
-                  <Radio
-                    value={payment.id}
-                    checked={selectedPayment === payment.id}
-                    onChange={(event) =>
-                      onPaymentSelect(event.currentTarget.value)
-                    }
-                    label=""
-                  />
-                  <Stack gap={4} style={{ flex: 1 }}>
-                    <Group gap="xs">
-                      <Text fw={600} size="sm">
-                        {payment.name}
-                      </Text>
-                      {payment.isDefault && (
-                        <Text size="xs" c="dimmed">
-                          (Padrão)
-                        </Text>
-                      )}
-                    </Group>
-                    <Group gap="xs" align="center">
-                      {getPaymentIcon(payment.type)}
-                      <Text size="sm" c="dimmed">
-                        {getPaymentDisplayName(payment)}
-                      </Text>
-                    </Group>
-                  </Stack>
-                </Group>
-
-                <Group gap="xs">
-                  <ActionIcon
-                    size="sm"
-                    variant="subtle"
-                    color="dark"
-                    title="Editar"
-                  >
-                    <IconEdit size={16} />
-                  </ActionIcon>
-                  <ActionIcon
-                    size="sm"
-                    variant="subtle"
-                    color="red"
-                    title="Excluir"
-                    onClick={() => handleDeletePayment(payment.id)}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
-              </Group>
+              <Stack gap="sm">
+                <Text fw={600} size="sm">
+                  💳 Cartões Aceitos:
+                </Text>
+                <Text size="sm" c="dimmed">
+                  Visa, Mastercard, American Express e outros cartões de crédito
+                </Text>
+              </Stack>
             </Box>
-          ))}
-        </Stack>
-      )}
+          </>
+        )}
+      </Stack>
     </Paper>
   );
 }

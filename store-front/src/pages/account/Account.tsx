@@ -25,6 +25,7 @@ import {
   IconPackage,
   IconShield,
 } from "@tabler/icons-react";
+import { DARK_BORDER_COLOR, DARK_COLOR } from "@utils/constants";
 import { useNavigate } from "react-router";
 
 const quickActions = [
@@ -89,7 +90,16 @@ export default function Account() {
           </Group>
         </Group>
 
-        <Card shadow="md" p="xl" mb="xl" radius="lg">
+        <Card
+          shadow="md"
+          p="xl"
+          mb="xl"
+          radius="lg"
+          withBorder
+          style={{
+            backgroundColor: isDark ? DARK_COLOR : "white",
+          }}
+        >
           <Flex justify="space-between" gap={"md"}>
             <div>
               <Title order={2} mb="xs" c={isDark ? "white" : "dark"}>
@@ -110,7 +120,16 @@ export default function Account() {
         <Grid>
           {/* Quick Actions */}
           <Grid.Col span={{ base: 12 }}>
-            <Card shadow="md" p="lg" radius="lg" mb="xl">
+            <Card
+              shadow="md"
+              p="lg"
+              radius="lg"
+              mb="xl"
+              withBorder
+              style={{
+                backgroundColor: isDark ? DARK_COLOR : "white",
+              }}
+            >
               <Title order={3} c={isDark ? "white" : "dark"}>
                 Ações Rápidas
               </Title>
@@ -122,6 +141,7 @@ export default function Account() {
                     radius="md"
                     withBorder
                     style={{
+                      backgroundColor: isDark ? DARK_BORDER_COLOR : "white",
                       cursor: "pointer",
                       transition: "all 0.2s ease",
                       // border: "1px solid #edededff",

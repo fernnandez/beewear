@@ -12,6 +12,7 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { DARK_COLOR } from "@utils/constants";
 import { useNavigate } from "react-router";
 import { useCollections, useProducts } from "../../../hooks/useProducts";
 import { formatPrice } from "../../../utils/formatPrice";
@@ -109,6 +110,7 @@ export const ProductGallery = () => {
                     radius="md"
                     withBorder
                     style={{
+                      backgroundColor: isDark ? DARK_COLOR : "white",
                       height: "100%",
                       transition: "box-shadow 0.2s ease",
                       cursor: "pointer",

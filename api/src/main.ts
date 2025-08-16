@@ -2,7 +2,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as path from 'path';
 import {
   initializeTransactionalContext,
   StorageDriver,
@@ -34,7 +33,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      // whitelist: true,
+      whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
       stopAtFirstError: true,

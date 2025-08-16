@@ -16,6 +16,7 @@ import {
 import { useClipboard, useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconShare, IconShoppingBag, IconX } from "@tabler/icons-react";
+import { DARK_COLOR } from "@utils/constants";
 import { useEffect, useState } from "react";
 import { Product, ProductVariationSize } from "../../../types/product";
 import { formatPrice } from "../../../utils/formatPrice";
@@ -87,6 +88,9 @@ export function ProductPreview({ product }: ProductPreviewProps) {
         padding={isMobile ? "md" : "lg"}
         radius="md"
         withBorder
+        style={{
+          backgroundColor: isDark ? DARK_COLOR : "white",
+        }}
         mt="md"
       >
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">

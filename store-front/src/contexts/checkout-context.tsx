@@ -1,12 +1,12 @@
+import { getAxiosErrorMessage } from "@utils/getAxiosErrorMessage";
 import React, { createContext, useContext, useState } from "react";
 import orderService, {
   CreateOrder,
   OrderResponse,
 } from "../services/order.service";
-import { useCart } from "./cart-context";
-import { useAuth } from "./auth-context";
 import { Address } from "../types/address";
-import { getAxiosErrorMessage } from "@utils/getAxiosErrorMessage";
+import { useAuth } from "./auth-context";
+import { useCart } from "./cart-context";
 
 interface CheckoutContextType {
   selectedAddressId: number | null;
@@ -20,6 +20,8 @@ interface CheckoutContextType {
   createOrder: () => Promise<OrderResponse | null>;
   orderError: string | null;
   clearOrderError: () => void;
+  // ✅ Função inline para formatar endereço como string
+  formatAddressToString: () => string;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(
@@ -42,6 +44,24 @@ export function CheckoutProvider({ children }: { children: React.ReactNode }) {
     selectedAddressId !== null && selectedPaymentId !== "";
 
   const clearOrderError = () => setOrderError(null);
+
+  // ✅ Função inline para formatar endereço como string para metadata
+  const formatAddressToString = (): string => {
+    if (!selectedAddress) return "Endereço não selecionado";
+
+    const parts = [
+      selectedAddress.street,
+      selectedAddress.number,
+      selectedAddress.complement && `- ${selectedAddress.complement}`,
+      selectedAddress.neighborhood,
+      selectedAddress.city,
+      selectedAddress.state,
+      selectedAddress.postalCode,
+      selectedAddress.country,
+    ].filter(Boolean); // Remove valores undefined/null
+
+    return parts.join(", ");
+  };
 
   const createOrder = async (): Promise<OrderResponse | null> => {
     if (!isCheckoutComplete || !selectedAddressId || !selectedAddress) {
@@ -126,6 +146,7 @@ export function CheckoutProvider({ children }: { children: React.ReactNode }) {
     createOrder,
     orderError,
     clearOrderError,
+    formatAddressToString,
   };
 
   return (

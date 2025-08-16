@@ -20,18 +20,7 @@ export interface OrderResponse {
   status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   totalAmount: number;
   shippingCost: number;
-  shippingAddress: {
-    id: number;
-    name: string;
-    street: string;
-    number: string;
-    complement?: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
+  shippingAddress: string;
   paymentMethodType: string;
   paymentMethodName: string;
   paymentStatus: string;
@@ -72,6 +61,34 @@ export interface UpdateOrderStatus {
   notes?: string;
 }
 
+export interface ValidateStockItem {
+  productVariationSizePublicId: string;
+  quantity: number;
+}
+
+export interface ValidateStockRequest {
+  items: ValidateStockItem[];
+}
+
+export interface ValidateStockItemResponse {
+  productVariationSizePublicId: string;
+  productName: string;
+  variationName: string;
+  size: string;
+  color: string;
+  requestedQuantity: number;
+  availableQuantity: number;
+  isAvailable: boolean;
+  price: number;
+}
+
+export interface ValidateStockResponse {
+  isValid: boolean;
+  items: ValidateStockItemResponse[];
+  totalAmount: number;
+  message?: string;
+}
+
 class OrderService {
   async createOrder(orderData: CreateOrder): Promise<OrderResponse> {
     const response = await api.post('/orders', orderData);
@@ -93,6 +110,11 @@ class OrderService {
     updateData: UpdateOrderStatus,
   ): Promise<OrderResponse> {
     const response = await api.put(`/orders/${publicId}/status`, updateData);
+    return response.data;
+  }
+
+  async validateStock(validateStockData: ValidateStockRequest): Promise<ValidateStockResponse> {
+    const response = await api.post('/orders/validate-stock', validateStockData);
     return response.data;
   }
 }

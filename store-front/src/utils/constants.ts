@@ -11,3 +11,7 @@ export const PAGINATION = {
   DEFAULT_PAGE_SIZE: 12,
   MAX_PAGE_SIZE: 50,
 }; 
+
+export const DARK_COLOR = "#212529";
+
+export const DARK_BORDER_COLOR = "#212529";
