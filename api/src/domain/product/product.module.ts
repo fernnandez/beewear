@@ -32,6 +32,6 @@ import { StockService } from './stock/stock.service';
     StockController,
   ],
   providers: [ProductService, ProductVariationService, StockService],
-  exports: [ProductService],
+  exports: [ProductService, ProductVariationService, StockService],
 })
 export class ProductModule {}

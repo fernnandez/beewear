@@ -60,10 +60,21 @@ export function CheckoutSuccess() {
               createdAt: orderData.createdAt || new Date().toISOString(),
             });
 
+            // ✅ Limpar carrinho apenas uma vez após sucesso
             clearCart();
           } else {
             setError("Dados do pedido não encontrados");
           }
+        } else if (response.data.alreadyExists) {
+          // ✅ Pedido já existe, não é erro
+          const orderData = response.data.order;
+          setOrder({
+            publicId: orderData.publicId || "N/A",
+            totalAmount: orderData.totalAmount,
+            status: orderData.status || "PENDING",
+            createdAt: orderData.createdAt || new Date().toISOString(),
+          });
+          clearCart();
         } else {
           setError(
             "Pagamento não foi aprovado. Verifique o status na sua conta Stripe."
@@ -103,7 +114,7 @@ export function CheckoutSuccess() {
       setError("ID da sessão não encontrado");
       setIsLoading(false);
     }
-  }, [sessionId, hasChecked, authLoading, user, clearCart]);
+  }, [sessionId, hasChecked, authLoading, user]); // ✅ Removido clearCart das dependências
 
   if (authLoading || isLoading) {
     return (

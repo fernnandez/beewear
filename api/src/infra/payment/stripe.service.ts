@@ -91,12 +91,23 @@ export class StripeService {
 
   async verifyPaymentStatus(userId: number, sessionId: string) {
     try {
+      console.log(
+        `🔄 Verificando status do pagamento para sessão: ${sessionId}`,
+      );
+
       const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+      console.log(
+        `📊 Status da sessão: ${session.status}, Pagamento: ${session.payment_status}`,
+      );
 
       // Verificar se já existe um pedido para esta sessão
       const existingOrder =
         await this.orderService.findOrderByStripeSession(sessionId);
+
       if (existingOrder) {
+        console.log(
+          `✅ Pedido já existe para sessão ${sessionId}: ${existingOrder.publicId}`,
+        );
         return {
           success: true,
           paymentStatus: 'already_processed',
@@ -108,13 +119,24 @@ export class StripeService {
 
       // Verificar se o pagamento foi aprovado
       if (session.payment_status === 'paid' && session.status === 'complete') {
+        console.log(
+          `💳 Pagamento aprovado para sessão ${sessionId}, criando pedido...`,
+        );
+
         // Extrair dados dos produtos dos METADADOS
         let orderItems: any[] = [];
 
         if (session.metadata?.items) {
           try {
             orderItems = JSON.parse(session.metadata.items);
-          } catch {
+            console.log(
+              `📦 Itens extraídos dos metadados: ${orderItems.length} itens`,
+            );
+          } catch (parseError) {
+            console.warn(
+              `⚠️ Erro ao fazer parse dos metadados, usando dados padrão:`,
+              parseError,
+            );
             orderItems = [
               {
                 name: 'Produto do Checkout',
@@ -125,6 +147,7 @@ export class StripeService {
             ];
           }
         } else {
+          console.warn(`⚠️ Metadados não encontrados, usando dados padrão`);
           orderItems = [
             {
               name: 'Produto do Checkout',
@@ -147,8 +170,12 @@ export class StripeService {
           paymentMethodName: 'Método Stripe',
         };
 
+        console.log(`🛒 Dados do pedido preparados, criando...`);
+
         // Criar pedido usando email do cliente
         const order = await this.orderService.createOrderFromPayment(orderData);
+
+        console.log(`✅ Pedido criado com sucesso: ${order.publicId}`);
 
         return {
           success: true,
@@ -158,6 +185,9 @@ export class StripeService {
           alreadyExists: false,
         };
       } else {
+        console.log(
+          `❌ Pagamento não aprovado. Status: ${session.status}, Payment: ${session.payment_status}`,
+        );
         return {
           success: false,
           paymentStatus: session.payment_status || 'unknown',
@@ -166,7 +196,11 @@ export class StripeService {
           alreadyExists: false,
         };
       }
-    } catch {
+    } catch (error) {
+      console.error(
+        `❌ Erro ao verificar status do pagamento para sessão ${sessionId}:`,
+        error,
+      );
       throw new Error('Erro ao verificar status do pagamento');
     }
   }

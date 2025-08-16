@@ -128,4 +128,16 @@ export class ProductVariationService {
       images: updatedImages,
     });
   }
+
+  /**
+   * Busca ProductVariationSize com suas relações (productVariation e product)
+   * @param publicId PublicId do ProductVariationSize
+   * @returns ProductVariationSize com relações carregadas
+   */
+  async findProductVariationSizeWithRelations(publicId: string) {
+    return this.ProductVariationSizeRepo.findOne({
+      where: { publicId },
+      relations: ['productVariation', 'productVariation.product'],
+    });
+  }
 }

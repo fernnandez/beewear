@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductVariationSize } from '../product/productVariation/product-variation-size.entity';
-import { StockItem } from '../product/stock/stock-item.entity';
+import { ProductVariationService } from '../product/productVariation/product-variation.service';
+import { StockService } from '../product/stock/stock.service';
 import { User } from '../user/user.entity';
 import {
   OrderItemResponseDto,
@@ -30,10 +30,8 @@ export class OrderService {
     private readonly orderItemRepo: Repository<OrderItem>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-    @InjectRepository(ProductVariationSize)
-    private readonly productVariationSizeRepo: Repository<ProductVariationSize>,
-    @InjectRepository(StockItem)
-    private readonly stockItemRepo: Repository<StockItem>,
+    private readonly productVariationService: ProductVariationService,
+    private readonly stockService: StockService,
   ) {}
 
   async validateStockBeforeCheckout(
@@ -44,11 +42,11 @@ export class OrderService {
     let isValid = true;
 
     for (const item of validateStockDto.items) {
-      // Buscar ProductVariationSize com suas relações
-      const productVariationSize = await this.productVariationSizeRepo.findOne({
-        where: { publicId: item.productVariationSizePublicId },
-        relations: ['productVariation', 'productVariation.product'],
-      });
+      // Buscar ProductVariationSize com suas relações usando o serviço
+      const productVariationSize =
+        await this.productVariationService.findProductVariationSizeWithRelations(
+          item.productVariationSizePublicId,
+        );
 
       if (!productVariationSize) {
         throw new BadRequestException(
@@ -56,14 +54,11 @@ export class OrderService {
         );
       }
 
-      // Buscar estoque
-      const stockItem = await this.stockItemRepo.findOne({
-        where: {
-          productVariationSize: {
-            publicId: item.productVariationSizePublicId,
-          },
-        },
-      });
+      // Buscar estoque usando o serviço
+      const stockItem =
+        await this.stockService.findStockItemByProductVariationSize(
+          item.productVariationSizePublicId,
+        );
 
       const availableQuantity = stockItem?.quantity || 0;
       const isItemAvailable = availableQuantity >= item.quantity;
@@ -109,6 +104,9 @@ export class OrderService {
         throw new NotFoundException('Usuário não encontrado');
       }
 
+      // ✅ VALIDAR ESTOQUE ANTES DE CRIAR O PEDIDO
+      await this.validateStockForPayment(paymentData.items);
+
       const order = await this.orderRepo.save({
         user,
         totalAmount: paymentData.totalAmount,
@@ -122,7 +120,7 @@ export class OrderService {
 
       const orderItems = await Promise.all(
         paymentData.items.map(async (item: any) => {
-          // ✅ Buscar informações adicionais do produto usando o productVariationSizePublicId
+          // ✅ Buscar informações adicionais do produto usando o serviço
           let productVariationSize: any = null;
           let productVariation: any = null;
           let product: any = null;
@@ -130,10 +128,9 @@ export class OrderService {
           if (item.productVariationSizePublicId) {
             try {
               productVariationSize =
-                await this.productVariationSizeRepo.findOne({
-                  where: { publicId: item.productVariationSizePublicId },
-                  relations: ['productVariation', 'productVariation.product'],
-                });
+                await this.productVariationService.findProductVariationSizeWithRelations(
+                  item.productVariationSizePublicId,
+                );
 
               if (productVariationSize) {
                 productVariation = productVariationSize.productVariation;
@@ -165,6 +162,21 @@ export class OrderService {
       );
 
       order.items = orderItems;
+
+      // ✅ ATUALIZAR ESTOQUE APÓS CRIAR O PEDIDO
+      try {
+        await this.updateStockAfterOrderCreation(orderItems);
+        console.log(
+          '✅ Estoque atualizado com sucesso para todos os itens do pedido',
+        );
+      } catch (stockError) {
+        console.error(
+          '❌ Erro ao atualizar estoque, mas pedido foi criado:',
+          stockError,
+        );
+        // ✅ Não re-throw aqui para não impedir a criação do pedido
+        // O estoque pode ser atualizado manualmente depois
+      }
 
       console.log('✅ Pedido criado com sucesso:', order.id);
 
@@ -260,6 +272,118 @@ export class OrderService {
     console.log(
       `Atualizando estoque para pedido ${order.publicId} com status ${order.status}`,
     );
+
+    // Se o pedido foi cancelado, devolver os itens ao estoque
+    if (order.status === OrderStatus.CANCELLED) {
+      await this.restoreStockAfterCancellation(order.items);
+    }
+  }
+
+  /**
+   * Atualiza o estoque removendo as quantidades dos itens vendidos
+   * @param orderItems Itens do pedido criado
+   */
+  private async updateStockAfterOrderCreation(
+    orderItems: OrderItem[],
+  ): Promise<void> {
+    console.log('🔄 Atualizando estoque após criação do pedido...');
+
+    for (const item of orderItems) {
+      if (!item.productVariationSizePublicId) {
+        console.warn(
+          '⚠️ Item sem productVariationSizePublicId, pulando atualização de estoque',
+        );
+        continue;
+      }
+
+      try {
+        // Buscar o item de estoque usando o serviço
+        const stockItem =
+          await this.stockService.findStockItemByProductVariationSize(
+            item.productVariationSizePublicId,
+          );
+
+        if (!stockItem) {
+          console.warn(
+            `⚠️ Item de estoque não encontrado para: ${item.productVariationSizePublicId}`,
+          );
+          continue;
+        }
+
+        // Verificar se há estoque suficiente
+        if (stockItem.quantity < item.quantity) {
+          throw new BadRequestException(
+            `Estoque insuficiente para o item ${item.productName}. Disponível: ${stockItem.quantity}, Solicitado: ${item.quantity}`,
+          );
+        }
+
+        // Atualizar estoque usando o StockService
+        await this.stockService.adjustStock(
+          stockItem.publicId,
+          -item.quantity, // Quantidade negativa para saída
+          `Venda - Pedido criado - ${item.productName} (${item.variationName}, ${item.size})`,
+        );
+
+        console.log(
+          `✅ Estoque atualizado para ${item.productName}: -${item.quantity} unidades`,
+        );
+      } catch (error) {
+        console.error(
+          `❌ Erro ao atualizar estoque para item ${item.productName}:`,
+          error,
+        );
+        throw error; // Re-throw para interromper a criação do pedido
+      }
+    }
+
+    console.log(
+      '✅ Estoque atualizado com sucesso para todos os itens do pedido',
+    );
+  }
+
+  /**
+   * Restaura o estoque quando um pedido é cancelado
+   * @param orderItems Itens do pedido cancelado
+   */
+  private async restoreStockAfterCancellation(
+    orderItems: OrderItem[],
+  ): Promise<void> {
+    console.log('🔄 Restaurando estoque após cancelamento do pedido...');
+
+    for (const item of orderItems) {
+      if (!item.productVariationSizePublicId) {
+        continue;
+      }
+
+      try {
+        const stockItem =
+          await this.stockService.findStockItemByProductVariationSize(
+            item.productVariationSizePublicId,
+          );
+
+        if (stockItem) {
+          await this.stockService.adjustStock(
+            stockItem.publicId,
+            item.quantity, // Quantidade positiva para entrada
+            `Cancelamento - Pedido cancelado - ${item.productName} (${item.variationName}, ${item.size})`,
+          );
+
+          console.log(
+            `✅ Estoque restaurado para ${item.productName}: +${item.quantity} unidades`,
+          );
+        }
+      } catch (error) {
+        console.error(
+          `❌ Erro ao restaurar estoque para item ${item.productName}:`,
+          error,
+        );
+        // Não re-throw aqui para não impedir o cancelamento do pedido
+      }
+    }
+
+    console.log(
+      '✅ Estoque restaurado com sucesso para todos os itens do pedido cancelado',
+    );
   }
 
   private mapToResponseDto(order: Order): OrderResponseDto {
@@ -312,5 +436,53 @@ export class OrderService {
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     };
+  }
+
+  /**
+   * Valida estoque antes de criar o pedido para evitar inconsistências
+   * @param items Itens do pedido
+   */
+  private async validateStockForPayment(items: any[]): Promise<void> {
+    console.log('🔄 Validando estoque antes de criar pedido...');
+
+    for (const item of items) {
+      if (!item.productVariationSizePublicId) {
+        console.warn(
+          '⚠️ Item sem productVariationSizePublicId, pulando validação',
+        );
+        continue;
+      }
+
+      try {
+        const stockItem =
+          await this.stockService.findStockItemByProductVariationSize(
+            item.productVariationSizePublicId,
+          );
+
+        if (!stockItem) {
+          throw new BadRequestException(
+            `Item de estoque não encontrado para: ${item.productVariationSizePublicId}`,
+          );
+        }
+
+        if (stockItem.quantity < item.quantity) {
+          throw new BadRequestException(
+            `Estoque insuficiente para o item ${item.name}. Disponível: ${stockItem.quantity}, Solicitado: ${item.quantity}`,
+          );
+        }
+
+        console.log(
+          `✅ Estoque validado para ${item.name}: ${stockItem.quantity} disponível`,
+        );
+      } catch (error) {
+        console.error(
+          `❌ Erro na validação de estoque para ${item.name}:`,
+          error,
+        );
+        throw error; // Re-throw para impedir a criação do pedido
+      }
+    }
+
+    console.log('✅ Estoque validado com sucesso para todos os itens');
   }
 }

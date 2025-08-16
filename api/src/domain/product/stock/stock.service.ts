@@ -112,4 +112,21 @@ export class StockService {
 
     return movements;
   }
+
+  /**
+   * Busca StockItem por ProductVariationSize
+   * @param productVariationSizePublicId PublicId do ProductVariationSize
+   * @returns StockItem encontrado ou null
+   */
+  async findStockItemByProductVariationSize(
+    productVariationSizePublicId: string,
+  ) {
+    return this.stockRepo.findOne({
+      where: {
+        productVariationSize: {
+          publicId: productVariationSizePublicId,
+        },
+      },
+    });
+  }
 }
