@@ -41,7 +41,7 @@ export class Order {
   shippingAddress: string;
 
   @Column({ nullable: true })
-  paymentMethodType: string; // 'CREDIT_CARD', 'PIX', 'BANK_TRANSFER'
+  paymentMethodType: string; // 'CREDIT_CARD', 'KLARNA', 'PIX', 'BANK_TRANSFER', 'OTHER'
 
   @Column({ nullable: true })
   paymentMethodName: string;

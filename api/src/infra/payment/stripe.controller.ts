@@ -8,7 +8,6 @@ import {
   Req,
 } from '@nestjs/common';
 import { StripeService } from './stripe.service';
-import { Public } from '../auth/decorator/public.decorator';
 
 @Controller('payments')
 export class StripeController {
@@ -29,8 +28,7 @@ export class StripeController {
     return this.stripeService.getAvailablePaymentMethods();
   }
 
-  // Endpoint SIMPLES para verificar status do pagamento
-
+  // Endpoint para verificar status do pagamento
   @Get('verify-payment/:sessionId')
   async verifyPayment(@Req() req: any, @Param('sessionId') sessionId: string) {
     try {
@@ -52,8 +50,4 @@ export class StripeController {
       );
     }
   }
-
-  // REMOVER o endpoint de webhook por enquanto (simplificar)
-  // @Post('webhook')
-  // async handleWebhook(@Req() request: Request) { ... }
 }

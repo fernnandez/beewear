@@ -10,7 +10,6 @@ import Account from "@pages/account/Account";
 import Addresses from "@pages/address/Addresses";
 import { Checkout } from "@pages/checkout/Checkout";
 import { CheckoutSuccess } from "@pages/checkout/CheckoutSuccess";
-import { OrderReview } from "@pages/checkout/OrderReview";
 
 import { ProtectedRoute } from "@components/shared/ProtectedRoute/ProtectedRoute";
 import { Home } from "@pages/home/Home";
@@ -63,22 +62,13 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            {/* Rotas de checkout envolvidas pelo CheckoutProvider */}
             <Route
               path="/checkout"
               element={
                 <CheckoutProvider>
                   <ProtectedRoute>
                     <Checkout />
-                  </ProtectedRoute>
-                </CheckoutProvider>
-              }
-            />
-            <Route
-              path="/checkout/order-review"
-              element={
-                <CheckoutProvider>
-                  <ProtectedRoute>
-                    <OrderReview />
                   </ProtectedRoute>
                 </CheckoutProvider>
               }

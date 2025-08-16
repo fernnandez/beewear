@@ -229,7 +229,7 @@ export function CheckoutSuccess() {
           <Divider />
 
           {/* Detalhes do Pedido */}
-          <Button onClick={() => navigate(`/orders/${order.publicId}`)}>
+          <Button onClick={() => navigate(`/account/orders/${order.publicId}`)}>
             Ver Detalhes do pedido
           </Button>
 

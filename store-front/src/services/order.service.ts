@@ -7,10 +7,10 @@ export interface CreateOrderItem {
 }
 
 export interface CreateOrder {
-  items: CreateOrderItem[];
+  items: CartItem[];
   shippingAddressId: number;
   shippingAddressString: string; // Endereço completo como string
-  paymentMethodType: 'CREDIT_CARD' | 'PIX' | 'BANK_TRANSFER';
+  paymentMethodType: 'CREDIT_CARD' | 'KLARNA' | 'PIX' | 'BANK_TRANSFER' | 'OTHER';
   paymentMethodName: string;
   notes?: string;
 }

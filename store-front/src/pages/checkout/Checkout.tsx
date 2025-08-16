@@ -22,14 +22,15 @@ export function Checkout() {
   const isDark = colorScheme === "dark";
   const { items } = useCart();
   const { isAutenticated } = useAuth();
-  const { 
-    selectedAddressId, 
-    selectedPaymentId, 
-    setSelectedAddressId, 
+
+  // Usar o hook useCheckout de forma mais simples
+  const checkout = useCheckout();
+  const {
+    selectedAddressId,
+    setSelectedAddressId,
     setSelectedAddress,
-    setSelectedPaymentId, 
-    isCheckoutComplete 
-  } = useCheckout();
+    isCheckoutComplete,
+  } = checkout;
 
   // Redirecionar se não estiver autenticado ou se o carrinho estiver vazio
   if (!isAutenticated) {
@@ -64,21 +65,18 @@ export function Checkout() {
           {/* Left Column - Address and Payment */}
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap="xl">
-              <AddressSection 
+              <AddressSection
                 selectedAddress={selectedAddressId}
                 onAddressSelect={setSelectedAddressId}
                 onAddressSelectFull={setSelectedAddress}
               />
-              <PaymentSection 
-                selectedPayment={selectedPaymentId}
-                onPaymentSelect={setSelectedPaymentId}
-              />
+              <PaymentSection />
             </Stack>
           </Grid.Col>
 
           {/* Right Column - Order Summary */}
           <Grid.Col span={{ base: 12, md: 4 }}>
-                          <OrderSummary isCheckoutComplete={isCheckoutComplete} selectedPaymentMethod={selectedPaymentId} />
+            <OrderSummary isCheckoutComplete={isCheckoutComplete} />
           </Grid.Col>
         </Grid>
       </Stack>

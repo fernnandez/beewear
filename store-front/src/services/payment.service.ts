@@ -6,7 +6,7 @@ export interface CreateCheckoutSessionDto {
     price: number;
     quantity: number;
     images?: string[];
-    productVariationSizePublicId: string; // ✅ Identificador do produto para criar order-items
+    productVariationSizePublicId: string;
   }>;
   successUrl: string;
   cancelUrl: string;
@@ -26,21 +26,14 @@ export interface PaymentMethod {
   icon: string;
   countries: string[];
   isActive: boolean;
+  features?: string[];
 }
 
 class PaymentService {
-  // Configuração centralizada
-  private readonly DEFAULT_PAYMENT_METHOD = "card";
-
   async createCheckoutSession(
     data: CreateCheckoutSessionDto
   ): Promise<CheckoutSessionResponse> {
     try {
-      console.log(
-        "💳 Criando sessão de checkout com método:",
-        this.DEFAULT_PAYMENT_METHOD
-      );
-
       const response = await api.post(`payments/checkout`, data);
       return response.data;
     } catch (error) {
@@ -69,14 +62,38 @@ class PaymentService {
     }
   }
 
-  // Método para obter método padrão
-  getDefaultPaymentMethod(): string {
-    return this.DEFAULT_PAYMENT_METHOD;
+  // Método simplificado - a Stripe gerencia tudo
+  isPaymentMethodAvailableForCountry(): boolean {
+    // Como a Stripe gerencia tudo, sempre retorna true
+    return true;
   }
 
-  // Método para verificar se um método está disponível
-  isPaymentMethodAvailable(methodId: string): boolean {
-    return methodId === this.DEFAULT_PAYMENT_METHOD;
+  // Método para obter métodos ativos localmente (fallback)
+  getLocalPaymentMethods(): PaymentMethod[] {
+    return [
+      {
+        id: "stripe_managed",
+        name: "Métodos de Pagamento",
+        description: "Configurados automaticamente pela Stripe",
+        icon: "💳",
+        countries: ["PT"],
+        isActive: true,
+        features: [
+          "Configuração automática", 
+          "Métodos atualizados", 
+          "Sem manutenção",
+          "Suporte oficial Stripe"
+        ],
+      },
+    ];
+  }
+
+  // Método para ativar/desativar métodos de pagamento (não é mais necessário)
+  async togglePaymentMethod(): Promise<{ success: boolean; message: string }> {
+    return {
+      success: true,
+      message: 'Métodos gerenciados automaticamente pela Stripe',
+    };
   }
 }
 

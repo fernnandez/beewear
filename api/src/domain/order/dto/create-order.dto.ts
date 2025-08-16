@@ -24,7 +24,7 @@ export class CreateOrderDto {
   shippingAddressString: string;
 
   @IsString()
-  @IsIn(['CREDIT_CARD', 'PIX', 'BANK_TRANSFER'])
+  @IsIn(['CREDIT_CARD', 'KLARNA', 'PIX', 'BANK_TRANSFER', 'OTHER'])
   paymentMethodType: string;
 
   @IsString()

@@ -34,43 +34,37 @@ import {
 } from "@tabler/icons-react";
 import { formatPrice } from "@utils/formatPrice";
 import { loadStripeInstance, STRIPE_CONFIG } from "@utils/stripe";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface OrderSummaryProps {
   isCheckoutComplete: boolean;
-  selectedPaymentMethod?: string;
 }
 
-export function OrderSummary({
-  isCheckoutComplete,
-  selectedPaymentMethod,
-}: OrderSummaryProps) {
+export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
   const { user } = useAuth();
   const { items, getTotalPrice, updateQuantity, removeItem } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
 
-    // ✅ Hook para validação de estoque
+  // ✅ Hook para validação de estoque
   const { validateStock, isValidating, validationResult } =
     useStockValidation();
-  
+
   // ✅ Hook para checkout com formatação de endereço
   const { formatAddressToString } = useCheckout();
 
   // ✅ Validar estoque uma única vez ao renderizar a página
   useEffect(() => {
     if (items.length > 0) {
-      const stockData = items.map(item => ({
+      const stockData = items.map((item) => ({
         productVariationSizePublicId: item.productVariationSizePublicId,
         quantity: item.quantity,
       }));
-      
+
       validateStock(stockData).catch(console.error);
     }
   }, []); // Array vazio = executa apenas uma vez na montagem
-
-
 
   const handleConfirmOrder = async () => {
     try {
@@ -83,11 +77,9 @@ export function OrderSummary({
         );
       }
 
-      
-
       // ✅ Formatar endereço para metadata
       const addressString = formatAddressToString();
-      
+
       // Preparar dados para a sessão de checkout da Stripe
       const checkoutData: CreateCheckoutSessionDto = {
         items: items.map((item) => ({
@@ -102,13 +94,6 @@ export function OrderSummary({
         customerEmail: user.email,
         shippingAddress: addressString,
       };
-
-      // ✅ Log do endereço formatado para debug
-      console.log("Endereço formatado:", addressString);
-
-      // Debug: mostrar método de pagamento selecionado
-      console.log("Método de pagamento selecionado:", selectedPaymentMethod);
-      console.log("Dados do checkout:", checkoutData);
 
       // Criar sessão de checkout
       const session = await paymentService.createCheckoutSession(checkoutData);
@@ -205,43 +190,41 @@ export function OrderSummary({
       {items.length > 0 && (
         <Alert
           icon={
-            isValidating 
-              ? undefined 
-              : !validationResult 
-                ? <IconAlertCircle size={16} />
-                : validationResult.isValid 
-                  ? <IconCheck size={16} /> 
-                  : <IconX size={16} />
+            isValidating ? undefined : !validationResult ? (
+              <IconAlertCircle size={16} />
+            ) : validationResult.isValid ? (
+              <IconCheck size={16} />
+            ) : (
+              <IconX size={16} />
+            )
           }
           title={
-            isValidating 
-              ? "Verificando estoque..." 
-              : !validationResult 
-                ? "Estoque não verificado"
-                : validationResult.isValid 
-                  ? "Estoque disponível" 
-                  : "Problemas de estoque"
+            isValidating
+              ? "Verificando estoque..."
+              : !validationResult
+              ? "Estoque não verificado"
+              : validationResult.isValid
+              ? "Estoque disponível"
+              : "Problemas de estoque"
           }
           color={
-            isValidating 
-              ? "blue" 
-              : !validationResult 
-                ? "yellow"
-                : validationResult.isValid 
-                  ? "green" 
-                  : "red"
+            isValidating
+              ? "blue"
+              : !validationResult
+              ? "yellow"
+              : validationResult.isValid
+              ? "green"
+              : "red"
           }
           variant="light"
         >
-          {isValidating ? (
-            "Aguardando verificação de disponibilidade..."
-          ) : !validationResult ? (
-            "Clique em 'Validar Estoque' para verificar a disponibilidade dos produtos."
-          ) : validationResult.isValid ? (
-            `Todos os itens estão disponíveis`
-          ) : (
-            "Alguns itens não possuem estoque suficiente. Verifique a disponibilidade antes de prosseguir."
-          )}
+          {isValidating
+            ? "Aguardando verificação de disponibilidade..."
+            : !validationResult
+            ? "Clique em 'Validar Estoque' para verificar a disponibilidade dos produtos."
+            : validationResult.isValid
+            ? `Todos os itens estão disponíveis`
+            : "Alguns itens não possuem estoque suficiente. Verifique a disponibilidade antes de prosseguir."}
         </Alert>
       )}
 
@@ -414,12 +397,12 @@ export function OrderSummary({
         fullWidth
         onClick={handleConfirmOrder}
         style={{ marginTop: rem(16) }}
-                disabled={
-          items.length === 0 || 
-          !isCheckoutComplete || 
-          isProcessing || 
-          isValidating || 
-          !validationResult || 
+        disabled={
+          items.length === 0 ||
+          !isCheckoutComplete ||
+          isProcessing ||
+          isValidating ||
+          !validationResult ||
           !validationResult.isValid
         }
         loading={isProcessing || isValidating}
