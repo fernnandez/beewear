@@ -34,7 +34,7 @@ const quickActions = [
     description: "Gerencie endereços de entrega",
     icon: IconMapPin,
     color: "green",
-    href: "#addresses",
+    href: "/account/addresses",
   },
   {
     title: "Histórico de Pedidos",

@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@components/shared/ErrorBoundary/ErrorBoundary";
 import { ScrollToTop } from "@components/shared/ScrollToTop";
 import { CheckoutProvider } from "@contexts/checkout-context";
 import Account from "@pages/account/Account";
+import Addresses from "@pages/address/Addresses";
 import { Checkout } from "@pages/checkout/Checkout";
 import { CheckoutSuccess } from "@pages/checkout/CheckoutSuccess";
 import { OrderReview } from "@pages/checkout/OrderReview";
@@ -35,6 +36,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Account />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/account/addresses"
+              element={
+                <ProtectedRoute>
+                  <Addresses />
                 </ProtectedRoute>
               }
             />
