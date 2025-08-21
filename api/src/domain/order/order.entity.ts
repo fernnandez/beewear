@@ -10,7 +10,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Address } from '../user/address/address.entity';
 import { User } from '../user/user.entity';
 import { OrderItem } from './order-item.entity';
 import { OrderStatus } from './enums/order-status.enum';
@@ -28,6 +27,9 @@ export class Order {
   @JoinColumn()
   user: User;
 
+  @Column({ nullable: true })
+  stripeSessionId: string;
+
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
 
@@ -44,13 +46,7 @@ export class Order {
   paymentMethodType: string; // 'CREDIT_CARD', 'KLARNA', 'PIX', 'BANK_TRANSFER', 'OTHER'
 
   @Column({ nullable: true })
-  paymentMethodName: string;
-
-  @Column({ nullable: true })
   paymentStatus: string; // 'PENDING', 'PAID', 'FAILED', 'REFUNDED'
-
-  @Column({ nullable: true })
-  stripeSessionId: string;
 
   @Column({ nullable: true })
   notes: string;

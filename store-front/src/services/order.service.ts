@@ -7,11 +7,12 @@ export interface CreateOrderItem {
 }
 
 export interface CreateOrder {
-  items: CartItem[];
-  shippingAddressId: number;
+  items: Array<{
+    productVariationSizePublicId: string;
+    productVariationPublicId: string;
+    quantity: number;
+  }>;
   shippingAddressString: string; // Endereço completo como string
-  paymentMethodType: 'CREDIT_CARD' | 'KLARNA' | 'PIX' | 'BANK_TRANSFER' | 'OTHER';
-  paymentMethodName: string;
   notes?: string;
 }
 
@@ -23,7 +24,7 @@ export interface OrderResponse {
   shippingAddress: string;
   paymentMethodType: string;
   paymentMethodName: string;
-  paymentStatus: string;
+  paymentStatus: 'PENDING' | 'PAID' | 'FAILED';
   notes?: string;
   items: OrderItemResponse[];
   createdAt: string;
@@ -92,6 +93,11 @@ export interface ValidateStockResponse {
 class OrderService {
   async createOrder(orderData: CreateOrder): Promise<OrderResponse> {
     const response = await api.post('/orders', orderData);
+    return response.data;
+  }
+
+  async confirmOrder(publicId: string, sessionId: string): Promise<OrderResponse> {
+    const response = await api.post(`/orders/confirm/${publicId}`, { sessionId });
     return response.data;
   }
 

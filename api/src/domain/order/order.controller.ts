@@ -1,39 +1,25 @@
+import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
 import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Put,
-  Request,
-} from '@nestjs/common';
-import {
+  ConfirmOrderDto,
+  CreateOrderDto,
   OrderListResponseDto,
   OrderResponseDto,
-  UpdateOrderStatusDto,
   ValidateStockDto,
   ValidateStockResponseDto,
 } from './dto';
 import { OrderService } from './order.service';
 
 import { Public } from '../../infra/auth/decorator/public.decorator';
-import { Roles } from '../../infra/auth/decorator/roles.decorator';
 
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post('validate-stock')
-  async validateStock(
-    @Request() req,
-    @Body() validateStockDto: ValidateStockDto,
-  ): Promise<ValidateStockResponseDto> {
-    return this.orderService.validateStockBeforeCheckout(validateStockDto);
-  }
-
   @Get('my-orders')
-  async findUserOrders(@Request() req): Promise<OrderListResponseDto[]> {
-    return this.orderService.findUserOrders(req.user.id);
+  async findOrdersByUserId(
+    @Request() req: any,
+  ): Promise<OrderListResponseDto[]> {
+    return this.orderService.findOrdersByUserId(req.user.id);
   }
 
   @Get(':publicId')
@@ -44,12 +30,36 @@ export class OrderController {
     return this.orderService.findOrderByPublicId(publicId);
   }
 
-  @Put(':publicId/status')
-  @Roles('ADMIN')
-  async updateOrderStatus(
-    @Param('publicId') publicId: string,
-    @Body() updateDto: UpdateOrderStatusDto,
+  // SE O USER NÃO FINALIZAR O CHECKOUT O QUE ACONTECE?
+  // como cancelar o pedido?
+  // buscar todos os pedidos pendentes criados a pelo menos 1 hora e cancelar
+
+  @Post()
+  async createOrder(
+    @Request() req: any,
+    @Body() createOrderDto: CreateOrderDto,
   ): Promise<OrderResponseDto> {
-    return this.orderService.updateOrderStatus(publicId, updateDto);
+    return this.orderService.createOrder(req.user.id, createOrderDto);
+  }
+
+  @Post('confirm/:publicId')
+  async confirmOrder(
+    @Request() req: any,
+    @Param('publicId') publicId: string,
+    @Body() confirmOrderDto: ConfirmOrderDto,
+  ): Promise<OrderResponseDto> {
+    return this.orderService.confirmOrder(
+      req.user.id,
+      publicId,
+      confirmOrderDto.sessionId,
+    );
+  }
+
+  // TODO: mover isso pro contexto de product
+  @Post('validate-stock')
+  async validateStock(
+    @Body() validateStockDto: ValidateStockDto,
+  ): Promise<ValidateStockResponseDto> {
+    return this.orderService.validateStockBeforeCheckout(validateStockDto);
   }
 }

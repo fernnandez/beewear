@@ -46,4 +46,4 @@ export class ProductDetailsResponseDto {
 
   @ApiProperty({ description: 'Variações do produto' })
   variations: ProductVariationDetailsDto[];
-} 
+}

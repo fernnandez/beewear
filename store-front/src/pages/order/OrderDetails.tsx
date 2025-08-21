@@ -1,6 +1,8 @@
 import { OrderStatusStepper } from "@components/shared/OrderStatusStepper";
 import {
   getPaymentMethodText,
+  getPaymentMethodIcon,
+  getPaymentMethodDescription,
   getStatusColor,
   getStatusIcon,
   getStatusText,
@@ -282,23 +284,27 @@ export function OrderDetails() {
               Informações de Pagamento
             </Title>
             <Stack gap="sm">
-              <Group justify="space-between">
+              <Group justify="space-between" align="center">
                 <Text size="sm" c="dimmed">
                   Método:
                 </Text>
-                <Text fw={600}>
-                  {getPaymentMethodText(order.paymentMethodType)}
-                </Text>
+                <Group gap="xs" align="center">
+                  <span style={{ fontSize: '1.2em' }}>
+                    {getPaymentMethodIcon(order.paymentMethodType)}
+                  </span>
+                  <Text fw={600}>
+                    {getPaymentMethodText(order.paymentMethodType)}
+                  </Text>
+                </Group>
               </Group>
+              
+              <Text size="xs" c="dimmed" style={{ marginLeft: 'auto' }}>
+                {getPaymentMethodDescription(order.paymentMethodType)}
+              </Text>
+              
               <Group justify="space-between">
                 <Text size="sm" c="dimmed">
-                  Nome:
-                </Text>
-                <Text>{order.paymentMethodName}</Text>
-              </Group>
-              <Group justify="space-between">
-                <Text size="sm" c="dimmed">
-                  Data do Pagamento:
+                  Status do Pagamento:
                 </Text>
                 <Text>
                   {order.paymentStatus === "PAID"

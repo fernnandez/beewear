@@ -52,7 +52,13 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
     useStockValidation();
 
   // ✅ Hook para checkout com formatação de endereço
-  const { formatAddressToString } = useCheckout();
+  const {
+    formatAddressToString,
+    createOrder,
+    isCreatingOrder,
+    orderError,
+    clearOrderError,
+  } = useCheckout();
 
   // ✅ Validar estoque uma única vez ao renderizar a página
   useEffect(() => {
@@ -69,6 +75,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
   const handleConfirmOrder = async () => {
     try {
       setIsProcessing(true);
+      clearOrderError();
 
       // ✅ PRIMEIRO: Validar estoque antes de prosseguir
       if (!validationResult?.isValid) {
@@ -77,10 +84,16 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
         );
       }
 
-      // ✅ Formatar endereço para metadata
+      // ✅ SEGUNDO: Criar o pedido no backend
+      const order = await createOrder();
+      if (!order) {
+        throw new Error("Erro ao criar pedido");
+      }
+
+      // ✅ TERCEIRO: Formatar endereço para metadata
       const addressString = formatAddressToString();
 
-      // Preparar dados para a sessão de checkout da Stripe
+      // ✅ QUARTO: Preparar dados para a sessão de checkout da Stripe
       const checkoutData: CreateCheckoutSessionDto = {
         items: items.map((item) => ({
           name: item.name,
@@ -89,23 +102,23 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
           quantity: item.quantity,
           images: item.image ? [item.image] : [],
         })),
-        successUrl: STRIPE_CONFIG.SUCCESS_URL,
-        cancelUrl: STRIPE_CONFIG.CANCEL_URL,
-        customerEmail: user.email,
+        successUrl: `${STRIPE_CONFIG.SUCCESS_URL}?orderId=${order.publicId}&session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${STRIPE_CONFIG.CANCEL_URL}`,
+        customerEmail: user?.email || "",
         shippingAddress: addressString,
       };
 
-      // Criar sessão de checkout
+      // ✅ QUINTO: Criar sessão de checkout
       const session = await paymentService.createCheckoutSession(checkoutData);
 
-      // Carregar Stripe e redirecionar para checkout
+      // ✅ SEXTO: Carregar Stripe e redirecionar para checkout
       const stripe = await loadStripeInstance();
 
       if (!stripe) {
         throw new Error("Erro ao carregar Stripe");
       }
 
-      // Redirecionar para a página de checkout da Stripe
+      // ✅ SÉTIMO: Redirecionar para a página de checkout da Stripe
       const { error } = await stripe.redirectToCheckout({
         sessionId: session.id,
       });
@@ -403,20 +416,37 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
           isProcessing ||
           isValidating ||
           !validationResult ||
-          !validationResult.isValid
+          !validationResult.isValid ||
+          isCreatingOrder
         }
-        loading={isProcessing || isValidating}
+        loading={isProcessing || isValidating || isCreatingOrder}
       >
         {isProcessing
           ? "Processando..."
           : isValidating
           ? "Verificando estoque..."
+          : isCreatingOrder
+          ? "Criando pedido..."
           : !validationResult
           ? "Validar estoque primeiro"
           : !validationResult.isValid
           ? "Estoque insuficiente"
-          : "Finalizar Compra"}
+          : "Ir Para Pagamento"}
       </Button>
+
+      {/* Mostrar erro se houver */}
+      {orderError && (
+        <Alert
+          icon={<IconAlertCircle size={16} />}
+          title="Erro no Checkout"
+          color="red"
+          variant="light"
+          withCloseButton
+          onClose={clearOrderError}
+        >
+          {orderError}
+        </Alert>
+      )}
     </Stack>
   );
 }

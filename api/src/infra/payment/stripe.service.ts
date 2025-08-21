@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { OrderService } from 'src/domain/order/order.service';
 import Stripe from 'stripe';
 
 export interface CreateCheckoutSessionDto {
@@ -38,7 +37,7 @@ export class StripeService {
   private readonly CURRENCY = 'eur';
   private readonly COUNTRY = 'PT';
 
-  constructor(private readonly orderService: OrderService) {
+  constructor() {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   }
 
@@ -73,11 +72,7 @@ export class StripeService {
       customer_creation: 'always',
 
       metadata: {
-        order_type: 'checkout',
-        country: this.COUNTRY,
-        items: JSON.stringify(itemsMetadata),
-        total_items: data.items.length.toString(),
-        shipping_address: data.shippingAddress,
+        // POSSO ADICIONAR METADADOS AQUI
       },
     };
 
@@ -89,119 +84,102 @@ export class StripeService {
     };
   }
 
-  async verifyPaymentStatus(userId: number, sessionId: string) {
+  async verifyPaymentStatus(sessionId: string) {
     try {
-      console.log(
-        `🔄 Verificando status do pagamento para sessão: ${sessionId}`,
-      );
+      console.log(`🔄 Verificando status da sessão do Stripe: ${sessionId}`);
 
-      const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['payment_intent', 'customer', 'line_items'],
+      });
+
       console.log(
         `📊 Status da sessão: ${session.status}, Pagamento: ${session.payment_status}`,
       );
 
-      // Verificar se já existe um pedido para esta sessão
-      const existingOrder =
-        await this.orderService.findOrderByStripeSession(sessionId);
-
-      if (existingOrder) {
-        console.log(
-          `✅ Pedido já existe para sessão ${sessionId}: ${existingOrder.publicId}`,
-        );
-        return {
-          success: true,
-          paymentStatus: 'already_processed',
-          message: 'Pedido já foi processado para esta sessão',
-          order: existingOrder,
-          alreadyExists: true,
+      // Buscar informações detalhadas do pagamento
+      let paymentDetails: any = null;
+      if (
+        session.payment_intent &&
+        typeof session.payment_intent === 'object'
+      ) {
+        const paymentIntent = session.payment_intent as Stripe.PaymentIntent;
+        paymentDetails = {
+          id: paymentIntent.id,
+          method: paymentIntent.payment_method_types[0], // ['card', 'pix', etc.]
+          amount: paymentIntent.amount,
+          currency: paymentIntent.currency,
+          status: paymentIntent.status,
+          created: paymentIntent.created,
         };
-      }
 
-      // Verificar se o pagamento foi aprovado
-      if (session.payment_status === 'paid' && session.status === 'complete') {
-        console.log(
-          `💳 Pagamento aprovado para sessão ${sessionId}, criando pedido...`,
-        );
-
-        // Extrair dados dos produtos dos METADADOS
-        let orderItems: any[] = [];
-
-        if (session.metadata?.items) {
-          try {
-            orderItems = JSON.parse(session.metadata.items);
-            console.log(
-              `📦 Itens extraídos dos metadados: ${orderItems.length} itens`,
-            );
-          } catch (parseError) {
-            console.warn(
-              `⚠️ Erro ao fazer parse dos metadados, usando dados padrão:`,
-              parseError,
-            );
-            orderItems = [
-              {
-                name: 'Produto do Checkout',
-                price: (session.amount_total || 0) / 100,
-                quantity: 1,
-                images: [],
-              },
-            ];
+        // Se for cartão, buscar detalhes adicionais
+        if (
+          paymentIntent.payment_method &&
+          typeof paymentIntent.payment_method === 'object'
+        ) {
+          const paymentMethod =
+            paymentIntent.payment_method as Stripe.PaymentMethod;
+          if (paymentMethod.type === 'card' && paymentMethod.card) {
+            paymentDetails.card = {
+              brand: paymentMethod.card.brand, // visa, mastercard, etc.
+              last4: paymentMethod.card.last4,
+              expMonth: paymentMethod.card.exp_month,
+              expYear: paymentMethod.card.exp_year,
+            };
           }
-        } else {
-          console.warn(`⚠️ Metadados não encontrados, usando dados padrão`);
-          orderItems = [
-            {
-              name: 'Produto do Checkout',
-              price: (session.amount_total || 0) / 100,
-              quantity: 1,
-              images: [],
-            },
-          ];
         }
+      }
 
-        const orderData = {
-          userId,
-          customerEmail: session.customer_email,
-          items: orderItems,
-          totalAmount: (session.amount_total || 0) / 100,
-          stripeSessionId: session.id,
-          shippingAddress:
-            session.metadata?.shipping_address || 'Endereço não informado',
-          paymentMethod: 'stripe_managed',
-          paymentMethodName: 'Método Stripe',
-        };
-
-        console.log(`🛒 Dados do pedido preparados, criando...`);
-
-        // Criar pedido usando email do cliente
-        const order = await this.orderService.createOrderFromPayment(orderData);
-
-        console.log(`✅ Pedido criado com sucesso: ${order.publicId}`);
-
-        return {
-          success: true,
-          paymentStatus: 'paid',
-          message: 'Pagamento confirmado e pedido criado',
-          order,
-          alreadyExists: false,
-        };
-      } else {
-        console.log(
-          `❌ Pagamento não aprovado. Status: ${session.status}, Payment: ${session.payment_status}`,
-        );
-        return {
-          success: false,
-          paymentStatus: session.payment_status || 'unknown',
-          message: 'Pagamento não foi aprovado',
-          order: null,
-          alreadyExists: false,
+      // Buscar informações do cliente
+      let customerInfo: any = null;
+      if (session.customer && typeof session.customer === 'object') {
+        const customer = session.customer as Stripe.Customer;
+        customerInfo = {
+          id: customer.id,
+          email: customer.email,
+          name: customer.name,
+          phone: customer.phone,
         };
       }
+
+      return {
+        success: true,
+        sessionId: session.id,
+        status: session.status,
+        paymentStatus: session.payment_status,
+        amountTotal: session.amount_total,
+        customerEmail: session.customer_email,
+        metadata: session.metadata,
+        createdAt: session.created,
+        expiresAt: session.expires_at,
+        // Novas informações detalhadas
+        paymentDetails,
+        customerInfo,
+        // Informações de endereço
+        billingAddress:
+          session.billing_address_collection === 'required'
+            ? {
+                country: session.customer_details?.address?.country,
+                state: session.customer_details?.address?.state,
+                city: session.customer_details?.address?.city,
+                line1: session.customer_details?.address?.line1,
+                line2: session.customer_details?.address?.line2,
+                postalCode: session.customer_details?.address?.postal_code,
+              }
+            : null,
+        // Informações de envio
+        shippingAddress: session.shipping_address_collection
+          ? {
+              country: session.shipping_address_collection.allowed_countries,
+            }
+          : null,
+      };
     } catch (error) {
       console.error(
-        `❌ Erro ao verificar status do pagamento para sessão ${sessionId}:`,
+        `❌ Erro ao verificar status da sessão ${sessionId}:`,
         error,
       );
-      throw new Error('Erro ao verificar status do pagamento');
+      throw new Error('Erro ao verificar status da sessão do Stripe');
     }
   }
 }

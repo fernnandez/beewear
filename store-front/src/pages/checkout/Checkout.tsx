@@ -1,6 +1,5 @@
 import { AddressSection } from "@components/checkout/AddressSection";
 import { OrderSummary } from "@components/checkout/OrderSummary";
-import { PaymentSection } from "@components/checkout/PaymentSection";
 import { useAuth } from "@contexts/auth-context";
 import { useCart } from "@contexts/cart-context";
 import { useCheckout } from "@contexts/checkout-context";
@@ -63,19 +62,16 @@ export function Checkout() {
         {/* Main Content */}
         <Grid gutter="xl">
           {/* Left Column - Address and Payment */}
-          <Grid.Col span={{ base: 12, md: 8 }}>
-            <Stack gap="xl">
-              <AddressSection
-                selectedAddress={selectedAddressId}
-                onAddressSelect={setSelectedAddressId}
-                onAddressSelectFull={setSelectedAddress}
-              />
-              <PaymentSection />
-            </Stack>
+          <Grid.Col span={{ base: 12, md: 6 }}>
+            <AddressSection
+              selectedAddress={selectedAddressId}
+              onAddressSelect={setSelectedAddressId}
+              onAddressSelectFull={setSelectedAddress}
+            />
           </Grid.Col>
 
           {/* Right Column - Order Summary */}
-          <Grid.Col span={{ base: 12, md: 4 }}>
+          <Grid.Col span={{ base: 12, md: 6 }}>
             <OrderSummary isCheckoutComplete={isCheckoutComplete} />
           </Grid.Col>
         </Grid>

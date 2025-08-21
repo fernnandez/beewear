@@ -1,5 +1,6 @@
 import {
   getPaymentMethodText,
+  getPaymentMethodIcon,
   getStatusColor,
   getStatusIcon,
   getStatusText,
@@ -24,7 +25,6 @@ import {
   IconAlertCircle,
   IconArrowLeft,
   IconCalendar,
-  IconCreditCard,
   IconPackage,
 } from "@tabler/icons-react";
 import { DARK_COLOR } from "@utils/constants";
@@ -174,10 +174,9 @@ export function Orders() {
                         </Group>
 
                         <Group gap="xs">
-                          <IconCreditCard
-                            size={16}
-                            color="var(--mantine-color-gray-6)"
-                          />
+                          <span style={{ fontSize: '1.2em' }}>
+                            {getPaymentMethodIcon(order.paymentMethodType)}
+                          </span>
                           <Text size="sm">
                             {getPaymentMethodText(order.paymentMethodType)}
                           </Text>

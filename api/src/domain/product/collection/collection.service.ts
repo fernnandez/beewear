@@ -150,7 +150,7 @@ export class CollectionService {
       where: { active: true },
     });
 
-    return collections.map(collection => ({
+    return collections.map((collection) => ({
       publicId: collection.publicId,
       name: collection.name,
       active: collection.active,

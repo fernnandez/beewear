@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Group,
-  Paper,
   Radio,
   rem,
   Stack,
@@ -29,10 +28,10 @@ interface AddressSectionProps {
   onAddressSelectFull?: (address: AddressType | null) => void;
 }
 
-export function AddressSection({ 
-  selectedAddress, 
-  onAddressSelect, 
-  onAddressSelectFull 
+export function AddressSection({
+  selectedAddress,
+  onAddressSelect,
+  onAddressSelectFull,
 }: AddressSectionProps) {
   const queryClient = useQueryClient();
   const { colorScheme } = useMantineColorScheme();
@@ -98,14 +97,7 @@ export function AddressSection({
   };
 
   return (
-    <Paper
-      p="xl"
-      radius="md"
-      style={{
-        border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
-        backgroundColor: isDark ? "#212529" : "white",
-      }}
-    >
+    <>
       <Group justify="space-between" mb="md">
         <Title order={2} fw={700} size={rem(24)}>
           Meus Endereços
@@ -216,6 +208,6 @@ export function AddressSection({
         initialData={editingAddress || undefined}
         isEditing={!!editingAddress}
       />
-    </Paper>
+    </>
   );
 }

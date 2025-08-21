@@ -1,5 +1,6 @@
 export { CreateOrderDto } from './create-order.dto';
 export { CreateOrderItemDto } from './create-order-item.dto';
+export { ConfirmOrderDto } from './confirm-order.dto';
 export { OrderResponseDto } from './order-response.dto';
 export { OrderListResponseDto } from './order-list-response.dto';
 export { OrderItemResponseDto } from './order-item-response.dto';

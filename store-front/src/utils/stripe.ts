@@ -4,7 +4,7 @@ export const STRIPE_CONFIG = {
   PUBLISHABLE_KEY: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
 
   // URLs de redirecionamento
-  SUCCESS_URL: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+  SUCCESS_URL: `${window.location.origin}/checkout/success`,
   CANCEL_URL: `${window.location.origin}/checkout`,
 
   // Configurações básicas para Portugal

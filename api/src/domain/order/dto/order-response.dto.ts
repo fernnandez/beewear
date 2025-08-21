@@ -8,7 +8,6 @@ export class OrderResponseDto {
   shippingCost: number;
   shippingAddress: string;
   paymentMethodType: string;
-  paymentMethodName: string;
   paymentStatus: string;
   notes?: string;
   items: OrderItemResponseDto[];

@@ -1,256 +1,262 @@
-import { useAuth } from "@contexts/auth-context";
-import { useCart } from "@contexts/cart-context";
-import {
-  Alert,
-  Box,
-  Button,
-  Container,
-  Divider,
-  LoadingOverlay,
-  Paper,
-  Stack,
-  Text,
-  Title,
-  useMantineColorScheme,
-} from "@mantine/core";
-import api from "@services/api";
-import { IconAlertCircle, IconCheck, IconPackage } from "@tabler/icons-react";
-import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
-
-interface Order {
-  publicId: string;
-  totalAmount: number;
-  status: string;
-  createdAt: string;
-}
+import { useNavigate, useLocation } from "react-router";
+import {
+  Container,
+  Paper,
+  Title,
+  Text,
+  Button,
+  Stack,
+  Alert,
+  Group,
+  LoadingOverlay,
+  Center,
+} from "@mantine/core";
+import { IconCheck, IconAlertCircle, IconArrowRight } from "@tabler/icons-react";
+import { useOrderConfirmation } from "@hooks/useOrders";
+import { DARK_COLOR } from "@utils/constants";
+import { useMantineColorScheme } from "@mantine/core";
 
 export function CheckoutSuccess() {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
-  const { user, isLoading: authLoading } = useAuth();
-  const { clearCart } = useCart();
-  const [searchParams] = useSearchParams();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [hasChecked, setHasChecked] = useState(false);
-
+  // Extrair parâmetros da URL manualmente
+  const searchParams = new URLSearchParams(location.search);
+  const orderId = searchParams.get("orderId");
   const sessionId = searchParams.get("session_id");
 
+  // Usar o hook de confirmação de pedidos
+  const {
+    isConfirming,
+    confirmationError,
+    orderConfirmed,
+    confirmOrderAfterCheckout,
+    checkOrderStatus,
+    resetConfirmationState,
+  } = useOrderConfirmation();
+
+  // Estado local para controlar a UI
+  const [hasAttemptedConfirmation, setHasAttemptedConfirmation] = useState(false);
+
   useEffect(() => {
-    const checkOrderStatus = async (sessionId: string) => {
-      try {
-        setIsLoading(true);
-        setError(null);
+    console.log("🎯 CheckoutSuccess montado com:", { orderId, sessionId });
 
-        // Verificar diretamente na Stripe se o pagamento foi aprovado
-        const response = await api.get(`/payments/verify-payment/${sessionId}`);
-
-        if (response.data.success && response.data.paymentStatus === "paid") {
-          const orderData = response.data.order;
-          if (orderData) {
-            setOrder({
-              publicId: orderData.publicId || "N/A",
-              totalAmount: orderData.totalAmount,
-              status: orderData.status || "PENDING",
-              createdAt: orderData.createdAt || new Date().toISOString(),
-            });
-
-            // ✅ Limpar carrinho apenas uma vez após sucesso
-            clearCart();
-          } else {
-            setError("Dados do pedido não encontrados");
-          }
-        } else if (response.data.alreadyExists) {
-          // ✅ Pedido já existe, não é erro
-          const orderData = response.data.order;
-          setOrder({
-            publicId: orderData.publicId || "N/A",
-            totalAmount: orderData.totalAmount,
-            status: orderData.status || "PENDING",
-            createdAt: orderData.createdAt || new Date().toISOString(),
-          });
-          clearCart();
-        } else {
-          setError(
-            "Pagamento não foi aprovado. Verifique o status na sua conta Stripe."
-          );
-        }
-      } catch (error: unknown) {
-        if (error instanceof AxiosError && error.response?.status === 404) {
-          setError(
-            "Sessão não encontrada. Verifique se o pagamento foi processado."
-          );
-        } else {
-          setError(
-            "Erro ao verificar status do pagamento. Tente novamente em alguns instantes."
-          );
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // ✅ Só executar depois da autenticação estar completa
-    if (authLoading) {
-      return; // Aguardar autenticação
+    if (orderId && sessionId) {
+      // Tentar confirmar o pedido automaticamente
+      handleAutomaticConfirmation();
+    } else if (orderId) {
+      // Se não tiver sessionId, apenas verificar o status
+      handleStatusCheck();
     }
+  }, [orderId, sessionId]);
 
-    if (!user) {
-      setError("Usuário não autenticado");
-      setIsLoading(false);
-      return;
+  const handleAutomaticConfirmation = async () => {
+    if (!orderId || !sessionId) return;
+
+    console.log("🔄 Tentando confirmação automática...");
+    setHasAttemptedConfirmation(true);
+
+    const result = await confirmOrderAfterCheckout(orderId, sessionId);
+    
+    if (result?.success) {
+      console.log("✅ Confirmação automática bem-sucedida!");
+    } else {
+      console.log("⚠️ Confirmação automática falhou, tentando verificar status...");
+      // Se a confirmação falhar, tentar verificar o status
+      await checkOrderStatus(orderId);
     }
+  };
 
-    if (sessionId && !hasChecked) {
-      // ✅ Marcar como verificado para evitar múltiplas chamadas
-      setHasChecked(true);
-      checkOrderStatus(sessionId);
-    } else if (!sessionId) {
-      setError("ID da sessão não encontrado");
-      setIsLoading(false);
+  const handleStatusCheck = async () => {
+    if (!orderId) return;
+
+    console.log("🔍 Verificando status do pedido...");
+    setHasAttemptedConfirmation(true);
+
+    await checkOrderStatus(orderId);
+  };
+
+  const handleManualConfirmation = async () => {
+    if (!orderId || !sessionId) return;
+
+    console.log("🔄 Tentando confirmação manual...");
+    const result = await confirmOrderAfterCheckout(orderId, sessionId);
+    
+    if (result?.success) {
+      console.log("✅ Confirmação manual bem-sucedida!");
     }
-  }, [sessionId, hasChecked, authLoading, user]); // ✅ Removido clearCart das dependências
+  };
 
-  if (authLoading || isLoading) {
+  const handleRetry = () => {
+    resetConfirmationState();
+    setHasAttemptedConfirmation(false);
+    
+    if (orderId && sessionId) {
+      handleAutomaticConfirmation();
+    } else if (orderId) {
+      handleStatusCheck();
+    }
+  };
+
+  const handleContinueShopping = () => {
+    navigate("/");
+  };
+
+  const handleViewOrder = () => {
+    if (orderId) {
+      navigate(`/account/orders/${orderId}`);
+    }
+  };
+
+  // Renderizar loading enquanto está confirmando
+  if (isConfirming && !hasAttemptedConfirmation) {
     return (
-      <Container size="md" py="xl">
-        <Paper
-          p="xl"
-          radius="md"
-          style={{
-            border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
-            backgroundColor: isDark ? "#212529" : "white",
-          }}
-          pos="relative"
-        >
+      <Container size="sm" py="xl">
+        <Center>
           <LoadingOverlay visible={true} />
-          <Text ta="center">
-            {authLoading
-              ? "Carregando autenticação..."
-              : "Verificando status do pedido..."}
-          </Text>
-        </Paper>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container size="md" py="xl">
-        <Paper
-          p="xl"
-          radius="md"
-          style={{
-            border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
-            backgroundColor: isDark ? "#212529" : "white",
-          }}
-        >
-          <Stack gap="lg" align="center">
-            <IconAlertCircle size={48} color="#fa5252" />
-            <Title order={2} ta="center" c="red">
-              {error === "Usuário não autenticado"
-                ? "Acesso Negado"
-                : "Pedido em Processamento"}
-            </Title>
-            <Alert color="yellow" title="Aguarde" variant="light">
-              <Text size="sm">{error}</Text>
-            </Alert>
-            {error !== "Usuário não autenticado" && (
-              <>
-                <Text size="sm" c="dimmed" ta="center">
-                  O webhook da Stripe pode levar alguns minutos para processar o
-                  pagamento e criar o pedido.
-                </Text>
-                <Box>
-                  <Text size="sm" fw={600}>
-                    ID da Sessão: {sessionId}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    Guarde este ID para referência
-                  </Text>
-                </Box>
-              </>
-            )}
-          </Stack>
-        </Paper>
-      </Container>
-    );
-  }
-
-  if (!order) {
-    return (
-      <Container size="md" py="xl">
-        <Paper
-          p="xl"
-          radius="md"
-          style={{
-            border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
-            backgroundColor: isDark ? "#212529" : "white",
-          }}
-        >
-          <Stack gap="lg" align="center">
-            <IconPackage size={48} color="#228be6" />
-            <Title order={2} ta="center">
-              Pedido Não Encontrado
-            </Title>
-            <Text size="sm" c="dimmed" ta="center">
-              Não foi possível encontrar o pedido para esta sessão.
-            </Text>
-            <Text size="sm" c="dimmed" ta="center">
-              Verifique se você está logado e se a sessão é válida.
-            </Text>
-          </Stack>
-        </Paper>
+        </Center>
       </Container>
     );
   }
 
   return (
-    <Container size="md" py="xl">
-      <Paper
-        p="xl"
-        radius="md"
-        style={{
-          border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
-          backgroundColor: isDark ? "#212529" : "white",
-        }}
-      >
-        <Stack gap="xl">
-          {/* Header de Sucesso */}
-          <Stack gap="md" align="center">
-            <IconCheck size={64} color="#40c057" />
-            <Title order={1} ta="center" c="green">
-              Pagamento Confirmado!
+    <Container size="sm" py="xl">
+      <Stack gap="xl">
+        {/* Header de Sucesso */}
+        <Paper
+          p="xl"
+          radius="lg"
+          style={{ backgroundColor: isDark ? DARK_COLOR : "white" }}
+          withBorder
+        >
+          <Stack gap="md" align="center" ta="center">
+            <div style={{ fontSize: "4rem" }}>🎉</div>
+            <Title order={1} size="h2">
+              Checkout Concluído!
             </Title>
-            <Text size="lg" c="dimmed" ta="center">
+            <Text size="lg" c="dimmed">
               Seu pedido foi processado com sucesso
             </Text>
           </Stack>
+        </Paper>
 
-          <Divider />
+        {/* Status da Confirmação */}
+        {hasAttemptedConfirmation && (
+          <Paper
+            p="xl"
+            radius="lg"
+            style={{ backgroundColor: isDark ? DARK_COLOR : "white" }}
+            withBorder
+          >
+            <Stack gap="md">
+              {orderConfirmed ? (
+                <Alert
+                  icon={<IconCheck size={16} />}
+                  title="Pedido Confirmado!"
+                  color="green"
+                  variant="light"
+                >
+                  <Text>
+                    Seu pedido foi confirmado e está sendo processado. 
+                    Você receberá atualizações por email.
+                  </Text>
+                </Alert>
+              ) : confirmationError ? (
+                <Alert
+                  icon={<IconAlertCircle size={16} />}
+                  title="Atenção"
+                  color="yellow"
+                  variant="light"
+                >
+                  <Text>{confirmationError}</Text>
+                </Alert>
+              ) : null}
 
-          {/* Detalhes do Pedido */}
-          <Button onClick={() => navigate(`/account/orders/${order.publicId}`)}>
-            Ver Detalhes do pedido
-          </Button>
+              {/* Botões de Ação */}
+              <Group justify="center" gap="md">
+                {!orderConfirmed && (
+                  <>
+                    <Button
+                      onClick={handleManualConfirmation}
+                      loading={isConfirming}
+                      disabled={!sessionId}
+                      variant="filled"
+                      color="blue"
+                    >
+                      Tentar Confirmar Novamente
+                    </Button>
+                    <Button
+                      onClick={handleRetry}
+                      variant="outline"
+                      disabled={isConfirming}
+                    >
+                      Verificar Status
+                    </Button>
+                  </>
+                )}
+              </Group>
+            </Stack>
+          </Paper>
+        )}
 
-          <Divider />
+        {/* Informações do Pedido */}
+        {orderId && (
+          <Paper
+            p="xl"
+            radius="lg"
+            style={{ backgroundColor: isDark ? DARK_COLOR : "white" }}
+            withBorder
+          >
+            <Stack gap="md">
+              <Title order={3}>Informações do Pedido</Title>
+              <Text>
+                <strong>ID do Pedido:</strong> {orderId}
+              </Text>
+              {sessionId && (
+                <Text>
+                  <strong>Session ID:</strong> {sessionId}
+                </Text>
+              )}
+            </Stack>
+          </Paper>
+        )}
 
-          {/* Informações Adicionais */}
-          <Alert color="blue" title="Próximos Passos" variant="light">
-            <Text size="sm">
-              • Você receberá um email de confirmação em breve • O pedido será
-              processado e enviado conforme prazo • Para dúvidas, entre em
-              contato com nosso suporte
-            </Text>
-          </Alert>
-        </Stack>
-      </Paper>
+        {/* Botões de Navegação */}
+        <Paper
+          p="xl"
+          radius="lg"
+          style={{ backgroundColor: isDark ? DARK_COLOR : "white" }}
+          withBorder
+        >
+          <Stack gap="md">
+            <Title order={3}>Próximos Passos</Title>
+            
+            <Group gap="md" justify="center">
+              {orderConfirmed && (
+                <Button
+                  onClick={handleViewOrder}
+                  variant="filled"
+                  color="blue"
+                  rightSection={<IconArrowRight size={16} />}
+                >
+                  Ver Pedido
+                </Button>
+              )}
+              
+              <Button
+                onClick={handleContinueShopping}
+                variant="outline"
+                rightSection={<IconArrowRight size={16} />}
+              >
+                Continuar Comprando
+              </Button>
+            </Group>
+          </Stack>
+        </Paper>
+      </Stack>
     </Container>
   );
 }

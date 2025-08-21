@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Post,
-  Req,
 } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 
@@ -20,18 +19,9 @@ export class StripeController {
 
   // Endpoint para verificar status do pagamento
   @Get('verify-payment/:sessionId')
-  async verifyPayment(@Req() req: any, @Param('sessionId') sessionId: string) {
+  async verifyPayment(@Param('sessionId') sessionId: string) {
     try {
-      const userId = req.user.userId;
-
-      if (!userId) {
-        throw new BadRequestException('Usuário não autenticado');
-      }
-
-      const result = await this.stripeService.verifyPaymentStatus(
-        userId,
-        sessionId,
-      );
+      const result = await this.stripeService.verifyPaymentStatus(sessionId);
       return result;
     } catch (error) {
       console.error('❌ Erro ao verificar pagamento:', error);
