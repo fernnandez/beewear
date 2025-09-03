@@ -9,6 +9,8 @@ import ProductDetailPage from "@pages/product/ProductDetails";
 import ProductsPage from "@pages/product/ProductsPage";
 import { RegisterPage } from "@pages/register/Register";
 import ReportsPage from "@pages/reports/ReportsPage";
+import OrderDetailPage from "@pages/order/OrderDetails";
+import OrdersPage from "@pages/order/OrdersPage";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@utils/queryClient";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -74,6 +76,22 @@ function App() {
           element={
             <ProtectedRoute>
               <CollectionDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <OrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders/:publicId"
+          element={
+            <ProtectedRoute>
+              <OrderDetailPage />
             </ProtectedRoute>
           }
         />

@@ -22,7 +22,7 @@ items:
     size: "L"
     productVariation: "@variation_camiseta_fem_branca"
     createdAt: "2024-01-08T13:01:00Z"
-    updatedAt: "2024-01-08T13:01:00Z"
+    updatedAt: "2024-01-01T10:00:00Z"
 
   size_camiseta_fem_m_preta:
     id: 302

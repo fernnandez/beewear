@@ -16,8 +16,8 @@ export function setupIntegrationMocks() {
 
       // Injetar um usuário mockado no request
       request.user = {
-        id: 'mock-test-user-id',
-        email: 'mock.user@example.com',
+        id: 1, // ID do user_admin das fixtures
+        email: 'email@example.com', // Email do user_admin
         roles: ['admin', 'user'], // Garanta que as roles esperadas estejam aqui
         // Adicione outras propriedades de usuário que sua aplicação espera em req.user
       } as any; // Usar 'as any' para flexibilidade com a tipagem de req.user

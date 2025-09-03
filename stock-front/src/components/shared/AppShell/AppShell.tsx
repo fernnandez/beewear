@@ -21,6 +21,7 @@ import {
   IconFolder,
   IconLogout,
   IconMoon,
+  IconReceipt,
   IconReportAnalytics,
   IconShoppingCart,
   IconSun,
@@ -127,6 +128,14 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
             leftSection={<IconReportAnalytics size="1.5rem" />}
             rightSection={<IconChevronRight size="1rem" />}
             active={isActive("/reports")}
+          />
+          <NavLink
+            component={Link}
+            to="/orders"
+            label="Pedidos"
+            leftSection={<IconReceipt size="1.5rem" />}
+            rightSection={<IconChevronRight size="1rem" />}
+            active={isActive("/orders")}
           />
           <NavLink
             component={Link}

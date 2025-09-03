@@ -1,0 +1,50 @@
+# test/fixtures/order-item.fixture.yml
+entity: OrderItem
+items:
+  # Item do pedido com cartão de crédito
+  order_item_credit_card:
+    id: 1
+    order: "@order_credit_card"
+    productName: "Camiseta Básica Algodão Feminina"
+    variationName: "Variação Azul"
+    color: "#0000FF"
+    size: "M"
+    image: "https://example.com/camiseta_azul.jpg"
+    quantity: 2
+    unitPrice: 89.99
+    totalPrice: 179.98
+    productVariationSizePublicId: "test-size-orders-123"
+    createdAt: "2024-01-10T10:00:00Z"
+    updatedAt: "2024-01-10T10:00:00Z"
+
+  # Item do pedido com PIX
+  order_item_pix:
+    id: 2
+    order: "@order_pix"
+    productName: "Camiseta Básica Algodão Feminina"
+    variationName: "Variação Azul"
+    color: "#0000FF"
+    size: "M"
+    image: "https://example.com/camiseta_azul.jpg"
+    quantity: 1
+    unitPrice: 89.99
+    totalPrice: 89.99
+    productVariationSizePublicId: "test-size-orders-123"
+    createdAt: "2024-01-10T11:00:00Z"
+    updatedAt: "2024-01-10T11:00:00Z"
+
+  # Item do pedido confirmado
+  order_item_confirmed:
+    id: 3
+    order: "@order_confirmed"
+    productName: "Calça Jeans Masculina Slim Fit"
+    variationName: "Variação Verde"
+    color: "#00FF00"
+    size: "L"
+    image: "https://example.com/jeans_verde.jpg"
+    quantity: 3
+    unitPrice: 99.99
+    totalPrice: 299.97
+    productVariationSizePublicId: "test-size-confirmed-456"
+    createdAt: "2024-01-09T09:00:00Z"
+    updatedAt: "2024-01-09T09:00:00Z"

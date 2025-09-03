@@ -7,7 +7,7 @@ const config: Config = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverage: true,
+  collectCoverage: false,
   coverageDirectory: './coverage',
   coverageReporters: ['lcov', 'json-summary', 'json', 'text'],
   collectCoverageFrom: ['src/**/*.(t|j)s'],

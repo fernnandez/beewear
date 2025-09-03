@@ -9,15 +9,16 @@ import { StripeService } from '../../infra/payment/stripe.service';
 import { ProductVariationService } from '../product/productVariation/product-variation.service';
 import { StockService } from '../product/stock/stock.service';
 import { User } from '../user/user.entity';
+
+import { CreateOrderDto } from './dto/create-order.dto';
+import { OrderItemResponseDto } from './dto/order-item-response.dto';
+import { OrderListResponseDto } from './dto/order-list-response.dto';
+import { OrderResponseDto } from './dto/order-response.dto';
 import {
-  CreateOrderDto,
-  OrderItemResponseDto,
-  OrderListResponseDto,
-  OrderResponseDto,
-  ValidateStockDto,
   ValidateStockItemResponseDto,
   ValidateStockResponseDto,
-} from './dto';
+} from './dto/validate-stock-response.dto';
+import { ValidateStockDto } from './dto/validate-stock.dto';
 import { OrderStatus } from './enums/order-status.enum';
 import { OrderItem } from './order-item.entity';
 import { Order } from './order.entity';
@@ -55,7 +56,16 @@ export class OrderService {
   async findOrdersByUserId(userId: number): Promise<OrderListResponseDto[]> {
     const orders = await this.orderRepo.find({
       where: { user: { id: userId } },
-      relations: ['items'],
+      relations: ['items', 'user'],
+      order: { createdAt: 'DESC' },
+    });
+
+    return orders.map((order) => this.mapToListResponseDto(order));
+  }
+
+  async findAllOrders(): Promise<OrderListResponseDto[]> {
+    const orders = await this.orderRepo.find({
+      relations: ['items', 'user'],
       order: { createdAt: 'DESC' },
     });
 
@@ -119,7 +129,7 @@ export class OrderService {
         variationName: productVariationSize.productVariation.name,
         color: productVariationSize.productVariation.color,
         size: productVariationSize.size.toString(),
-        image: productVariationSize.productVariation.images[0],
+        image: productVariationSize.productVariation.images?.[0] || null,
         quantity: item.quantity,
         price: itemPrice,
         totalPrice: itemTotal,
@@ -185,7 +195,7 @@ export class OrderService {
       });
 
       if (!pendingOrder) {
-        throw new NotFoundException('Pedido não encontrado para confirmação');
+        throw new NotFoundException('Pedido não encontrado');
       }
 
       if (this.isPaymentSuccessful(stripeSession)) {
@@ -282,7 +292,13 @@ export class OrderService {
           item.productVariationSizePublicId,
         );
 
-      const availableQuantity = stockItem?.quantity || 0;
+      if (!stockItem) {
+        throw new BadRequestException(
+          `Produto não encontrado: ${item.productVariationSizePublicId}`,
+        );
+      }
+
+      const availableQuantity = stockItem.quantity;
       const isItemAvailable = availableQuantity >= item.quantity;
       const itemPrice = productVariationSize.productVariation.price;
       const itemTotal = itemPrice * item.quantity;
@@ -339,7 +355,7 @@ export class OrderService {
 
         if (!stockItem) {
           throw new BadRequestException(
-            `Item de estoque não encontrado para: ${item.productVariationSizePublicId}`,
+            `Produto não encontrado: ${item.productVariationSizePublicId}`,
           );
         }
 
@@ -419,31 +435,7 @@ export class OrderService {
           `❌ Erro ao reservar estoque para ${item.productVariationSizePublicId}:`,
           error,
         );
-        // Rollback: restaurar estoque para itens já reservados
-        for (const reserved of reservedItems) {
-          try {
-            // Buscar o item de estoque pelo publicId usando o repositório
-            const stockItem =
-              await this.stockService.findStockItemByProductVariationSize(
-                item.productVariationSizePublicId,
-              );
-            if (stockItem) {
-              await this.stockService.adjustStock(
-                reserved.publicId,
-                reserved.quantity, // Quantidade positiva para entrada
-                `Rollback - Reserva falhou - ${item.productVariationSizePublicId}`,
-              );
-              console.log(
-                `✅ Estoque restaurado para ${reserved.publicId}: +${reserved.quantity} unidades (rollback)`,
-              );
-            }
-          } catch (rollbackError) {
-            console.error(
-              `❌ Erro ao restaurar estoque para ${reserved.publicId} (rollback):`,
-              rollbackError,
-            );
-          }
-        }
+
         throw error; // Re-throw para interromper a criação do pedido
       }
     }
@@ -465,22 +457,15 @@ export class OrderService {
       }
 
       try {
-        const stockItem =
-          await this.stockService.findStockItemByProductVariationSize(
-            item.productVariationSizePublicId,
-          );
+        await this.stockService.adjustStock(
+          item.productVariationSizePublicId,
+          item.quantity, // Quantidade positiva para entrada
+          `Cancelamento - Pedido cancelado - ${item.productName} (${item.variationName}, ${item.size})`,
+        );
 
-        if (stockItem) {
-          await this.stockService.adjustStock(
-            stockItem.publicId,
-            item.quantity, // Quantidade positiva para entrada
-            `Cancelamento - Pedido cancelado - ${item.productName} (${item.variationName}, ${item.size})`,
-          );
-
-          console.log(
-            `✅ Estoque restaurado para ${item.productName}: +${item.quantity} unidades`,
-          );
-        }
+        console.log(
+          `✅ Estoque restaurado para ${item.productName}: +${item.quantity} unidades`,
+        );
       } catch (error) {
         console.error(
           `❌ Erro ao restaurar estoque para item ${item.productName}:`,
@@ -524,6 +509,11 @@ export class OrderService {
       totalItems,
       paymentMethodType: order.paymentMethodType,
       paymentStatus: order.paymentStatus,
+      user: {
+        id: order.user.id,
+        name: order.user.name,
+        email: order.user.email,
+      },
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     };

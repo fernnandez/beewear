@@ -1,16 +1,26 @@
-import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
 import {
-  ConfirmOrderDto,
-  CreateOrderDto,
-  OrderListResponseDto,
-  OrderResponseDto,
-  ValidateStockDto,
-  ValidateStockResponseDto,
-} from './dto';
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Request,
+} from '@nestjs/common';
+
 import { OrderService } from './order.service';
 
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../infra/auth/decorator/public.decorator';
+import { ConfirmOrderDto } from './dto/confirm-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { OrderListResponseDto } from './dto/order-list-response.dto';
+import { OrderResponseDto } from './dto/order-response.dto';
+import { ValidateStockResponseDto } from './dto/validate-stock-response.dto';
+import { ValidateStockDto } from './dto/validate-stock.dto';
 
+@ApiBearerAuth('access-token')
+@ApiTags('Orders')
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -20,6 +30,11 @@ export class OrderController {
     @Request() req: any,
   ): Promise<OrderListResponseDto[]> {
     return this.orderService.findOrdersByUserId(req.user.id);
+  }
+
+  @Get()
+  async findAllOrders(): Promise<OrderListResponseDto[]> {
+    return this.orderService.findAllOrders();
   }
 
   @Get(':publicId')
@@ -43,6 +58,7 @@ export class OrderController {
   }
 
   @Post('confirm/:publicId')
+  @HttpCode(200)
   async confirmOrder(
     @Request() req: any,
     @Param('publicId') publicId: string,

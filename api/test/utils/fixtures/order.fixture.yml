@@ -1,0 +1,47 @@
+# test/fixtures/order.fixture.yml
+entity: Order
+items:
+  # Pedido com cartão de crédito
+  order_credit_card:
+    id: 1
+    publicId: "550e8400-e29b-41d4-a716-446655440000"
+    user: "@user_admin"
+    status: "PENDING"
+    totalAmount: 179.98
+    shippingCost: 0
+    shippingAddress: "Rua Teste 1, 123 - Bairro Teste 1, Cidade Teste 1"
+    paymentMethodType: "CREDIT_CARD"
+    paymentStatus: "PENDING"
+    notes: "Primeiro pedido de teste"
+    createdAt: "2024-01-10T10:00:00Z"
+    updatedAt: "2024-01-10T10:00:00Z"
+
+  # Pedido com PIX
+  order_pix:
+    id: 2
+    publicId: "550e8400-e29b-41d4-a716-446655440001"
+    user: "@user_regular"
+    status: "PENDING"
+    totalAmount: 89.99
+    shippingCost: 0
+    shippingAddress: "Rua Teste 2, 456 - Bairro Teste 2, Cidade Teste 2"
+    paymentMethodType: "PIX"
+    paymentStatus: "PENDING"
+    notes: "Segundo pedido de teste"
+    createdAt: "2024-01-10T11:00:00Z"
+    updatedAt: "2024-01-10T11:00:00Z"
+
+  # Pedido confirmado
+  order_confirmed:
+    id: 3
+    publicId: "550e8400-e29b-41d4-a716-446655440002"
+    user: "@user_admin"
+    status: "CONFIRMED"
+    totalAmount: 299.97
+    shippingCost: 10.00
+    shippingAddress: "Rua Teste 3, 789 - Bairro Teste 3, Cidade Teste 3"
+    paymentMethodType: "BANK_TRANSFER"
+    paymentStatus: "PAID"
+    notes: "Pedido confirmado de teste"
+    createdAt: "2024-01-09T09:00:00Z"
+    updatedAt: "2024-01-09T09:00:00Z"

@@ -7,6 +7,11 @@ export class OrderListResponseDto {
   totalItems: number;
   paymentMethodType: string;
   paymentStatus: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
