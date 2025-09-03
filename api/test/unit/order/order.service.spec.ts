@@ -11,7 +11,7 @@ import { OrderService } from '../../../src/domain/order/order.service';
 import { ProductVariationService } from '../../../src/domain/product/productVariation/product-variation.service';
 import { StockService } from '../../../src/domain/product/stock/stock.service';
 import { User } from '../../../src/domain/user/user.entity';
-import { StripeService } from '../../../src/infra/payment/stripe.service';
+import { PaymentProvider } from 'src/integration/payment/payment.interface';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -39,8 +39,9 @@ describe('OrderService', () => {
     adjustStock: jest.fn(),
   };
 
-  const mockStripeService = {
+  const mockPaymentProvider = {
     verifyPaymentStatus: jest.fn(),
+    createCheckoutSession: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -70,8 +71,8 @@ describe('OrderService', () => {
           useValue: mockStockService,
         },
         {
-          provide: StripeService,
-          useValue: mockStripeService,
+          provide: 'PaymentProvider',
+          useValue: mockPaymentProvider,
         },
       ],
     }).compile();
@@ -307,7 +308,7 @@ describe('OrderService', () => {
         stripeSessionId: 'session-123',
       };
 
-      mockStripeService.verifyPaymentStatus.mockResolvedValue(
+      mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
         mockStripeSession,
       );
       mockOrderRepo.findOne.mockResolvedValue(mockOrder);
@@ -315,7 +316,7 @@ describe('OrderService', () => {
 
       const result = await service.confirmOrder(1, 'order-1', 'session-123');
 
-      expect(mockStripeService.verifyPaymentStatus).toHaveBeenCalledWith(
+      expect(mockPaymentProvider.verifyPaymentStatus).toHaveBeenCalledWith(
         'session-123',
       );
       expect(mockOrderRepo.findOne).toHaveBeenCalledWith({
@@ -346,7 +347,7 @@ describe('OrderService', () => {
         notes: expect.stringContaining('Pedido cancelado'),
       };
 
-      mockStripeService.verifyPaymentStatus.mockResolvedValue(
+      mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
         mockStripeSession,
       );
       mockOrderRepo.findOne.mockResolvedValue(mockOrder);
@@ -364,7 +365,7 @@ describe('OrderService', () => {
 
     it('should throw NotFoundException when order not found', async () => {
       const mockStripeSession = { success: true };
-      mockStripeService.verifyPaymentStatus.mockResolvedValue(
+      mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
         mockStripeSession,
       );
       mockOrderRepo.findOne.mockResolvedValue(null);
@@ -552,7 +553,7 @@ describe('OrderService', () => {
           stripeSessionId: 'session-123',
         };
 
-        mockStripeService.verifyPaymentStatus.mockResolvedValue(
+        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
           mockStripeSession,
         );
         mockOrderRepo.save.mockResolvedValue(mockConfirmedOrder);
@@ -562,7 +563,7 @@ describe('OrderService', () => {
           'session-123',
         );
 
-        expect(mockStripeService.verifyPaymentStatus).toHaveBeenCalledWith(
+        expect(mockPaymentProvider.verifyPaymentStatus).toHaveBeenCalledWith(
           'session-123',
         );
         expect(mockOrderRepo.save).toHaveBeenCalled();
@@ -893,7 +894,7 @@ describe('OrderService', () => {
     describe('confirmOrder error handling', () => {
       it('should handle stripe session verification failure', async () => {
         const mockStripeSession = { success: false };
-        mockStripeService.verifyPaymentStatus.mockResolvedValue(
+        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
           mockStripeSession,
         );
 
@@ -903,7 +904,7 @@ describe('OrderService', () => {
       });
 
       it('should handle stripe service error', async () => {
-        mockStripeService.verifyPaymentStatus.mockRejectedValue(
+        mockPaymentProvider.verifyPaymentStatus.mockRejectedValue(
           new Error('Stripe service error'),
         );
 
@@ -920,7 +921,7 @@ describe('OrderService', () => {
           status: 'open',
           paymentDetails: { method: 'card' },
         };
-        mockStripeService.verifyPaymentStatus.mockResolvedValue(
+        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
           mockPendingSession,
         );
         mockOrderRepo.findOne.mockResolvedValue({
@@ -942,7 +943,7 @@ describe('OrderService', () => {
           status: 'expired',
           paymentDetails: null,
         };
-        mockStripeService.verifyPaymentStatus.mockResolvedValue(
+        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
           mockErrorSession,
         );
         mockOrderRepo.findOne.mockResolvedValue({

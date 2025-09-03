@@ -12,7 +12,9 @@ import { Order } from 'src/domain/order/order.entity';
 import { ProductVariationSize } from 'src/domain/product/productVariation/product-variation-size.entity';
 import { StockItem } from 'src/domain/product/stock/stock-item.entity';
 import { User } from 'src/domain/user/user.entity';
-import { StripeService } from 'src/infra/payment/stripe.service';
+
+import { PaymentProvider } from 'src/integration/payment/payment.interface';
+
 import { createTestingApp } from 'test/utils/create-testing-app';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
 import { setupIntegrationMocks } from 'test/utils/mocks/setup-mocks';
@@ -25,7 +27,7 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
   let stockItemRepo: Repository<StockItem>;
   let productVariationSizeRepo: Repository<ProductVariationSize>;
   let userRepo: Repository<User>;
-  let stripeService: StripeService;
+  let paymentService: PaymentProvider;
 
   beforeAll(async () => {
     app = await createTestingApp({
@@ -46,7 +48,7 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
       getRepositoryToken(ProductVariationSize),
     );
     userRepo = app.get<Repository<User>>(getRepositoryToken(User));
-    stripeService = app.get<StripeService>(StripeService);
+    paymentService = app.get<PaymentProvider>('PaymentProvider');
   });
 
   afterAll(async () => {
@@ -349,9 +351,9 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
           shippingAddress: null,
         };
 
-        // Mock do StripeService usando o service injetado
+        // Mock do PaymentService usando o service injetado
         jest
-          .spyOn(stripeService, 'verifyPaymentStatus')
+          .spyOn(paymentService, 'verifyPaymentStatus')
           .mockResolvedValue(mockStripeSession);
 
         const response = await request(app.getHttpServer())
@@ -369,8 +371,8 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
     it(
       'should fail to confirm non-existent order',
       runWithRollbackTransaction(async () => {
-        // Mock do StripeService usando o service injetado
-        jest.spyOn(stripeService, 'verifyPaymentStatus').mockResolvedValue({
+        // Mock do PaymentService usando o service injetado
+        jest.spyOn(paymentService, 'verifyPaymentStatus').mockResolvedValue({
           success: true,
           sessionId: 'test-session-id-456',
           status: 'complete' as any,
@@ -392,7 +394,6 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
             id: 'cus_test_456',
             email: 'test@example.com',
             name: 'Test User',
-            phone: null,
           },
           billingAddress: null,
           shippingAddress: null,

@@ -1,36 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
-
-export interface CreateCheckoutSessionDto {
-  items: Array<{
-    name: string;
-    price: number;
-    quantity: number;
-    images?: string[];
-    productVariationSizePublicId: string;
-  }>;
-  shippingAddress: string;
-  successUrl: string;
-  cancelUrl: string;
-  customerEmail?: string;
-}
-
-export interface PaymentOrderData {
-  userId: number;
-  items: Array<{
-    name: string;
-    price: number;
-    quantity: number;
-    images?: string[];
-    productVariationSizePublicId: string;
-  }>;
-  shippingAddress: string;
-  totalAmount: number;
-  stripeSessionId: string;
-}
+import {
+  CreateCheckoutSessionDto,
+  PaymentProvider,
+  PaymentVerificationResult,
+} from './payment.interface';
 
 @Injectable()
-export class StripeService {
+export class StripeService implements PaymentProvider {
   private stripe: Stripe;
 
   // Configuração simplificada - a Stripe gerencia os métodos automaticamente
@@ -50,41 +27,37 @@ export class StripeService {
       productVariationSizePublicId: item.productVariationSizePublicId,
     }));
 
-    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
-      mode: 'payment',
-      line_items: data.items.map((item) => ({
+    const session = await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'], // Stripe gerencia automaticamente os métodos disponíveis
+      line_items: itemsMetadata.map((item) => ({
         price_data: {
           currency: this.CURRENCY,
           product_data: {
             name: item.name,
-            images: item.images || [],
+            images: item.images,
           },
-          unit_amount: Math.round(item.price * 100),
+          unit_amount: Math.round(item.price * 100), // Converter para centavos
         },
         quantity: item.quantity,
       })),
+      mode: 'payment',
       success_url: data.successUrl,
       cancel_url: data.cancelUrl,
       customer_email: data.customerEmail,
-
-      locale: 'pt',
-      billing_address_collection: 'required',
-      customer_creation: 'always',
-
       metadata: {
-        // POSSO ADICIONAR METADADOS AQUI
+        items: JSON.stringify(itemsMetadata),
       },
-    };
-
-    const session = await this.stripe.checkout.sessions.create(sessionConfig);
+    });
 
     return {
       id: session.id,
-      url: session.url,
+      url: session.url || '',
     };
   }
 
-  async verifyPaymentStatus(sessionId: string) {
+  async verifyPaymentStatus(
+    sessionId: string,
+  ): Promise<PaymentVerificationResult> {
     try {
       console.log(`🔄 Verificando status da sessão do Stripe: ${sessionId}`);
 
@@ -138,48 +111,32 @@ export class StripeService {
           id: customer.id,
           email: customer.email,
           name: customer.name,
-          phone: customer.phone,
         };
       }
 
       return {
         success: true,
+        status: session.status || 'unknown',
+        paymentStatus: session.payment_status || 'unknown',
         sessionId: session.id,
-        status: session.status,
-        paymentStatus: session.payment_status,
-        amountTotal: session.amount_total,
-        customerEmail: session.customer_email,
+        amountTotal: session.amount_total || undefined,
+        customerEmail: session.customer_email || undefined,
         metadata: session.metadata,
         createdAt: session.created,
         expiresAt: session.expires_at,
-        // Novas informações detalhadas
         paymentDetails,
         customerInfo,
-        // Informações de endereço
-        billingAddress:
-          session.billing_address_collection === 'required'
-            ? {
-                country: session.customer_details?.address?.country,
-                state: session.customer_details?.address?.state,
-                city: session.customer_details?.address?.city,
-                line1: session.customer_details?.address?.line1,
-                line2: session.customer_details?.address?.line2,
-                postalCode: session.customer_details?.address?.postal_code,
-              }
-            : null,
-        // Informações de envio
-        shippingAddress: session.shipping_address_collection
-          ? {
-              country: session.shipping_address_collection.allowed_countries,
-            }
-          : null,
+        billingAddress: session.customer_details?.address,
+        shippingAddress: undefined, // Stripe não expõe shipping_details diretamente
       };
     } catch (error) {
-      console.error(
-        `❌ Erro ao verificar status da sessão ${sessionId}:`,
-        error,
-      );
-      throw new Error('Erro ao verificar status da sessão do Stripe');
+      console.error('❌ Erro ao verificar pagamento:', error);
+      return {
+        success: false,
+        status: 'error',
+        paymentStatus: 'error',
+        error: error instanceof Error ? error.message : 'Erro desconhecido',
+      };
     }
   }
 }

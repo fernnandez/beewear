@@ -1,15 +1,16 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { StripeService } from '../../infra/payment/stripe.service';
 import { ProductVariationService } from '../product/productVariation/product-variation.service';
 import { StockService } from '../product/stock/stock.service';
 import { User } from '../user/user.entity';
 
+import { PaymentProvider } from 'src/integration/payment/payment.interface';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderItemResponseDto } from './dto/order-item-response.dto';
 import { OrderListResponseDto } from './dto/order-list-response.dto';
@@ -34,7 +35,8 @@ export class OrderService {
     private readonly userRepo: Repository<User>,
     private readonly productVariationService: ProductVariationService,
     private readonly stockService: StockService,
-    private readonly stripeService: StripeService,
+    @Inject('PaymentProvider')
+    private readonly paymentService: PaymentProvider,
   ) {}
 
   // SE TIVER COMO CAPTURAR O EVENTO QUE O USER FOI PRO CHECKOUT E NÃO FINALIZOU CHAMAR
@@ -181,7 +183,7 @@ export class OrderService {
     try {
       // Verificar sessão do Stripe
       const stripeSession =
-        await this.stripeService.verifyPaymentStatus(sessionId);
+        await this.paymentService.verifyPaymentStatus(sessionId);
 
       if (!stripeSession.success) {
         throw new Error('Erro ao verificar sessão do Stripe');
@@ -221,11 +223,11 @@ export class OrderService {
     stripeSessionId: string,
   ): Promise<OrderResponseDto> {
     const stripeSession =
-      await this.stripeService.verifyPaymentStatus(stripeSessionId);
+      await this.paymentService.verifyPaymentStatus(stripeSessionId);
 
     order.status = OrderStatus.CONFIRMED;
     order.paymentStatus = 'PAID';
-    order.paymentMethodType = stripeSession.paymentDetails.method;
+    order.paymentMethodType = stripeSession.paymentDetails?.method || 'unknown';
     order.stripeSessionId = stripeSessionId;
 
     const confirmedOrder = await this.orderRepo.save(order);

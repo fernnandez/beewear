@@ -3,25 +3,29 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Param,
   Post,
 } from '@nestjs/common';
-import { StripeService } from './stripe.service';
+import { PaymentProvider } from 'src/integration/payment/payment.interface';
 
 @Controller('payments')
-export class StripeController {
-  constructor(private readonly stripeService: StripeService) {}
+export class PaymentController {
+  constructor(
+    @Inject('PaymentProvider')
+    private readonly paymentService: PaymentProvider,
+  ) {}
 
   @Post('checkout')
   async createCheckoutSession(@Body() data: any) {
-    return this.stripeService.createCheckoutSession(data);
+    return this.paymentService.createCheckoutSession(data);
   }
 
   // Endpoint para verificar status do pagamento
   @Get('verify-payment/:sessionId')
   async verifyPayment(@Param('sessionId') sessionId: string) {
     try {
-      const result = await this.stripeService.verifyPaymentStatus(sessionId);
+      const result = await this.paymentService.verifyPaymentStatus(sessionId);
       return result;
     } catch (error) {
       console.error('❌ Erro ao verificar pagamento:', error);
