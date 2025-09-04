@@ -12,9 +12,11 @@ import { User } from '../user/user.entity';
 
 import { PaymentProvider } from 'src/integration/payment/payment.interface';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { MarkAsShippedDto } from './dto/mark-as-shipped.dto';
 import { OrderItemResponseDto } from './dto/order-item-response.dto';
 import { OrderListResponseDto } from './dto/order-list-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import {
   ValidateStockItemResponseDto,
   ValidateStockResponseDto,
@@ -442,6 +444,106 @@ export class OrderService {
       }
     }
     return reservedItems;
+  }
+
+  async updateOrderStatus(
+    publicId: string,
+    updateStatusDto: UpdateOrderStatusDto,
+  ): Promise<OrderResponseDto> {
+    const order = await this.findOrderByPublicIdOrFail(publicId);
+
+    // Validar transição de status
+    this.validateStatusTransition(order.status, updateStatusDto.status);
+
+    // Atualizar status e notas
+    return this.updateOrderStatusInternal(
+      order,
+      updateStatusDto.status,
+      updateStatusDto.notes,
+    );
+  }
+
+  async markAsShipped(
+    publicId: string,
+    markAsShippedDto: MarkAsShippedDto,
+  ): Promise<OrderResponseDto> {
+    const order = await this.findOrderByPublicIdOrFail(publicId);
+
+    // Validar transição de status (PROCESSING -> SHIPPED)
+    this.validateStatusTransition(order.status, OrderStatus.SHIPPED);
+
+    // Atualizar status e notas
+    return this.updateOrderStatusInternal(
+      order,
+      OrderStatus.SHIPPED,
+      markAsShippedDto.notes,
+    );
+  }
+
+  /**
+   * Busca um pedido por publicId ou falha com NotFoundException
+   */
+  private async findOrderByPublicIdOrFail(publicId: string): Promise<Order> {
+    const order = await this.orderRepo.findOne({
+      where: { publicId },
+      relations: ['items'],
+    });
+
+    if (!order) {
+      throw new NotFoundException('Pedido não encontrado');
+    }
+
+    return order;
+  }
+
+  private async updateOrderStatusInternal(
+    order: Order,
+    newStatus: OrderStatus,
+    notes?: string,
+  ): Promise<OrderResponseDto> {
+    const previousStatus = order.status;
+
+    // Atualizar status e notas
+    order.status = newStatus;
+    if (notes) {
+      order.notes = notes;
+    }
+
+    // Salvar alterações
+    const updatedOrder = await this.orderRepo.save(order);
+
+    console.log(
+      `✅ Status do pedido ${order.publicId} atualizado de ${previousStatus} para ${newStatus}`,
+    );
+
+    return this.mapToResponseDto(updatedOrder);
+  }
+
+  private validateStatusTransition(
+    currentStatus: OrderStatus,
+    newStatus: OrderStatus,
+  ): void {
+    const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
+      [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
+      [OrderStatus.CONFIRMED]: [
+        OrderStatus.PROCESSING,
+        OrderStatus.SHIPPED,
+        OrderStatus.CANCELLED,
+      ],
+      [OrderStatus.PROCESSING]: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
+      [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
+      [OrderStatus.DELIVERED]: [], // Status final
+      [OrderStatus.CANCELLED]: [], // Status final
+    };
+
+    const allowedNextStatuses = allowedTransitions[currentStatus];
+
+    if (!allowedNextStatuses.includes(newStatus)) {
+      throw new BadRequestException(
+        `Transição de status inválida: não é possível alterar de ${currentStatus} para ${newStatus}. ` +
+          `Status permitidos: ${allowedNextStatuses.join(', ')}`,
+      );
+    }
   }
 
   /**

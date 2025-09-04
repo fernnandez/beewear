@@ -4,18 +4,27 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Request,
 } from '@nestjs/common';
 
 import { OrderService } from './order.service';
 
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Public } from '../../infra/auth/decorator/public.decorator';
 import { ConfirmOrderDto } from './dto/confirm-order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderListResponseDto } from './dto/order-list-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { MarkAsShippedDto } from './dto/mark-as-shipped.dto';
 import { ValidateStockResponseDto } from './dto/validate-stock-response.dto';
 import { ValidateStockDto } from './dto/validate-stock.dto';
 
@@ -69,6 +78,52 @@ export class OrderController {
       publicId,
       confirmOrderDto.sessionId,
     );
+  }
+
+  @Patch(':publicId/status')
+  @ApiOperation({ summary: 'Atualiza o status de um pedido' })
+  @ApiParam({
+    name: 'publicId',
+    type: String,
+    description: 'ID público do pedido',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Status do pedido atualizado com sucesso',
+    type: OrderResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Transição de status inválida' })
+  @ApiResponse({ status: 404, description: 'Pedido não encontrado' })
+  async updateOrderStatus(
+    @Param('publicId') publicId: string,
+    @Body() updateStatusDto: UpdateOrderStatusDto,
+  ): Promise<OrderResponseDto> {
+    return this.orderService.updateOrderStatus(publicId, updateStatusDto);
+  }
+
+  @Post(':publicId/mark-as-shipped')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Marca um pedido como enviado' })
+  @ApiParam({
+    name: 'publicId',
+    type: String,
+    description: 'ID público do pedido',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Pedido marcado como enviado com sucesso',
+    type: OrderResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Transição de status inválida ou observações obrigatórias',
+  })
+  @ApiResponse({ status: 404, description: 'Pedido não encontrado' })
+  async markAsShipped(
+    @Param('publicId') publicId: string,
+    @Body() markAsShippedDto: MarkAsShippedDto,
+  ): Promise<OrderResponseDto> {
+    return this.orderService.markAsShipped(publicId, markAsShippedDto);
   }
 
   // TODO: mover isso pro contexto de product

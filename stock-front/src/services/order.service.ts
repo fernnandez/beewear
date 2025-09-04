@@ -16,9 +16,17 @@ export const fetchOrderDetails = async (
 
 export const updateOrderStatus = async (
   publicId: string,
-  status: OrderStatus
+  status: OrderStatus,
+  notes?: string
 ): Promise<void> => {
-  await api.patch(`/orders/${publicId}/status`, { status });
+  await api.patch(`/orders/${publicId}/status`, { status, notes });
+};
+
+export const markOrderAsShipped = async (
+  publicId: string,
+  notes: string
+): Promise<void> => {
+  await api.post(`/orders/${publicId}/mark-as-shipped`, { notes });
 };
 
 export const getOrderStatusLabel = (status: OrderStatus): string => {

@@ -409,6 +409,285 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
     );
   });
 
+  describe('/orders/:publicId/mark-as-shipped (POST)', () => {
+    it(
+      'should mark order as shipped successfully from PROCESSING status',
+      runWithRollbackTransaction(async () => {
+        // Primeiro, vamos buscar um pedido em PROCESSING
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const processingOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'PROCESSING',
+        );
+
+        if (!processingOrder) {
+          console.log('⚠️ Nenhum pedido em PROCESSING encontrado para teste');
+          return;
+        }
+
+        const markAsShippedData = {
+          notes: 'Pedido enviado via correio expresso',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post(`/orders/${processingOrder.publicId}/mark-as-shipped`)
+          .send(markAsShippedData)
+          .expect(200);
+
+        expect(response.body).toHaveProperty(
+          'publicId',
+          processingOrder.publicId,
+        );
+        expect(response.body).toHaveProperty('status', 'SHIPPED');
+        expect(response.body).toHaveProperty(
+          'notes',
+          'Pedido enviado via correio expresso',
+        );
+        expect(response.body).toHaveProperty('updatedAt');
+      }),
+    );
+
+    it(
+      'should mark order as shipped successfully from CONFIRMED status',
+      runWithRollbackTransaction(async () => {
+        // Primeiro, vamos buscar um pedido em CONFIRMED
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const confirmedOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'CONFIRMED',
+        );
+
+        if (!confirmedOrder) {
+          console.log('⚠️ Nenhum pedido em CONFIRMED encontrado para teste');
+          return;
+        }
+
+        const markAsShippedData = {
+          notes: 'Pedido enviado diretamente após confirmação',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post(`/orders/${confirmedOrder.publicId}/mark-as-shipped`)
+          .send(markAsShippedData)
+          .expect(200);
+
+        expect(response.body).toHaveProperty(
+          'publicId',
+          confirmedOrder.publicId,
+        );
+        expect(response.body).toHaveProperty('status', 'SHIPPED');
+        expect(response.body).toHaveProperty(
+          'notes',
+          'Pedido enviado diretamente após confirmação',
+        );
+        expect(response.body).toHaveProperty('updatedAt');
+      }),
+    );
+
+    it(
+      'should fail to mark as shipped with invalid transition',
+      runWithRollbackTransaction(async () => {
+        // Buscar um pedido em PENDING (que não pode ir direto para SHIPPED)
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const pendingOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'PENDING',
+        );
+
+        if (!pendingOrder) {
+          console.log('⚠️ Nenhum pedido em PENDING encontrado para teste');
+          return;
+        }
+
+        // Tentar marcar como enviado um pedido em PENDING (deveria ser PENDING -> CONFIRMED -> SHIPPED)
+        const markAsShippedData = {
+          notes: 'Pedido enviado via correio expresso',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post(`/orders/${pendingOrder.publicId}/mark-as-shipped`)
+          .send(markAsShippedData)
+          .expect(400);
+
+        expect(response.body.message).toContain('Transição de status inválida');
+      }),
+    );
+
+    it(
+      'should fail to mark non-existent order as shipped',
+      runWithRollbackTransaction(async () => {
+        const markAsShippedData = {
+          notes: 'Pedido enviado via correio expresso',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/orders/00000000-0000-0000-0000-000000000000/mark-as-shipped')
+          .send(markAsShippedData)
+          .expect(404);
+
+        expect(response.body.message).toBe('Pedido não encontrado');
+      }),
+    );
+
+    it(
+      'should fail to mark as shipped without notes',
+      runWithRollbackTransaction(async () => {
+        // Buscar um pedido em CONFIRMED ou PROCESSING
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const validOrder = ordersResponse.body.find(
+          (order: any) =>
+            order.status === 'CONFIRMED' || order.status === 'PROCESSING',
+        );
+
+        if (!validOrder) {
+          console.log(
+            '⚠️ Nenhum pedido em CONFIRMED ou PROCESSING encontrado para teste',
+          );
+          return;
+        }
+
+        const markAsShippedData = {
+          notes: '', // Notas vazias
+        };
+
+        const response = await request(app.getHttpServer())
+          .post(`/orders/${validOrder.publicId}/mark-as-shipped`)
+          .send(markAsShippedData)
+          .expect(400);
+
+        expect(response.body.message).toContain(
+          'Observações sobre o envio são obrigatórias',
+        );
+      }),
+    );
+  });
+
+  describe('/orders/:publicId/status (PATCH)', () => {
+    it(
+      'should update order status from PROCESSING to SHIPPED successfully',
+      runWithRollbackTransaction(async () => {
+        // Primeiro, vamos buscar um pedido em PROCESSING
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const processingOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'PROCESSING',
+        );
+
+        if (!processingOrder) {
+          console.log('⚠️ Nenhum pedido em PROCESSING encontrado para teste');
+          return;
+        }
+
+        const updateData = {
+          status: 'SHIPPED',
+          notes: 'Pedido enviado via correio expresso',
+        };
+
+        const response = await request(app.getHttpServer())
+          .patch(`/orders/${processingOrder.publicId}/status`)
+          .send(updateData)
+          .expect(200);
+
+        expect(response.body).toHaveProperty(
+          'publicId',
+          processingOrder.publicId,
+        );
+        expect(response.body).toHaveProperty('status', 'SHIPPED');
+        expect(response.body).toHaveProperty(
+          'notes',
+          'Pedido enviado via correio expresso',
+        );
+        expect(response.body).toHaveProperty('updatedAt');
+      }),
+    );
+
+    it(
+      'should fail to update order status with invalid transition',
+      runWithRollbackTransaction(async () => {
+        // Buscar um pedido em qualquer status
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const order = ordersResponse.body[0];
+        if (!order) {
+          console.log('⚠️ Nenhum pedido encontrado para teste');
+          return;
+        }
+
+        // Tentar transição inválida: PENDING -> SHIPPED (deveria ser PENDING -> CONFIRMED -> PROCESSING -> SHIPPED)
+        const updateData = {
+          status: 'SHIPPED',
+        };
+
+        const response = await request(app.getHttpServer())
+          .patch(`/orders/${order.publicId}/status`)
+          .send(updateData)
+          .expect(400);
+
+        expect(response.body.message).toContain('Transição de status inválida');
+      }),
+    );
+
+    it(
+      'should fail to update non-existent order status',
+      runWithRollbackTransaction(async () => {
+        const updateData = {
+          status: 'SHIPPED',
+        };
+
+        const response = await request(app.getHttpServer())
+          .patch('/orders/00000000-0000-0000-0000-000000000000/status')
+          .send(updateData)
+          .expect(404);
+
+        expect(response.body.message).toBe('Pedido não encontrado');
+      }),
+    );
+
+    it(
+      'should update order status with only status (no notes)',
+      runWithRollbackTransaction(async () => {
+        // Buscar um pedido em PROCESSING
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const processingOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'PROCESSING',
+        );
+
+        if (!processingOrder) {
+          console.log('⚠️ Nenhum pedido em PROCESSING encontrado para teste');
+          return;
+        }
+
+        const updateData = {
+          status: 'SHIPPED',
+        };
+
+        const response = await request(app.getHttpServer())
+          .patch(`/orders/${processingOrder.publicId}/status`)
+          .send(updateData)
+          .expect(200);
+
+        expect(response.body).toHaveProperty('status', 'SHIPPED');
+        expect(response.body).toHaveProperty('notes'); // Deve manter as notas existentes
+      }),
+    );
+  });
+
   describe('/orders/validate-stock (POST)', () => {
     it(
       'should validate stock successfully',

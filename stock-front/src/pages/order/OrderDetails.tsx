@@ -1,5 +1,6 @@
 import { OrderInfoSection } from "@components/order/OrderInfoSection/OrderInfoSection";
 import { OrderItemsSection } from "@components/order/OrderItemsSection/OrderItemsSection";
+import { OrderStatusAction } from "@components/order/OrderStatusAction/OrderStatusAction";
 import { Button, Container, Divider, Group, Text } from "@mantine/core";
 import { fetchOrderDetails } from "@services/order.service";
 import { useQuery } from "@tanstack/react-query";
@@ -30,6 +31,9 @@ export default function OrderDetailPage() {
           <Button variant="light" onClick={() => navigate("/orders")}>
             ← Voltar
           </Button>
+        </div>
+        <div>
+          <OrderStatusAction order={order} />
         </div>
       </Group>
 

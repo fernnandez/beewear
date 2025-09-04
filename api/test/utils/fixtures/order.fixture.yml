@@ -45,3 +45,18 @@ items:
     notes: "Pedido confirmado de teste"
     createdAt: "2024-01-09T09:00:00Z"
     updatedAt: "2024-01-09T09:00:00Z"
+
+  # Pedido em processamento
+  order_processing:
+    id: 4
+    publicId: "550e8400-e29b-41d4-a716-446655440003"
+    user: "@user_regular"
+    status: "PROCESSING"
+    totalAmount: 159.99
+    shippingCost: 5.00
+    shippingAddress: "Rua Teste 4, 101 - Bairro Teste 4, Cidade Teste 4"
+    paymentMethodType: "CREDIT_CARD"
+    paymentStatus: "PAID"
+    notes: "Pedido em processamento de teste"
+    createdAt: "2024-01-08T08:00:00Z"
+    updatedAt: "2024-01-08T08:00:00Z"
