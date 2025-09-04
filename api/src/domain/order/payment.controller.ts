@@ -30,7 +30,8 @@ export class PaymentController {
     } catch (error) {
       console.error('❌ Erro ao verificar pagamento:', error);
       throw new BadRequestException(
-        'Erro ao verificar pagamento: ' + error.message,
+        'Erro ao verificar pagamento: ' +
+          (error instanceof Error ? error.message : String(error)),
       );
     }
   }

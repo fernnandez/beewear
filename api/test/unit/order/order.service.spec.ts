@@ -11,7 +11,6 @@ import { OrderService } from '../../../src/domain/order/order.service';
 import { ProductVariationService } from '../../../src/domain/product/productVariation/product-variation.service';
 import { StockService } from '../../../src/domain/product/stock/stock.service';
 import { User } from '../../../src/domain/user/user.entity';
-import { PaymentProvider } from 'src/integration/payment/payment.interface';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -569,6 +568,76 @@ describe('OrderService', () => {
         expect(mockOrderRepo.save).toHaveBeenCalled();
         expect(result).toHaveProperty('status', 'CONFIRMED');
       });
+
+      it('should process successful payment with null paymentDetails', async () => {
+        const mockOrder = {
+          publicId: 'order-1',
+          status: OrderStatus.PENDING,
+          items: [],
+        };
+        const mockStripeSession = {
+          paymentDetails: null, // Simula caso onde paymentDetails é null
+        };
+        const mockConfirmedOrder = {
+          ...mockOrder,
+          status: OrderStatus.CONFIRMED,
+          paymentStatus: 'PAID',
+          paymentMethodType: 'unknown', // Deve usar o fallback
+          stripeSessionId: 'session-123',
+        };
+
+        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
+          mockStripeSession,
+        );
+        mockOrderRepo.save.mockResolvedValue(mockConfirmedOrder);
+
+        const result = await (service as any).processSuccessfulPayment(
+          mockOrder,
+          'session-123',
+        );
+
+        expect(mockPaymentProvider.verifyPaymentStatus).toHaveBeenCalledWith(
+          'session-123',
+        );
+        expect(mockOrderRepo.save).toHaveBeenCalled();
+        expect(result).toHaveProperty('status', 'CONFIRMED');
+        expect(result).toHaveProperty('paymentMethodType', 'unknown');
+      });
+
+      it('should process successful payment with undefined paymentDetails', async () => {
+        const mockOrder = {
+          publicId: 'order-1',
+          status: OrderStatus.PENDING,
+          items: [],
+        };
+        const mockStripeSession = {
+          // paymentDetails não está definido
+        };
+        const mockConfirmedOrder = {
+          ...mockOrder,
+          status: OrderStatus.CONFIRMED,
+          paymentStatus: 'PAID',
+          paymentMethodType: 'unknown', // Deve usar o fallback
+          stripeSessionId: 'session-123',
+        };
+
+        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
+          mockStripeSession,
+        );
+        mockOrderRepo.save.mockResolvedValue(mockConfirmedOrder);
+
+        const result = await (service as any).processSuccessfulPayment(
+          mockOrder,
+          'session-123',
+        );
+
+        expect(mockPaymentProvider.verifyPaymentStatus).toHaveBeenCalledWith(
+          'session-123',
+        );
+        expect(mockOrderRepo.save).toHaveBeenCalled();
+        expect(result).toHaveProperty('status', 'CONFIRMED');
+        expect(result).toHaveProperty('paymentMethodType', 'unknown');
+      });
     });
 
     describe('processFailedPayment', () => {
@@ -663,6 +732,40 @@ describe('OrderService', () => {
       it('should skip validation for items without productVariationSizePublicId', async () => {
         const items = [
           { productVariationSizePublicId: '', quantity: 2 },
+          { productVariationSizePublicId: 'test-size-1', quantity: 1 },
+        ];
+
+        mockStockService.findStockItemByProductVariationSize.mockResolvedValue({
+          quantity: 10,
+        });
+
+        await (service as any).validateStockForOrderCreation(items);
+
+        expect(
+          mockStockService.findStockItemByProductVariationSize,
+        ).toHaveBeenCalledTimes(1);
+      });
+
+      it('should skip validation for items with null productVariationSizePublicId', async () => {
+        const items = [
+          { productVariationSizePublicId: null, quantity: 2 },
+          { productVariationSizePublicId: 'test-size-1', quantity: 1 },
+        ];
+
+        mockStockService.findStockItemByProductVariationSize.mockResolvedValue({
+          quantity: 10,
+        });
+
+        await (service as any).validateStockForOrderCreation(items);
+
+        expect(
+          mockStockService.findStockItemByProductVariationSize,
+        ).toHaveBeenCalledTimes(1);
+      });
+
+      it('should skip validation for items with undefined productVariationSizePublicId', async () => {
+        const items = [
+          { productVariationSizePublicId: undefined, quantity: 2 },
           { productVariationSizePublicId: 'test-size-1', quantity: 1 },
         ];
 
