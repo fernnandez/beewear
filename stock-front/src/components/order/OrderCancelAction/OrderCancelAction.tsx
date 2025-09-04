@@ -1,4 +1,4 @@
-import { Button, Group, Modal, Text, Textarea, Alert } from '@mantine/core';
+import { Button, Group, Modal, Text, Textarea, Alert, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconX, IconAlertTriangle } from '@tabler/icons-react';
@@ -19,10 +19,19 @@ export const OrderCancelAction = ({ order, onStatusUpdate }: OrderCancelActionPr
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
 
-  // Só mostrar o botão se o pedido não estiver em DELIVERED ou CANCELLED
-  if (order.status === OrderStatus.DELIVERED || order.status === OrderStatus.CANCELLED) {
-    return null;
-  }
+  // Lógica para determinar se o botão pode ser executado
+  const canCancel = order.status !== OrderStatus.DELIVERED && order.status !== OrderStatus.CANCELLED;
+
+  // Tooltip explicativo
+  const getTooltipMessage = () => {
+    if (order.status === OrderStatus.DELIVERED) {
+      return 'Pedido entregue não pode ser cancelado';
+    }
+    if (order.status === OrderStatus.CANCELLED) {
+      return 'Pedido já foi cancelado';
+    }
+    return '';
+  };
 
   const handleMarkAsCanceled = async () => {
     if (!notes.trim()) {
@@ -65,14 +74,31 @@ export const OrderCancelAction = ({ order, onStatusUpdate }: OrderCancelActionPr
 
   return (
     <>
-      <Button
-        leftSection={<IconX size={16} />}
-        color="red"
-        onClick={open}
-        variant="filled"
-      >
-        Cancelar Pedido
-      </Button>
+      <Tooltip label={getTooltipMessage()}>
+        <Button
+          leftSection={<IconX size={16} />}
+          color={canCancel ? "red" : "gray"}
+          variant={canCancel ? "filled" : "subtle"}
+          onClick={canCancel ? open : undefined}
+          disabled={!canCancel}
+          styles={{
+            root: {
+              transition: 'all 0.2s ease',
+              opacity: canCancel ? 1 : 0.6,
+              cursor: canCancel ? 'pointer' : 'not-allowed',
+              '&:hover': {
+                transform: canCancel ? 'translateY(-1px)' : 'none',
+                boxShadow: canCancel ? '0 4px 8px rgba(0, 0, 0, 0.1)' : 'none',
+              },
+              '&:active': {
+                transform: canCancel ? 'translateY(0)' : 'none',
+              }
+            }
+          }}
+        >
+          Cancelar Pedido
+        </Button>
+      </Tooltip>
 
       <Modal
         opened={opened}

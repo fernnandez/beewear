@@ -1,7 +1,6 @@
+import { OrderActionButtons } from "@components/order/OrderActionButtons/OrderActionButtons";
 import { OrderInfoSection } from "@components/order/OrderInfoSection/OrderInfoSection";
 import { OrderItemsSection } from "@components/order/OrderItemsSection/OrderItemsSection";
-import { OrderStatusAction } from "@components/order/OrderStatusAction/OrderStatusAction";
-import { OrderCancelAction } from "@components/order/OrderCancelAction/OrderCancelAction";
 import { Button, Container, Divider, Group, Text } from "@mantine/core";
 import { fetchOrderDetails } from "@services/order.service";
 import { useQuery } from "@tanstack/react-query";
@@ -33,21 +32,19 @@ export default function OrderDetailPage() {
             ← Voltar
           </Button>
         </div>
-        <Group>
-          <OrderStatusAction order={order} />
-          <OrderCancelAction order={order} />
-        </Group>
       </Group>
+
+      {/* Botões de Ação */}
+      <OrderActionButtons order={order} />
+
+      <Divider mt={50} mb={50} />
 
       <OrderInfoSection order={order} />
 
-      {/* Itens do Pedido */}
-      <OrderItemsSection
-        orderPublicId={order.publicId}
-        items={order.items}
-      />
-
       <Divider mt={50} mb={50} />
+
+      {/* Itens do Pedido */}
+      <OrderItemsSection orderPublicId={order.publicId} items={order.items} />
     </Container>
   );
 }
