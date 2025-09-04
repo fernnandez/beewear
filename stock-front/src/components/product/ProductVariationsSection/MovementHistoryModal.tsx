@@ -68,7 +68,8 @@ export const MovementHistoryModal = ({
       opened={opened}
       onClose={onClose}
       title="Histórico de Movimentações"
-      size="xl"
+      size="70%"
+      h="85vh"
     >
       {isLoading && <Loading />}
       {movements && (

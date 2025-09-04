@@ -409,6 +409,167 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
     );
   });
 
+  describe('/orders/:publicId/mark-as-canceled (POST)', () => {
+    it(
+      'should mark order as canceled successfully from PENDING status',
+      runWithRollbackTransaction(async () => {
+        // Buscar um pedido em PENDING
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const pendingOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'PENDING',
+        );
+
+        if (!pendingOrder) {
+          console.log('⚠️ Nenhum pedido em PENDING encontrado para teste');
+          return;
+        }
+
+        const markAsCanceledData = {
+          notes: 'Cliente solicitou cancelamento',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post(`/orders/${pendingOrder.publicId}/mark-as-canceled`)
+          .send(markAsCanceledData)
+          .expect(200);
+
+        expect(response.body).toHaveProperty('publicId', pendingOrder.publicId);
+        expect(response.body).toHaveProperty('status', 'CANCELLED');
+        expect(response.body).toHaveProperty(
+          'notes',
+          'Cliente solicitou cancelamento',
+        );
+        expect(response.body).toHaveProperty('updatedAt');
+      }),
+    );
+
+    it(
+      'should mark order as canceled successfully from CONFIRMED status',
+      runWithRollbackTransaction(async () => {
+        // Buscar um pedido em CONFIRMED
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const confirmedOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'CONFIRMED',
+        );
+
+        if (!confirmedOrder) {
+          console.log('⚠️ Nenhum pedido em CONFIRMED encontrado para teste');
+          return;
+        }
+
+        const markAsCanceledData = {
+          notes: 'Produto fora de estoque',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post(`/orders/${confirmedOrder.publicId}/mark-as-canceled`)
+          .send(markAsCanceledData)
+          .expect(200);
+
+        expect(response.body).toHaveProperty(
+          'publicId',
+          confirmedOrder.publicId,
+        );
+        expect(response.body).toHaveProperty('status', 'CANCELLED');
+        expect(response.body).toHaveProperty(
+          'notes',
+          'Produto fora de estoque',
+        );
+        expect(response.body).toHaveProperty('updatedAt');
+      }),
+    );
+
+    it(
+      'should fail to mark as canceled with invalid transition',
+      runWithRollbackTransaction(async () => {
+        // Buscar um pedido em DELIVERED (que não pode ser cancelado)
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const deliveredOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'DELIVERED',
+        );
+
+        if (!deliveredOrder) {
+          console.log('⚠️ Nenhum pedido em DELIVERED encontrado para teste');
+          return;
+        }
+
+        const markAsCanceledData = {
+          notes: 'Tentativa de cancelar pedido entregue',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post(`/orders/${deliveredOrder.publicId}/mark-as-canceled`)
+          .send(markAsCanceledData)
+          .expect(400);
+
+        expect(response.body.message).toContain('Transição de status inválida');
+      }),
+    );
+
+    it(
+      'should fail to mark non-existent order as canceled',
+      runWithRollbackTransaction(async () => {
+        const markAsCanceledData = {
+          notes: 'Cliente solicitou cancelamento',
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/orders/00000000-0000-0000-0000-000000000000/mark-as-canceled')
+          .send(markAsCanceledData)
+          .expect(404);
+
+        expect(response.body.message).toBe('Pedido não encontrado');
+      }),
+    );
+
+    it(
+      'should fail to mark as canceled without notes',
+      runWithRollbackTransaction(async () => {
+        // Buscar um pedido em qualquer status válido
+        const ordersResponse = await request(app.getHttpServer())
+          .get('/orders')
+          .expect(200);
+
+        const validOrder = ordersResponse.body.find(
+          (order: any) =>
+            order.status === 'PENDING' ||
+            order.status === 'CONFIRMED' ||
+            order.status === 'PROCESSING' ||
+            order.status === 'SHIPPED',
+        );
+
+        if (!validOrder) {
+          console.log(
+            '⚠️ Nenhum pedido em status válido encontrado para teste',
+          );
+          return;
+        }
+
+        const markAsCanceledData = {
+          notes: '', // Motivo vazio
+        };
+
+        const response = await request(app.getHttpServer())
+          .post(`/orders/${validOrder.publicId}/mark-as-canceled`)
+          .send(markAsCanceledData)
+          .expect(400);
+
+        expect(response.body.message).toContain(
+          'Motivo do cancelamento é obrigatório',
+        );
+      }),
+    );
+  });
+
   describe('/orders/:publicId/mark-as-shipped (POST)', () => {
     it(
       'should mark order as shipped successfully from PROCESSING status',

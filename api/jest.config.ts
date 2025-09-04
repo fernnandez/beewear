@@ -26,7 +26,7 @@ const config: Config = {
     '<rootDir>/src/infra/auth/guard/.*\\.ts',
   ],
   // Configurações de Log
-  silent: false, // true = suprime todos os logs
+  silent: true, // true = suprime todos os logs
   verbose: false, // true = mostra logs detalhados
   testEnvironment: 'node',
   moduleNameMapper: {

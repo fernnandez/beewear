@@ -6,14 +6,14 @@ items:
     id: 1
     order: "@order_credit_card"
     productName: "Camiseta Básica Algodão Feminina"
-    variationName: "Variação Azul"
-    color: "#0000FF"
+    variationName: "Variação Preta"
+    color: "#000000"
     size: "M"
-    image: "https://example.com/camiseta_azul.jpg"
+    image: "https://example.com/camiseta_preta.jpg"
     quantity: 2
     unitPrice: 89.99
     totalPrice: 179.98
-    productVariationSizePublicId: "test-size-orders-123"
+    productVariationSizePublicId: "68e2bc61-78cb-4ae2-97cb-580204b84501"
     createdAt: "2024-01-10T10:00:00Z"
     updatedAt: "2024-01-10T10:00:00Z"
 
@@ -22,14 +22,14 @@ items:
     id: 2
     order: "@order_pix"
     productName: "Camiseta Básica Algodão Feminina"
-    variationName: "Variação Azul"
-    color: "#0000FF"
+    variationName: "Variação Preta"
+    color: "#000000"
     size: "M"
-    image: "https://example.com/camiseta_azul.jpg"
+    image: "https://example.com/camiseta_preta.jpg"
     quantity: 1
     unitPrice: 89.99
     totalPrice: 89.99
-    productVariationSizePublicId: "test-size-orders-123"
+    productVariationSizePublicId: "68e2bc61-78cb-4ae2-97cb-580204b84501"
     createdAt: "2024-01-10T11:00:00Z"
     updatedAt: "2024-01-10T11:00:00Z"
 
@@ -38,13 +38,29 @@ items:
     id: 3
     order: "@order_confirmed"
     productName: "Calça Jeans Masculina Slim Fit"
-    variationName: "Variação Verde"
-    color: "#00FF00"
+    variationName: "Variação Azul"
+    color: "#0000FF"
     size: "L"
-    image: "https://example.com/jeans_verde.jpg"
+    image: "https://example.com/jeans_azul.jpg"
     quantity: 3
     unitPrice: 99.99
     totalPrice: 299.97
-    productVariationSizePublicId: "test-size-confirmed-456"
+    productVariationSizePublicId: "fcbad71a-06cd-478f-9883-d00d5948edfb"
     createdAt: "2024-01-09T09:00:00Z"
     updatedAt: "2024-01-09T09:00:00Z"
+
+  # Item do pedido em processamento
+  order_item_processing:
+    id: 4
+    order: "@order_processing"
+    productName: "Camiseta Básica Algodão Feminina"
+    variationName: "Variação Branca"
+    color: "#FFFFFF"
+    size: "S"
+    image: "https://example.com/camiseta_branca.jpg"
+    quantity: 1
+    unitPrice: 79.99
+    totalPrice: 79.99
+    productVariationSizePublicId: "7cdb6211-dc02-4f47-90b2-52f03fcb1001"
+    createdAt: "2024-01-08T08:00:00Z"
+    updatedAt: "2024-01-08T08:00:00Z"

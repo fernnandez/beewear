@@ -20,12 +20,8 @@
     "pre:test": "npm run typeorm:test schema:drop && npm run typeorm:test migration:run && npm run db:test:load-fixtures",
     "db:test:load-fixtures": "DOTENV_CONFIG_PATH=.env.test npm run fixtures -- load ./test/utils/fixtures --dataSource ./src/infra/database/datasource.ts --require tsconfig-paths/register",
     "test": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --config jest.config.ts",
-    "test:integration": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --testRegex 'test/integration/.*\\.routes\\.spec\\.ts$' --config jest.config.ts",
-    "test:e2e": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --testRegex 'test/e2e/.*\\.e2e-spec\\.ts$' --config test/e2e/jest-e2e.json",
-    "test:watch": "jest --watch --config jest.config.ts",
     "test:cov": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --coverage --config jest.config.ts",
-    "test:unit": "jest --testRegex 'test/unit/.*\\.spec\\.ts$' --config jest.config.ts",
-    "badge:coverage": "coverage-badges --in=coverage/coverage-summary.json && node scripts/move-badge.cjs",
+    "test:log": "npm run pre:test && DOTENV_CONFIG_PATH=.env.test jest --config jest.config.ts --verbose --silent=false",
     "swagger:generate": "ts-node -r tsconfig-paths/register scripts/generate-swagger.ts"
   },
   "dependencies": {

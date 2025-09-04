@@ -13,6 +13,7 @@ import { User } from '../user/user.entity';
 import { PaymentProvider } from 'src/integration/payment/payment.interface';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { MarkAsShippedDto } from './dto/mark-as-shipped.dto';
+import { MarkAsCanceledDto } from './dto/mark-as-canceled.dto';
 import { OrderItemResponseDto } from './dto/order-item-response.dto';
 import { OrderListResponseDto } from './dto/order-list-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
@@ -480,6 +481,33 @@ export class OrderService {
     );
   }
 
+  async markAsCanceled(
+    publicId: string,
+    markAsCanceledDto: MarkAsCanceledDto,
+  ): Promise<OrderResponseDto> {
+    const order = await this.findOrderByPublicIdOrFail(publicId);
+
+    // Validar transição de status (qualquer status -> CANCELLED, exceto DELIVERED)
+    this.validateStatusTransition(order.status, OrderStatus.CANCELLED);
+
+    // Restaurar estoque antes de cancelar (não falhar se não conseguir)
+    try {
+      await this.restoreStockAfterCancellation(order.items);
+    } catch (error) {
+      console.warn(
+        '⚠️ Não foi possível restaurar o estoque, mas o cancelamento continuará:',
+        error,
+      );
+    }
+
+    // Atualizar status e notas
+    return this.updateOrderStatusInternal(
+      order,
+      OrderStatus.CANCELLED,
+      markAsCanceledDto.notes,
+    );
+  }
+
   /**
    * Busca um pedido por publicId ou falha com NotFoundException
    */
@@ -561,8 +589,21 @@ export class OrderService {
       }
 
       try {
+        // Primeiro, encontrar o StockItem pelo ProductVariationSize
+        const stockItem =
+          await this.stockService.findStockItemByProductVariationSize(
+            item.productVariationSizePublicId,
+          );
+
+        if (!stockItem) {
+          console.warn(
+            `⚠️ StockItem não encontrado para ProductVariationSize ${item.productVariationSizePublicId}`,
+          );
+          continue;
+        }
+
         await this.stockService.adjustStock(
-          item.productVariationSizePublicId,
+          stockItem.publicId,
           item.quantity, // Quantidade positiva para entrada
           `Cancelamento - Pedido cancelado - ${item.productName} (${item.variationName}, ${item.size})`,
         );
@@ -571,8 +612,8 @@ export class OrderService {
           `✅ Estoque restaurado para ${item.productName}: +${item.quantity} unidades`,
         );
       } catch (error) {
-        console.error(
-          `❌ Erro ao restaurar estoque para item ${item.productName}:`,
+        console.warn(
+          `⚠️ Erro ao restaurar estoque para item ${item.productName}:`,
           error,
         );
         // Não re-throw aqui para não impedir o cancelamento do pedido

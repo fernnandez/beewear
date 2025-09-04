@@ -29,6 +29,13 @@ export const markOrderAsShipped = async (
   await api.post(`/orders/${publicId}/mark-as-shipped`, { notes });
 };
 
+export const markOrderAsCanceled = async (
+  publicId: string,
+  notes: string
+): Promise<void> => {
+  await api.post(`/orders/${publicId}/mark-as-canceled`, { notes });
+};
+
 export const getOrderStatusLabel = (status: OrderStatus): string => {
   const statusLabels = {
     [OrderStatus.PENDING]: "Pendente",

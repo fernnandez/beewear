@@ -25,6 +25,7 @@ import { OrderListResponseDto } from './dto/order-list-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { MarkAsShippedDto } from './dto/mark-as-shipped.dto';
+import { MarkAsCanceledDto } from './dto/mark-as-canceled.dto';
 import { ValidateStockResponseDto } from './dto/validate-stock-response.dto';
 import { ValidateStockDto } from './dto/validate-stock.dto';
 
@@ -124,6 +125,31 @@ export class OrderController {
     @Body() markAsShippedDto: MarkAsShippedDto,
   ): Promise<OrderResponseDto> {
     return this.orderService.markAsShipped(publicId, markAsShippedDto);
+  }
+
+  @Post(':publicId/mark-as-canceled')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Marca um pedido como cancelado' })
+  @ApiParam({
+    name: 'publicId',
+    type: String,
+    description: 'ID público do pedido',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Pedido marcado como cancelado com sucesso',
+    type: OrderResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Transição de status inválida ou motivo obrigatório',
+  })
+  @ApiResponse({ status: 404, description: 'Pedido não encontrado' })
+  async markAsCanceled(
+    @Param('publicId') publicId: string,
+    @Body() markAsCanceledDto: MarkAsCanceledDto,
+  ): Promise<OrderResponseDto> {
+    return this.orderService.markAsCanceled(publicId, markAsCanceledDto);
   }
 
   // TODO: mover isso pro contexto de product
