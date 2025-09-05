@@ -1,4 +1,4 @@
-import { Stepper, useMantineColorScheme } from "@mantine/core";
+import { Stepper } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
   IconCheck,
@@ -6,18 +6,14 @@ import {
   IconPackage,
   IconTruck,
 } from "@tabler/icons-react";
-import { DARK_COLOR } from "@utils/constants";
 
 interface OrderStatusStepperProps {
   status: string;
 }
 
 export const OrderStatusStepper = ({ status }: OrderStatusStepperProps) => {
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === "dark";
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  // Define as etapas do pedido
   const steps = [
     {
       label: "Pagamento",
@@ -51,7 +47,6 @@ export const OrderStatusStepper = ({ status }: OrderStatusStepperProps) => {
     },
   ];
 
-  // Determina o índice da etapa atual
   const getCurrentStepIndex = () => {
     const statusOrder = [
       "PENDING",
@@ -60,8 +55,7 @@ export const OrderStatusStepper = ({ status }: OrderStatusStepperProps) => {
       "SHIPPED",
       "DELIVERED",
     ];
-    const currentIndex = statusOrder.indexOf(status);
-    return currentIndex >= 0 ? currentIndex : 0;
+    return statusOrder.indexOf(status) >= 0 ? statusOrder.indexOf(status) : 0;
   };
 
   const currentStepIndex = getCurrentStepIndex();
@@ -70,15 +64,7 @@ export const OrderStatusStepper = ({ status }: OrderStatusStepperProps) => {
     <Stepper
       active={currentStepIndex}
       size="sm"
-      color="yellow"
       orientation={isMobile ? "vertical" : "horizontal"}
-      style={{
-        backgroundColor: isDark ? DARK_COLOR : "white",
-        padding: isMobile ? "0.5rem" : "0.75rem",
-        borderRadius: "0.5rem",
-        overflowX: isMobile ? "visible" : "auto",
-        WebkitOverflowScrolling: isMobile ? "auto" : "touch",
-      }}
     >
       {steps.map((step, index) => {
         const StepIcon = step.icon;
@@ -90,49 +76,32 @@ export const OrderStatusStepper = ({ status }: OrderStatusStepperProps) => {
             key={step.status}
             label={step.label}
             description={step.description}
-            icon={
-              <StepIcon
-                size={isMobile ? 16 : 14}
-                style={{
-                  color: isCompleted
-                    ? "var(--mantine-color-green-6)"
-                    : isCurrent
-                    ? "var(--mantine-color-yellow-6)"
-                    : "var(--mantine-color-gray-4)",
-                }}
-              />
-            }
-            completedIcon={
-              <IconCheck
-                size={isMobile ? 16 : 14}
-                style={{ color: "var(--mantine-color-green-6)" }}
-              />
-            }
+            icon={<StepIcon size={isMobile ? 16 : 14} />}
+            completedIcon={<StepIcon size={isMobile ? 16 : 14} />}
             styles={{
-              stepBody: {
-                textAlign: isMobile ? "left" : "center",
-                minWidth: isMobile ? "auto" : "80px",
+              stepIcon: {
+                backgroundColor: isCompleted
+                  ? "var(--mantine-color-green-6)"
+                  : isCurrent
+                  ? "var(--mantine-color-yellow-6)"
+                  : "var(--mantine-color-gray-4)",
+                color: "white",
+                border: "none",
               },
               stepLabel: {
-                fontSize: isMobile ? "0.875rem" : "0.75rem",
-                fontWeight: isCurrent ? 600 : 400,
-                color: isCurrent
-                  ? "var(--mantine-color-yellow-6)"
-                  : isCompleted
+                color: isCompleted
                   ? "var(--mantine-color-green-6)"
+                  : isCurrent
+                  ? "var(--mantine-color-yellow-6)"
                   : "var(--mantine-color-gray-6)",
-                lineHeight: 1.2,
+                fontWeight: isCurrent ? 600 : 400,
               },
               stepDescription: {
-                fontSize: isMobile ? "0.75rem" : "0.65rem",
-                color: isCurrent
-                  ? "var(--mantine-color-yellow-6)"
+                color: isCompleted
+                  ? "var(--mantine-color-green-5)"
+                  : isCurrent
+                  ? "var(--mantine-color-yellow-5)"
                   : "var(--mantine-color-gray-5)",
-                lineHeight: 1.2,
-                marginTop: isMobile ? "4px" : "2px",
-              },
-              step: {
-                flex: isMobile ? "1 1 auto" : "0 0 auto",
               },
             }}
           />

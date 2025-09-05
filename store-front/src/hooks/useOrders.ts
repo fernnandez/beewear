@@ -1,5 +1,5 @@
 import orderService from "@services/order.service";
-import { IconPackage, IconCheck, IconTruck, IconX } from "@tabler/icons-react";
+import { IconCheck, IconPackage, IconTruck, IconX } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useCart } from "../contexts/cart-context";
@@ -61,7 +61,7 @@ export const useOrderConfirmation = () => {
       if (confirmedOrder && confirmedOrder.status === "CONFIRMED") {
         setOrderConfirmed(true);
         console.log("🎉 Pedido confirmado com sucesso!");
-        
+
         // Limpar o carrinho após confirmação bem-sucedida
         clearCart();
         console.log("🛒 Carrinho limpo com sucesso!");
@@ -147,8 +147,8 @@ export const getStatusColor = (status: string) => {
   const statusColors: Record<string, string> = {
     PENDING: "yellow",
     CONFIRMED: "blue",
-    PROCESSING: "indigo",
-    SHIPPED: "purple",
+    PROCESSING: "blue",
+    SHIPPED: "blue",
     DELIVERED: "green",
     CANCELLED: "red",
   };
@@ -179,11 +179,8 @@ export const getStatusIcon = (status: string) => {
   return statusIcons[status] || IconPackage;
 };
 
-// Função simplificada para exibir o método de pagamento que vem do backend
 export const getPaymentMethodText = (method: string) => {
-  // Mapeamento básico para métodos comuns
   const methodTexts: Record<string, string> = {
-    // Métodos Stripe padrão
     card: "Cartão de Crédito/Débito",
     klarna: "Klarna",
     mbway: "MB WAY",
@@ -196,26 +193,24 @@ export const getPaymentMethodText = (method: string) => {
     eps: "EPS",
     giropay: "GiroPay",
     przelewy24: "Przelewy24",
-
   };
 
   // Se não encontrar no mapeamento, capitalizar e formatar o método
   if (!method) {
     return "Método de pagamento";
   }
-  
+
   return (
     methodTexts[method] ||
     method.charAt(0).toUpperCase() + method.slice(1).replace(/_/g, " ")
   );
 };
 
-// Função para obter ícone baseado no método de pagamento
 export const getPaymentMethodIcon = (method: string) => {
   if (!method) {
     return "💳";
   }
-  
+
   const methodIcons: Record<string, string> = {
     card: "💳",
     klarna: "🛒",
@@ -233,16 +228,15 @@ export const getPaymentMethodIcon = (method: string) => {
     PIX: "📱",
     BANK_TRANSFER: "🏦",
   };
-  
+
   return methodIcons[method] || "💳";
 };
 
-// Função para obter descrição baseada no método de pagamento
 export const getPaymentMethodDescription = (method: string) => {
   if (!method) {
     return "Método de pagamento";
   }
-  
+
   const methodDescriptions: Record<string, string> = {
     card: "Pagamento com cartão de crédito ou débito",
     klarna: "Pague em 4x sem juros ou em 30 dias",
@@ -257,6 +251,6 @@ export const getPaymentMethodDescription = (method: string) => {
     giropay: "Pagamento bancário alemão",
     przelewy24: "Pagamento bancário polonês",
   };
-  
+
   return methodDescriptions[method] || "Método de pagamento";
 };
