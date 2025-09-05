@@ -543,7 +543,6 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
           (order: any) =>
             order.status === 'PENDING' ||
             order.status === 'CONFIRMED' ||
-            order.status === 'PROCESSING' ||
             order.status === 'SHIPPED',
         );
 
@@ -572,19 +571,19 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
 
   describe('/orders/:publicId/mark-as-shipped (POST)', () => {
     it(
-      'should mark order as shipped successfully from PROCESSING status',
+      'should mark order as shipped successfully from CONFIRMED status',
       runWithRollbackTransaction(async () => {
-        // Primeiro, vamos buscar um pedido em PROCESSING
+        // Primeiro, vamos buscar um pedido em CONFIRMED
         const ordersResponse = await request(app.getHttpServer())
           .get('/orders')
           .expect(200);
 
-        const processingOrder = ordersResponse.body.find(
-          (order: any) => order.status === 'PROCESSING',
+        const confirmedOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'CONFIRMED',
         );
 
-        if (!processingOrder) {
-          console.log('⚠️ Nenhum pedido em PROCESSING encontrado para teste');
+        if (!confirmedOrder) {
+          console.log('⚠️ Nenhum pedido em CONFIRMED encontrado para teste');
           return;
         }
 
@@ -593,13 +592,13 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
         };
 
         const response = await request(app.getHttpServer())
-          .post(`/orders/${processingOrder.publicId}/mark-as-shipped`)
+          .post(`/orders/${confirmedOrder.publicId}/mark-as-shipped`)
           .send(markAsShippedData)
           .expect(200);
 
         expect(response.body).toHaveProperty(
           'publicId',
-          processingOrder.publicId,
+          confirmedOrder.publicId,
         );
         expect(response.body).toHaveProperty('status', 'SHIPPED');
         expect(response.body).toHaveProperty(
@@ -699,20 +698,17 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
     it(
       'should fail to mark as shipped without notes',
       runWithRollbackTransaction(async () => {
-        // Buscar um pedido em CONFIRMED ou PROCESSING
+        // Buscar um pedido em CONFIRMED
         const ordersResponse = await request(app.getHttpServer())
           .get('/orders')
           .expect(200);
 
         const validOrder = ordersResponse.body.find(
-          (order: any) =>
-            order.status === 'CONFIRMED' || order.status === 'PROCESSING',
+          (order: any) => order.status === 'CONFIRMED',
         );
 
         if (!validOrder) {
-          console.log(
-            '⚠️ Nenhum pedido em CONFIRMED ou PROCESSING encontrado para teste',
-          );
+          console.log('⚠️ Nenhum pedido em CONFIRMED encontrado para teste');
           return;
         }
 
@@ -734,19 +730,19 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
 
   describe('/orders/:publicId/status (PATCH)', () => {
     it(
-      'should update order status from PROCESSING to SHIPPED successfully',
+      'should update order status from CONFIRMED to SHIPPED successfully',
       runWithRollbackTransaction(async () => {
-        // Primeiro, vamos buscar um pedido em PROCESSING
+        // Primeiro, vamos buscar um pedido em CONFIRMED
         const ordersResponse = await request(app.getHttpServer())
           .get('/orders')
           .expect(200);
 
-        const processingOrder = ordersResponse.body.find(
-          (order: any) => order.status === 'PROCESSING',
+        const confirmedOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'CONFIRMED',
         );
 
-        if (!processingOrder) {
-          console.log('⚠️ Nenhum pedido em PROCESSING encontrado para teste');
+        if (!confirmedOrder) {
+          console.log('⚠️ Nenhum pedido em CONFIRMED encontrado para teste');
           return;
         }
 
@@ -756,13 +752,13 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
         };
 
         const response = await request(app.getHttpServer())
-          .patch(`/orders/${processingOrder.publicId}/status`)
+          .patch(`/orders/${confirmedOrder.publicId}/status`)
           .send(updateData)
           .expect(200);
 
         expect(response.body).toHaveProperty(
           'publicId',
-          processingOrder.publicId,
+          confirmedOrder.publicId,
         );
         expect(response.body).toHaveProperty('status', 'SHIPPED');
         expect(response.body).toHaveProperty(
@@ -787,7 +783,7 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
           return;
         }
 
-        // Tentar transição inválida: PENDING -> SHIPPED (deveria ser PENDING -> CONFIRMED -> PROCESSING -> SHIPPED)
+        // Tentar transição inválida: PENDING -> SHIPPED (deveria ser PENDING -> CONFIRMED -> SHIPPED)
         const updateData = {
           status: 'SHIPPED',
         };
@@ -820,17 +816,17 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
     it(
       'should update order status with only status (no notes)',
       runWithRollbackTransaction(async () => {
-        // Buscar um pedido em PROCESSING
+        // Buscar um pedido em CONFIRMED
         const ordersResponse = await request(app.getHttpServer())
           .get('/orders')
           .expect(200);
 
-        const processingOrder = ordersResponse.body.find(
-          (order: any) => order.status === 'PROCESSING',
+        const confirmedOrder = ordersResponse.body.find(
+          (order: any) => order.status === 'CONFIRMED',
         );
 
-        if (!processingOrder) {
-          console.log('⚠️ Nenhum pedido em PROCESSING encontrado para teste');
+        if (!confirmedOrder) {
+          console.log('⚠️ Nenhum pedido em CONFIRMED encontrado para teste');
           return;
         }
 
@@ -839,7 +835,7 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
         };
 
         const response = await request(app.getHttpServer())
-          .patch(`/orders/${processingOrder.publicId}/status`)
+          .patch(`/orders/${confirmedOrder.publicId}/status`)
           .send(updateData)
           .expect(200);
 

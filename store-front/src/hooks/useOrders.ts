@@ -147,7 +147,6 @@ export const getStatusColor = (status: string) => {
   const statusColors: Record<string, string> = {
     PENDING: "yellow",
     CONFIRMED: "blue",
-    PROCESSING: "blue",
     SHIPPED: "blue",
     DELIVERED: "green",
     CANCELLED: "red",
@@ -158,8 +157,7 @@ export const getStatusColor = (status: string) => {
 export const getStatusText = (status: string) => {
   const statusTexts: Record<string, string> = {
     PENDING: "Aguardando Pagamento",
-    CONFIRMED: "Pagamento Confirmado",
-    PROCESSING: "Em Preparação",
+    CONFIRMED: "Confirmado e em Preparação",
     SHIPPED: "Enviado",
     DELIVERED: "Entregue",
     CANCELLED: "Cancelado",
@@ -171,7 +169,6 @@ export const getStatusIcon = (status: string) => {
   const statusIcons: Record<string, React.ElementType> = {
     PENDING: IconPackage,
     CONFIRMED: IconCheck,
-    PROCESSING: IconPackage,
     SHIPPED: IconTruck,
     DELIVERED: IconCheck,
     CANCELLED: IconX,

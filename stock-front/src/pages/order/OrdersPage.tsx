@@ -77,7 +77,6 @@ export default function OrdersPage() {
                 "Todos",
                 OrderStatus.PENDING,
                 OrderStatus.CONFIRMED,
-                OrderStatus.PROCESSING,
                 OrderStatus.SHIPPED,
                 OrderStatus.DELIVERED,
                 OrderStatus.CANCELLED,

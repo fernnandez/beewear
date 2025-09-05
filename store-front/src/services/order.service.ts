@@ -18,7 +18,7 @@ export interface CreateOrder {
 
 export interface OrderResponse {
   publicId: string;
-  status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   totalAmount: number;
   shippingCost: number;
   shippingAddress: string;
@@ -58,7 +58,7 @@ export interface OrderListResponse {
 }
 
 export interface UpdateOrderStatus {
-  status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   notes?: string;
 }
 

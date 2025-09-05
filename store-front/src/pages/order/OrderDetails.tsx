@@ -206,8 +206,6 @@ export function OrderDetails() {
             <Text size="xs" c="dimmed">
               {order.status === "CONFIRMED" &&
                 "Seu pagamento foi confirmado e estamos preparando seu pedido para envio."}
-              {order.status === "PROCESSING" &&
-                "Seu pedido está sendo preparado para envio."}
               {order.status === "SHIPPED" &&
                 "Seu pedido foi enviado e está a caminho."}
               {order.status === "DELIVERED" &&

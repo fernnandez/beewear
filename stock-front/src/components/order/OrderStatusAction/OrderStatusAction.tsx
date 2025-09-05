@@ -22,14 +22,12 @@ export const OrderStatusAction = ({
   const queryClient = useQueryClient();
 
   // Lógica para determinar se o botão pode ser executado
-  const canShip =
-    order.status === OrderStatus.CONFIRMED ||
-    order.status === OrderStatus.PROCESSING;
+  const canShip = order.status === OrderStatus.CONFIRMED;
 
   // Tooltip explicativo
   const getTooltipMessage = () => {
     if (order.status === OrderStatus.PENDING) {
-      return "Pedido deve estar confirmado ou em processamento";
+      return "Pedido deve estar confirmado";
     }
     if (order.status === OrderStatus.SHIPPED) {
       return "Pedido já foi enviado";

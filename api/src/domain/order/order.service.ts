@@ -470,7 +470,7 @@ export class OrderService {
   ): Promise<OrderResponseDto> {
     const order = await this.findOrderByPublicIdOrFail(publicId);
 
-    // Validar transição de status (PROCESSING -> SHIPPED)
+    // Validar transição de status (CONFIRMED -> SHIPPED)
     this.validateStatusTransition(order.status, OrderStatus.SHIPPED);
 
     // Atualizar status e notas
@@ -553,12 +553,7 @@ export class OrderService {
   ): void {
     const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
       [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
-      [OrderStatus.CONFIRMED]: [
-        OrderStatus.PROCESSING,
-        OrderStatus.SHIPPED,
-        OrderStatus.CANCELLED,
-      ],
-      [OrderStatus.PROCESSING]: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
+      [OrderStatus.CONFIRMED]: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
       [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
       [OrderStatus.DELIVERED]: [], // Status final
       [OrderStatus.CANCELLED]: [], // Status final

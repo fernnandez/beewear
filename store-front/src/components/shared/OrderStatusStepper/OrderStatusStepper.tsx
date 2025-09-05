@@ -3,7 +3,6 @@ import { useMediaQuery } from "@mantine/hooks";
 import {
   IconCheck,
   IconCreditCard,
-  IconPackage,
   IconTruck,
 } from "@tabler/icons-react";
 
@@ -23,15 +22,9 @@ export const OrderStatusStepper = ({ status }: OrderStatusStepperProps) => {
     },
     {
       label: "Confirmado",
-      description: "Pedido confirmado",
+      description: "Pedido confirmado e em preparação",
       icon: IconCheck,
       status: "CONFIRMED",
-    },
-    {
-      label: "Em Preparação",
-      description: "Preparando para envio",
-      icon: IconPackage,
-      status: "PROCESSING",
     },
     {
       label: "Enviado",
@@ -51,7 +44,6 @@ export const OrderStatusStepper = ({ status }: OrderStatusStepperProps) => {
     const statusOrder = [
       "PENDING",
       "CONFIRMED",
-      "PROCESSING",
       "SHIPPED",
       "DELIVERED",
     ];

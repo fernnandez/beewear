@@ -39,8 +39,7 @@ export const markOrderAsCanceled = async (
 export const getOrderStatusLabel = (status: OrderStatus): string => {
   const statusLabels = {
     [OrderStatus.PENDING]: "Pendente",
-    [OrderStatus.CONFIRMED]: "Confirmado",
-    [OrderStatus.PROCESSING]: "Em Processamento",
+    [OrderStatus.CONFIRMED]: "Confirmado e em Preparação",
     [OrderStatus.SHIPPED]: "Enviado",
     [OrderStatus.DELIVERED]: "Entregue",
     [OrderStatus.CANCELLED]: "Cancelado",
@@ -52,7 +51,6 @@ export const getOrderStatusColor = (status: OrderStatus): string => {
   const statusColors = {
     [OrderStatus.PENDING]: "yellow",
     [OrderStatus.CONFIRMED]: "blue",
-    [OrderStatus.PROCESSING]: "violet",
     [OrderStatus.SHIPPED]: "green",
     [OrderStatus.DELIVERED]: "teal",
     [OrderStatus.CANCELLED]: "red",

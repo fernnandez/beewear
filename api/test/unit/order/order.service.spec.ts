@@ -1150,7 +1150,7 @@ describe('OrderService', () => {
       it('should mark order as shipped successfully', async () => {
         const mockOrder = {
           publicId: 'order-1',
-          status: OrderStatus.PROCESSING,
+          status: OrderStatus.CONFIRMED,
           items: [],
         };
 
@@ -1240,11 +1240,11 @@ describe('OrderService', () => {
         ).toThrow(BadRequestException);
       });
 
-      it('should throw error for invalid transition from SHIPPED to PROCESSING', async () => {
+      it('should throw error for invalid transition from SHIPPED to CONFIRMED', async () => {
         expect(() =>
           (service as any).validateStatusTransition(
             OrderStatus.SHIPPED,
-            OrderStatus.PROCESSING,
+            OrderStatus.CONFIRMED,
           ),
         ).toThrow(BadRequestException);
       });

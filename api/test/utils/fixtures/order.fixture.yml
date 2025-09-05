@@ -51,7 +51,7 @@ items:
     id: 4
     publicId: "550e8400-e29b-41d4-a716-446655440003"
     user: "@user_regular"
-    status: "PROCESSING"
+    status: "CONFIRMED"
     totalAmount: 159.99
     shippingCost: 5.00
     shippingAddress: "Rua Teste 4, 101 - Bairro Teste 4, Cidade Teste 4"
