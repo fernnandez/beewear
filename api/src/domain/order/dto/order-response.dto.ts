@@ -9,6 +9,7 @@ export class OrderResponseDto {
   shippingAddress: string;
   paymentMethodType: string;
   paymentStatus: string;
+  stripeSessionId: string;
   notes?: string;
   items: OrderItemResponseDto[];
   createdAt: Date;

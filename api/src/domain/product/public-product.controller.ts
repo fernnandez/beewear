@@ -1,11 +1,11 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/infra/auth/decorator/public.decorator';
+import { PaginatedResponseDto } from '../../shared/dto/pagination.dto';
+import { ProductQueryDto } from '../../shared/dto/product-query.dto';
 import { ProductDetailsResponseDto } from './dto/product-details-response.dto';
 import { ProductListResponseDto } from './dto/product-list-response.dto';
 import { ProductService } from './product.service';
-import { Public } from 'src/infra/auth/decorator/public.decorator';
-import { ProductQueryDto } from '../../shared/dto/product-query.dto';
-import { PaginatedResponseDto } from '../../shared/dto/pagination.dto';
 
 @Controller('public/product')
 @ApiTags('Public Product')
@@ -35,19 +35,24 @@ export class PublicProductController {
   async findAllPaginated(
     @Query() query: ProductQueryDto,
   ): Promise<PaginatedResponseDto<ProductListResponseDto>> {
-    // Separar parâmetros de paginação e filtros
-    const { page, limit, ...filters } = query;
+    // Separar parâmetros de paginação, filtros e ordenação
+    const { page, limit, sortBy, sortOrder, ...filters } = query;
 
-    // Processar arrays de cores e tamanhos
+    // Processar filtros
     const processedFilters = {
       ...filters,
-      colors: filters.colors ? filters.colors.split(',') : undefined,
-      sizes: filters.sizes ? filters.sizes.split(',') : undefined,
+      active:
+        filters.active === 'true'
+          ? true
+          : filters.active === 'false'
+            ? false
+            : undefined,
     };
 
     return this.productService.findAllPaginated(
       { page, limit },
       processedFilters,
+      { sortBy, sortOrder },
     );
   }
 

@@ -6,7 +6,6 @@ import { Repository } from 'typeorm';
 import { AppModule } from 'src/app.module';
 import { Collection } from 'src/domain/product/collection/collection.entity';
 import { Product } from 'src/domain/product/product.entity';
-import { ProductVariationSize } from 'src/domain/product/productVariation/product-variation-size.entity';
 import { ProductVariation } from 'src/domain/product/productVariation/product-variation.entity';
 import { createTestingApp } from 'test/utils/create-testing-app';
 import { runWithRollbackTransaction } from 'test/utils/database/test-transation';
@@ -23,7 +22,6 @@ describe('PublicProductController - Integration (HTTP)', () => {
   let collectionRepo: Repository<Collection>;
   let productRepo: Repository<Product>;
   let productVariationRepo: Repository<ProductVariation>;
-  let productVariationSizeRepo: Repository<ProductVariationSize>;
 
   beforeAll(async () => {
     app = await createTestingApp({
@@ -42,9 +40,6 @@ describe('PublicProductController - Integration (HTTP)', () => {
     productRepo = app.get<Repository<Product>>(getRepositoryToken(Product));
     productVariationRepo = app.get<Repository<ProductVariation>>(
       getRepositoryToken(ProductVariation),
-    );
-    productVariationSizeRepo = app.get<Repository<ProductVariationSize>>(
-      getRepositoryToken(ProductVariationSize),
     );
   });
 
@@ -502,6 +497,24 @@ describe('PublicProductController - Integration (HTTP)', () => {
             product.name === 'Produto Inativo para Teste de Filtro',
         );
         expect(inactiveProductInResponse).toBeUndefined();
+
+        // Testar filtro por produtos inativos
+        const inactiveResponse = await request(app.getHttpServer())
+          .get('/public/product/paginated?active=false')
+          .expect(200);
+
+        // Verificar que todos os produtos retornados estão inativos
+        inactiveResponse.body.data.forEach((product: any) => {
+          expect(product.active).toBe(false);
+        });
+
+        // Verificar que o produto inativo está na resposta
+        const inactiveProductInInactiveResponse =
+          inactiveResponse.body.data.find(
+            (product: any) =>
+              product.name === 'Produto Inativo para Teste de Filtro',
+          );
+        expect(inactiveProductInInactiveResponse).toBeDefined();
       }),
     );
 
@@ -534,181 +547,114 @@ describe('PublicProductController - Integration (HTTP)', () => {
     );
 
     it(
-      'should filter products by price range',
+      'should sort products by name in ascending order',
       runWithRollbackTransaction(async () => {
         // Ativar todos os produtos primeiro
         await productRepo.update({ active: false }, { active: true });
 
-        const minPrice = 100;
-        const maxPrice = 200;
+        const response = await request(app.getHttpServer())
+          .get('/public/product/paginated?sortBy=name&sortOrder=ASC')
+          .expect(200);
+
+        expect(response.body.data.length).toBeGreaterThan(1);
+
+        // Verificar se os produtos estão ordenados por nome (A-Z)
+        for (let i = 0; i < response.body.data.length - 1; i++) {
+          const currentName = response.body.data[i].name.toLowerCase();
+          const nextName = response.body.data[i + 1].name.toLowerCase();
+          expect(currentName <= nextName).toBe(true);
+        }
+      }),
+    );
+
+    it(
+      'should sort products by name in descending order',
+      runWithRollbackTransaction(async () => {
+        // Ativar todos os produtos primeiro
+        await productRepo.update({ active: false }, { active: true });
+
+        const response = await request(app.getHttpServer())
+          .get('/public/product/paginated?sortBy=name&sortOrder=DESC')
+          .expect(200);
+
+        expect(response.body.data.length).toBeGreaterThan(1);
+
+        // Verificar se os produtos estão ordenados por nome (Z-A)
+        for (let i = 0; i < response.body.data.length - 1; i++) {
+          const currentName = response.body.data[i].name.toLowerCase();
+          const nextName = response.body.data[i + 1].name.toLowerCase();
+          expect(currentName >= nextName).toBe(true);
+        }
+      }),
+    );
+
+    it(
+      'should sort products by price in ascending order',
+      runWithRollbackTransaction(async () => {
+        // Ativar todos os produtos primeiro
+        await productRepo.update({ active: false }, { active: true });
+
+        const response = await request(app.getHttpServer())
+          .get('/public/product/paginated?sortBy=price&sortOrder=ASC')
+          .expect(200);
+
+        expect(response.body.data.length).toBeGreaterThan(1);
+
+        // Verificar se os produtos estão ordenados por preço (menor para maior)
+        for (let i = 0; i < response.body.data.length - 1; i++) {
+          const currentMinPrice = Math.min(
+            ...response.body.data[i].variations.map((v: any) => v.price),
+          );
+          const nextMinPrice = Math.min(
+            ...response.body.data[i + 1].variations.map((v: any) => v.price),
+          );
+          expect(currentMinPrice <= nextMinPrice).toBe(true);
+        }
+      }),
+    );
+
+    it(
+      'should sort products by price in descending order',
+      runWithRollbackTransaction(async () => {
+        // Ativar todos os produtos primeiro
+        await productRepo.update({ active: false }, { active: true });
+
+        const response = await request(app.getHttpServer())
+          .get('/public/product/paginated?sortBy=price&sortOrder=DESC')
+          .expect(200);
+
+        expect(response.body.data.length).toBeGreaterThan(1);
+
+        // Verificar se os produtos estão ordenados por preço (maior para menor)
+        for (let i = 0; i < response.body.data.length - 1; i++) {
+          const currentMinPrice = Math.min(
+            ...response.body.data[i].variations.map((v: any) => v.price),
+          );
+          const nextMinPrice = Math.min(
+            ...response.body.data[i + 1].variations.map((v: any) => v.price),
+          );
+          expect(currentMinPrice >= nextMinPrice).toBe(true);
+        }
+      }),
+    );
+
+    it(
+      'should use default sorting when invalid sort parameters are provided',
+      runWithRollbackTransaction(async () => {
+        // Ativar todos os produtos primeiro
+        await productRepo.update({ active: false }, { active: true });
 
         const response = await request(app.getHttpServer())
           .get(
-            `/public/product/paginated?minPrice=${minPrice}&maxPrice=${maxPrice}`,
+            '/public/product/paginated?sortBy=invalidField&sortOrder=INVALID',
           )
           .expect(200);
 
-        // Verificar que todos os produtos retornados estão na faixa de preço
-        response.body.data.forEach((product: any) => {
-          product.variations.forEach((variation: any) => {
-            const price =
-              typeof variation.price === 'string'
-                ? parseFloat(variation.price)
-                : variation.price;
-            expect(price).toBeGreaterThanOrEqual(minPrice);
-            expect(price).toBeLessThanOrEqual(maxPrice);
-          });
-        });
-      }),
-    );
+        expect(response.body.data).toBeDefined();
+        expect(Array.isArray(response.body.data)).toBe(true);
 
-    it(
-      'should filter products by colors',
-      runWithRollbackTransaction(async () => {
-        // Ativar todos os produtos primeiro
-        await productRepo.update({ active: false }, { active: true });
-
-        // Buscar uma cor existente
-        const existingVariation = await productVariationRepo.findOne({
-          where: {},
-        });
-
-        expect(existingVariation).toBeDefined();
-
-        const response = await request(app.getHttpServer())
-          .get(`/public/product/paginated?colors=${existingVariation!.color}`)
-          .expect(200);
-
-        // Verificar que todos os produtos retornados têm a cor especificada
-        response.body.data.forEach((product: any) => {
-          const hasColor = product.variations.some(
-            (variation: any) => variation.color === existingVariation!.color,
-          );
-          expect(hasColor).toBe(true);
-        });
-      }),
-    );
-
-    it(
-      'should filter products by multiple colors',
-      runWithRollbackTransaction(async () => {
-        // Ativar todos os produtos primeiro
-        await productRepo.update({ active: false }, { active: true });
-
-        // Buscar duas cores existentes
-        const variations = await productVariationRepo.find({
-          take: 2,
-        });
-
-        expect(variations.length).toBeGreaterThanOrEqual(2);
-
-        const colors = variations.map((v) => v.color).join(',');
-        const response = await request(app.getHttpServer())
-          .get(`/public/product/paginated?colors=${colors}`)
-          .expect(200);
-
-        // Verificar que todos os produtos retornados têm pelo menos uma das cores
-        response.body.data.forEach((product: any) => {
-          const hasAnyColor = product.variations.some((variation: any) =>
-            variations.some((v) => v.color === variation.color),
-          );
-          expect(hasAnyColor).toBe(true);
-        });
-      }),
-    );
-
-    it(
-      'should filter products by sizes',
-      runWithRollbackTransaction(async () => {
-        // Ativar todos os produtos primeiro
-        await productRepo.update({ active: false }, { active: true });
-
-        // Buscar um tamanho existente
-        const existingSize = await productVariationSizeRepo.findOne({
-          where: {},
-        });
-
-        expect(existingSize).toBeDefined();
-
-        const response = await request(app.getHttpServer())
-          .get(`/public/product/paginated?sizes=${existingSize!.size}`)
-          .expect(200);
-
-        // Verificar que todos os produtos retornados têm o tamanho especificado
-        response.body.data.forEach((product: any) => {
-          const hasSize = product.variations.some((variation: any) =>
-            variation.sizes.some(
-              (size: any) => size.size === existingSize!.size.toString(),
-            ),
-          );
-          expect(hasSize).toBe(true);
-        });
-      }),
-    );
-
-    it(
-      'should filter products by multiple sizes',
-      runWithRollbackTransaction(async () => {
-        // Ativar todos os produtos primeiro
-        await productRepo.update({ active: false }, { active: true });
-
-        // Buscar dois tamanhos existentes
-        const sizes = await productVariationSizeRepo.find({
-          take: 2,
-        });
-
-        expect(sizes.length).toBeGreaterThanOrEqual(2);
-
-        const sizeStrings = sizes.map((s) => s.size.toString()).join(',');
-        const response = await request(app.getHttpServer())
-          .get(`/public/product/paginated?sizes=${sizeStrings}`)
-          .expect(200);
-
-        // Verificar que todos os produtos retornados têm pelo menos um dos tamanhos
-        response.body.data.forEach((product: any) => {
-          const hasAnySize = product.variations.some((variation: any) =>
-            variation.sizes.some((size: any) =>
-              sizes.some((s) => s.size.toString() === size.size),
-            ),
-          );
-          expect(hasAnySize).toBe(true);
-        });
-      }),
-    );
-
-    it(
-      'should filter products by date range',
-      runWithRollbackTransaction(async () => {
-        // Ativar todos os produtos primeiro
-        await productRepo.update({ active: false }, { active: true });
-
-        const startDate = '2020-01-01';
-        const endDate = '2030-12-31';
-
-        const response = await request(app.getHttpServer())
-          .get(
-            `/public/product/paginated?startDate=${startDate}&endDate=${endDate}`,
-          )
-          .expect(200);
-
-        // Verificar que todos os produtos retornados estão na faixa de data
-        response.body.data.forEach((product: any) => {
-          const productDate = new Date(product.createdAt);
-          const start = new Date(startDate);
-          const end = new Date(endDate);
-
-          // Verificar se as datas são válidas antes de comparar
-          if (
-            !isNaN(productDate.getTime()) &&
-            !isNaN(start.getTime()) &&
-            !isNaN(end.getTime())
-          ) {
-            expect(productDate.getTime()).toBeGreaterThanOrEqual(
-              start.getTime(),
-            );
-            expect(productDate.getTime()).toBeLessThanOrEqual(end.getTime());
-          }
-        });
+        // Deve usar ordenação padrão por createdAt DESC
+        expect(response.body.data.length).toBeGreaterThan(0);
       }),
     );
 
@@ -727,7 +673,7 @@ describe('PublicProductController - Integration (HTTP)', () => {
 
         const response = await request(app.getHttpServer())
           .get(
-            `/public/product/paginated?active=true&collectionId=${existingCollection!.publicId}&minPrice=50&maxPrice=500`,
+            `/public/product/paginated?active=true&collectionId=${existingCollection!.publicId}`,
           )
           .expect(200);
 
@@ -956,9 +902,7 @@ describe('PublicProductController - Integration (HTTP)', () => {
 
         // Teste com múltiplos filtros incluindo casos extremos
         const response = await request(app.getHttpServer())
-          .get(
-            '/public/product/paginated?active=true&minPrice=0&maxPrice=999999&search=&colors=&sizes=',
-          )
+          .get('/public/product/paginated?active=true&search=')
           .expect(200);
 
         expect(response.body.data).toBeDefined();
@@ -994,46 +938,6 @@ describe('PublicProductController - Integration (HTTP)', () => {
 
         expect(response.body.data).toBeDefined();
         expect(Array.isArray(response.body.data)).toBe(true);
-      }),
-    );
-
-    it(
-      'should handle date filters with invalid date formats gracefully',
-      runWithRollbackTransaction(async () => {
-        // Ativar todos os produtos primeiro
-        await productRepo.update({ active: false }, { active: true });
-
-        const response = await request(app.getHttpServer())
-          .get(
-            '/public/product/paginated?startDate=invalid-date&endDate=also-invalid',
-          )
-          .expect(500); // Database error for invalid timestamp
-
-        expect(response.body.message).toBeDefined();
-      }),
-    );
-
-    it(
-      'should handle price filters with decimal values',
-      runWithRollbackTransaction(async () => {
-        // Ativar todos os produtos primeiro
-        await productRepo.update({ active: false }, { active: true });
-
-        const response = await request(app.getHttpServer())
-          .get('/public/product/paginated?minPrice=10.50&maxPrice=99.99')
-          .expect(200);
-
-        // Verificar que todos os produtos retornados estão na faixa de preço
-        response.body.data.forEach((product: any) => {
-          product.variations.forEach((variation: any) => {
-            const price =
-              typeof variation.price === 'string'
-                ? parseFloat(variation.price)
-                : variation.price;
-            expect(price).toBeGreaterThanOrEqual(10.5);
-            expect(price).toBeLessThanOrEqual(99.99);
-          });
-        });
       }),
     );
 

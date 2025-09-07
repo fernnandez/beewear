@@ -55,6 +55,13 @@ export const OrderInfoSection = ({ order }: OrderInfoSectionProps) => {
           </Text>
 
           <Text size="sm" c="dimmed" mb={4}>
+            ID do Pagamento
+          </Text>
+          <Text fw={500} mb="md">
+            {order.stripeSessionId}
+          </Text>
+
+          <Text size="sm" c="dimmed" mb={4}>
             Status do Pedido
           </Text>
           <Badge

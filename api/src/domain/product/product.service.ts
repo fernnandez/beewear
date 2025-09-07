@@ -72,19 +72,10 @@ export class ProductService {
   async findAllPaginated(
     pagination: PaginationDto,
     filters: ProductFilterDto,
+    sortOptions?: { sortBy?: string; sortOrder?: string },
   ): Promise<PaginatedResponseDto<ProductListResponseDto>> {
     const { page = 1, limit = 10 } = pagination;
-    const {
-      search,
-      active,
-      collectionId,
-      minPrice,
-      maxPrice,
-      colors,
-      sizes,
-      startDate,
-      endDate,
-    } = filters;
+    const { search, active, collectionId } = filters;
 
     const queryBuilder = this.productRepo
       .createQueryBuilder('product')
@@ -110,32 +101,33 @@ export class ProductService {
       });
     }
 
-    if (minPrice !== undefined) {
-      queryBuilder.andWhere('variations.price >= :minPrice', { minPrice });
-    }
+    // Aplicar ordenação
+    if (sortOptions?.sortBy && sortOptions?.sortOrder) {
+      const { sortBy, sortOrder } = sortOptions;
+      const validSortFields = ['name', 'createdAt', 'updatedAt', 'price'];
+      const validSortOrders = ['ASC', 'DESC'];
 
-    if (maxPrice !== undefined) {
-      queryBuilder.andWhere('variations.price <= :maxPrice', { maxPrice });
+      if (
+        validSortFields.includes(sortBy) &&
+        validSortOrders.includes(sortOrder)
+      ) {
+        if (sortBy === 'price') {
+          // Para preço, ordenar pela variação com menor preço
+          queryBuilder.orderBy('variations.price', sortOrder as 'ASC' | 'DESC');
+        } else {
+          queryBuilder.orderBy(
+            `product.${sortBy}`,
+            sortOrder as 'ASC' | 'DESC',
+          );
+        }
+      } else {
+        // Ordenação padrão se parâmetros inválidos
+        queryBuilder.orderBy('product.createdAt', 'DESC');
+      }
+    } else {
+      // Ordenação padrão por data de criação (mais recentes primeiro)
+      queryBuilder.orderBy('product.createdAt', 'DESC');
     }
-
-    if (colors && colors.length > 0) {
-      queryBuilder.andWhere('variations.color IN (:...colors)', { colors });
-    }
-
-    if (sizes && sizes.length > 0) {
-      queryBuilder.andWhere('sizes.size IN (:...sizes)', { sizes });
-    }
-
-    if (startDate) {
-      queryBuilder.andWhere('product.createdAt >= :startDate', { startDate });
-    }
-
-    if (endDate) {
-      queryBuilder.andWhere('product.createdAt <= :endDate', { endDate });
-    }
-
-    // Ordenação padrão por data de criação (mais recentes primeiro)
-    queryBuilder.orderBy('product.createdAt', 'DESC');
 
     // Aplicar paginação
     const skip = (page - 1) * limit;

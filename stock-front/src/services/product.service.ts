@@ -5,6 +5,8 @@ import type {
   ProductFormValues,
   StockDashboardDto,
 } from "src/types/product";
+import type { ProductQueryParams } from "../types/product-filters";
+import type { PaginatedResponse } from "../types/pagination";
 import api from "./api";
 import { uploadImage } from "./storage.service";
 
@@ -32,6 +34,26 @@ export const createProduct = async (
 
 export const fetchProducts = async () => {
   const response = await api.get<Product[]>("/product");
+  return response.data;
+};
+
+export const fetchProductsPaginated = async (params: ProductQueryParams = {}): Promise<PaginatedResponse<Product>> => {
+  const searchParams = new URLSearchParams();
+  
+  // Add pagination params
+  if (params.page) searchParams.append('page', params.page.toString());
+  if (params.limit) searchParams.append('limit', params.limit.toString());
+  
+  // Add filter params
+  if (params.search) searchParams.append('search', params.search);
+  if (params.collectionId) searchParams.append('collectionId', params.collectionId);
+  if (params.active !== undefined) searchParams.append('active', params.active.toString());
+  
+  // Add sorting params
+  if (params.sortBy) searchParams.append('sortBy', params.sortBy);
+  if (params.sortOrder) searchParams.append('sortOrder', params.sortOrder);
+  
+  const response = await api.get<PaginatedResponse<Product>>(`/product/paginated?${searchParams.toString()}`);
   return response.data;
 };
 

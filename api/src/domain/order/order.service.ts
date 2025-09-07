@@ -12,8 +12,8 @@ import { User } from '../user/user.entity';
 
 import { PaymentProvider } from 'src/integration/payment/payment.interface';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { MarkAsShippedDto } from './dto/mark-as-shipped.dto';
 import { MarkAsCanceledDto } from './dto/mark-as-canceled.dto';
+import { MarkAsShippedDto } from './dto/mark-as-shipped.dto';
 import { OrderItemResponseDto } from './dto/order-item-response.dto';
 import { OrderListResponseDto } from './dto/order-list-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
@@ -624,6 +624,7 @@ export class OrderService {
     return {
       publicId: order.publicId,
       status: order.status,
+      stripeSessionId: order.stripeSessionId,
       totalAmount: Number(order.totalAmount),
       shippingCost: Number(order.shippingCost),
       shippingAddress: order.shippingAddress,
@@ -644,6 +645,7 @@ export class OrderService {
 
     return {
       publicId: order.publicId,
+      stripeSessionId: order.stripeSessionId,
       status: order.status,
       totalAmount: Number(order.totalAmount),
       totalItems,

@@ -1,14 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  IsOptional,
-  IsPositive,
-  Max,
-  Min,
-  IsString,
-  IsBoolean,
-  IsNumber,
-} from 'class-validator';
+import { IsOptional, IsPositive, IsString, Max, Min } from 'class-validator';
 
 export class ProductQueryDto {
   // Parâmetros de paginação
@@ -52,9 +44,8 @@ export class ProductQueryDto {
     required: false,
   })
   @IsOptional()
-  @Type(() => Boolean)
-  @IsBoolean()
-  active?: boolean;
+  @IsString()
+  active?: string;
 
   @ApiProperty({
     description: 'Filtrar por coleção (publicId)',
@@ -65,52 +56,20 @@ export class ProductQueryDto {
   collectionId?: string;
 
   @ApiProperty({
-    description: 'Filtrar por faixa de preço mínima',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  minPrice?: number;
-
-  @ApiProperty({
-    description: 'Filtrar por faixa de preço máxima',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  maxPrice?: number;
-
-  @ApiProperty({
-    description: 'Filtrar por cores (separadas por vírgula)',
+    description: 'Campo para ordenação',
+    enum: ['name', 'createdAt', 'updatedAt', 'price'],
     required: false,
   })
   @IsOptional()
   @IsString()
-  colors?: string;
+  sortBy?: string;
 
   @ApiProperty({
-    description: 'Filtrar por tamanhos (separados por vírgula)',
+    description: 'Direção da ordenação',
+    enum: ['ASC', 'DESC'],
     required: false,
   })
   @IsOptional()
   @IsString()
-  sizes?: string;
-
-  @ApiProperty({
-    description: 'Data de início para filtro por data de criação',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  startDate?: string;
-
-  @ApiProperty({
-    description: 'Data de fim para filtro por data de criação',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  endDate?: string;
+  sortOrder?: string;
 }

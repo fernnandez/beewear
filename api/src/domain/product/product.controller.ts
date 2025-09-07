@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -21,6 +22,10 @@ import { UpdateProductStatusDto } from './dto/update-product-status.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
+import { ProductQueryDto } from '../../shared/dto/product-query.dto';
+import { PaginatedResponseDto } from '../../shared/dto/pagination.dto';
+import { ProductFilterDto } from '../../shared/dto/filter.dto';
+import { PaginationDto } from '../../shared/dto/pagination.dto';
 
 @ApiBearerAuth('access-token')
 @ApiTags('Product')
@@ -43,6 +48,39 @@ export class ProductController {
   })
   async findAll(): Promise<Product[]> {
     return this.productService.findAll();
+  }
+
+  @Get('paginated')
+  @ApiOperation({
+    summary: 'Listar produtos com paginação, filtros e ordenação',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista paginada de produtos',
+    type: PaginatedResponseDto,
+  })
+  async findAllPaginated(@Query() query: ProductQueryDto) {
+    // Convert ProductQueryDto to separate PaginationDto and ProductFilterDto
+    const pagination: PaginationDto = {
+      page: query.page,
+      limit: query.limit,
+    };
+
+    const filters: ProductFilterDto = {
+      search: query.search,
+      active:
+        query.active === 'true'
+          ? true
+          : query.active === 'false'
+            ? false
+            : undefined,
+      collectionId: query.collectionId,
+    };
+
+    return this.productService.findAllPaginated(pagination, filters, {
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+    });
   }
 
   @Get(':publicId')

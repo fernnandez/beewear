@@ -494,5 +494,300 @@ describe('ProductController (Integration - Routes) with Fixtures', () => {
         }
       }),
     );
+
+    describe('GET /product/paginated', () => {
+      it(
+        'should return paginated products with default parameters',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated')
+            .expect(200);
+
+          expect(response.body).toHaveProperty('data');
+          expect(response.body).toHaveProperty('total');
+          expect(response.body).toHaveProperty('totalPages');
+          expect(response.body).toHaveProperty('page');
+          expect(response.body).toHaveProperty('limit');
+          expect(Array.isArray(response.body.data)).toBe(true);
+        }),
+      );
+
+      it(
+        'should handle pagination parameters correctly',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?page=1&limit=5')
+            .expect(200);
+
+          expect(response.body.page).toBe(1);
+          expect(response.body.limit).toBe(5);
+          expect(response.body.data.length).toBeLessThanOrEqual(5);
+        }),
+      );
+
+      it(
+        'should filter products by search term',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?search=Produto')
+            .expect(200);
+
+          expect(response.body.data).toBeDefined();
+          expect(Array.isArray(response.body.data)).toBe(true);
+        }),
+      );
+
+      it(
+        'should filter products by active status (true)',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?active=true')
+            .expect(200);
+
+          expect(response.body.data).toBeDefined();
+          expect(Array.isArray(response.body.data)).toBe(true);
+
+          // Verificar que todos os produtos retornados estão ativos
+          response.body.data.forEach((product: any) => {
+            expect(product.active).toBe(true);
+          });
+        }),
+      );
+
+      it(
+        'should filter products by active status (false)',
+        runWithRollbackTransaction(async () => {
+          // Desativar todos os produtos primeiro
+          await productRepo.update({ active: true }, { active: false });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?active=false')
+            .expect(200);
+
+          expect(response.body.data).toBeDefined();
+          expect(Array.isArray(response.body.data)).toBe(true);
+
+          // Verificar que todos os produtos retornados estão inativos
+          response.body.data.forEach((product: any) => {
+            expect(product.active).toBe(false);
+          });
+        }),
+      );
+
+      it(
+        'should filter products by collection',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          // Buscar uma coleção existente
+          const existingCollection = await collectionRepo.findOneBy({
+            name: 'Roupas Masculinas',
+          });
+
+          expect(existingCollection).toBeDefined();
+
+          const response = await request(app.getHttpServer())
+            .get(
+              `/product/paginated?collectionId=${existingCollection!.publicId}`,
+            )
+            .expect(200);
+
+          expect(response.body.data).toBeDefined();
+          expect(Array.isArray(response.body.data)).toBe(true);
+
+          // Verificar que todos os produtos retornados pertencem à coleção especificada
+          response.body.data.forEach((product: any) => {
+            expect(product.collection.publicId).toBe(
+              existingCollection!.publicId,
+            );
+          });
+        }),
+      );
+
+      it(
+        'should sort products by name in ascending order',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?sortBy=name&sortOrder=ASC')
+            .expect(200);
+
+          expect(response.body.data.length).toBeGreaterThan(1);
+
+          // Verificar se os produtos estão ordenados por nome (A-Z)
+          for (let i = 0; i < response.body.data.length - 1; i++) {
+            const currentName = response.body.data[i].name.toLowerCase();
+            const nextName = response.body.data[i + 1].name.toLowerCase();
+            expect(currentName <= nextName).toBe(true);
+          }
+        }),
+      );
+
+      it(
+        'should sort products by name in descending order',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?sortBy=name&sortOrder=DESC')
+            .expect(200);
+
+          expect(response.body.data.length).toBeGreaterThan(1);
+
+          // Verificar se os produtos estão ordenados por nome (Z-A)
+          for (let i = 0; i < response.body.data.length - 1; i++) {
+            const currentName = response.body.data[i].name.toLowerCase();
+            const nextName = response.body.data[i + 1].name.toLowerCase();
+            expect(currentName >= nextName).toBe(true);
+          }
+        }),
+      );
+
+      it(
+        'should sort products by price in ascending order',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?sortBy=price&sortOrder=ASC')
+            .expect(200);
+
+          expect(response.body.data.length).toBeGreaterThan(1);
+
+          // Verificar se os produtos estão ordenados por preço (menor para maior)
+          for (let i = 0; i < response.body.data.length - 1; i++) {
+            const currentMinPrice = Math.min(
+              ...response.body.data[i].variations.map((v: any) => v.price),
+            );
+            const nextMinPrice = Math.min(
+              ...response.body.data[i + 1].variations.map((v: any) => v.price),
+            );
+            expect(currentMinPrice <= nextMinPrice).toBe(true);
+          }
+        }),
+      );
+
+      it(
+        'should sort products by price in descending order',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?sortBy=price&sortOrder=DESC')
+            .expect(200);
+
+          expect(response.body.data.length).toBeGreaterThan(1);
+
+          // Verificar se os produtos estão ordenados por preço (maior para menor)
+          for (let i = 0; i < response.body.data.length - 1; i++) {
+            const currentMinPrice = Math.min(
+              ...response.body.data[i].variations.map((v: any) => v.price),
+            );
+            const nextMinPrice = Math.min(
+              ...response.body.data[i + 1].variations.map((v: any) => v.price),
+            );
+            expect(currentMinPrice >= nextMinPrice).toBe(true);
+          }
+        }),
+      );
+
+      it(
+        'should use default sorting when invalid sort parameters are provided',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?sortBy=invalidField&sortOrder=INVALID')
+            .expect(200);
+
+          expect(response.body.data).toBeDefined();
+          expect(Array.isArray(response.body.data)).toBe(true);
+
+          // Deve usar ordenação padrão por createdAt DESC
+          expect(response.body.data.length).toBeGreaterThan(0);
+        }),
+      );
+
+      it(
+        'should handle multiple filters combined',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          // Buscar uma coleção existente
+          const existingCollection = await collectionRepo.findOneBy({
+            name: 'Roupas Masculinas',
+          });
+
+          expect(existingCollection).toBeDefined();
+
+          const response = await request(app.getHttpServer())
+            .get(
+              `/product/paginated?active=true&collectionId=${existingCollection!.publicId}&search=Produto&sortBy=name&sortOrder=ASC`,
+            )
+            .expect(200);
+
+          expect(response.body.data).toBeDefined();
+          expect(Array.isArray(response.body.data)).toBe(true);
+
+          // Verificar que todos os produtos retornados atendem aos critérios
+          response.body.data.forEach((product: any) => {
+            expect(product.active).toBe(true);
+            expect(product.collection.publicId).toBe(
+              existingCollection!.publicId,
+            );
+          });
+        }),
+      );
+
+      it(
+        'should handle undefined active parameter',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?active=undefined')
+            .expect(200);
+
+          expect(response.body.data).toBeDefined();
+          expect(Array.isArray(response.body.data)).toBe(true);
+        }),
+      );
+
+      it(
+        'should handle empty active parameter',
+        runWithRollbackTransaction(async () => {
+          // Ativar todos os produtos primeiro
+          await productRepo.update({ active: false }, { active: true });
+
+          const response = await request(app.getHttpServer())
+            .get('/product/paginated?active=')
+            .expect(200);
+
+          expect(response.body.data).toBeDefined();
+          expect(Array.isArray(response.body.data)).toBe(true);
+        }),
+      );
+    });
   });
 });

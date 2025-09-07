@@ -1,63 +1,72 @@
 import { ProductTable } from "@components/product/ProductTable/ProductTable";
-import {
-  Button,
-  Card,
-  Container,
-  Flex,
-  Group,
-  Select,
-  Text,
-  TextInput,
-  Title,
-} from "@mantine/core";
-import { fetchProducts } from "@services/product.service";
-import {
-  IconFilter,
-  IconPackage,
-  IconPlus,
-  IconSearch,
-} from "@tabler/icons-react";
+import { FilterBar, Pagination } from "@components/shared";
+import { Button, Card, Container, Group, Title, Text } from "@mantine/core";
+import { fetchCollections } from "@services/collection.service";
+import { IconPackage, IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useProductsPaginated } from "../../hooks/useProductsPaginated";
+import { usePagination } from "../../hooks/usePagination";
+import type {
+  ProductFilters,
+  ProductSortOptions,
+} from "../../types/product-filters";
+import type { PaginatedResponse } from "../../types/pagination";
+import type { Product } from "../../types/product";
 
 export default function ProductsPage() {
   const navigate = useNavigate();
-  const { data: products = [] } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
+
+  // Pagination state
+  const { pagination, setPage, setLimit, resetPagination, updatePagination } =
+    usePagination({
+      initialPage: 1,
+      initialLimit: 20,
+    });
+
+  // Filters state
+  const [filters, setFilters] = useState<ProductFilters>({});
+
+  // Sort state
+  const [sortOptions, setSortOptions] = useState<ProductSortOptions>({
+    sortBy: "createdAt",
+    sortOrder: "DESC",
   });
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(
-    "Todas"
-  );
-  const [selectedStatus, setSelectedStatus] = useState<string | null>("Todos");
+  // Fetch collections for filter dropdown
+  const { data: collections = [] } = useQuery({
+    queryKey: ["collections"],
+    queryFn: fetchCollections,
+  });
 
-  // Função para obter coleções únicas
-  const getUniqueCollections = () => {
-    const collections = products.map((p) => p.collection);
-    const unique = collections.filter(
-      (collection, index, self) =>
-        index === self.findIndex((c) => c.id === collection.id)
-    );
-    return unique;
+  // Fetch paginated products
+  const { data: productsData, isLoading } = useProductsPaginated({
+    page: pagination.page,
+    limit: pagination.limit,
+    ...filters,
+    ...sortOptions,
+  }) as { data: PaginatedResponse<Product> | undefined; isLoading: boolean };
+
+  // Update pagination when data changes
+  useEffect(() => {
+    if (productsData) {
+      updatePagination(productsData.total, productsData.totalPages);
+    }
+  }, [productsData, updatePagination]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    resetPagination();
+  }, [filters, sortOptions, resetPagination]);
+
+  const handleFiltersChange = (newFilters: ProductFilters) => {
+    setFilters(newFilters);
   };
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesCollection =
-      selectedCollection === "Todas" ||
-      product.collection.name === selectedCollection;
-    const matchesStatus =
-      selectedStatus === "Todos" ||
-      (selectedStatus === "Ativo" && product.active) ||
-      (selectedStatus === "Inativo" && !product.active);
-
-    return matchesSearch && matchesCollection && matchesStatus;
-  });
+  const handleSortChange = (newSortOptions: ProductSortOptions) => {
+    setSortOptions(newSortOptions);
+  };
 
   return (
     <>
@@ -75,65 +84,45 @@ export default function ProductsPage() {
           </Button>
         </Group>
 
-        <Card shadow="sm" padding="lg" radius="md" withBorder mb="lg">
-          <Card.Section withBorder inheritPadding py="xs" mb="md">
-            <Group>
-              <IconFilter size={18} />
-              <Title order={4}>Filtros</Title>
-            </Group>
-          </Card.Section>
-
-          <Flex gap="md" wrap="wrap">
-            <TextInput
-              placeholder="Buscar por nome..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              leftSection={<IconSearch size={16} />}
-              style={{ flex: 1, minWidth: "200px" }}
-            />
-
-            <Select
-              placeholder="Coleção"
-              data={["Todas", ...getUniqueCollections().map((c) => c.name)]}
-              value={selectedCollection}
-              onChange={setSelectedCollection}
-              style={{ minWidth: "150px" }}
-            />
-
-            <Select
-              placeholder="Status"
-              data={["Todos", "Ativo", "Inativo"]}
-              value={selectedStatus}
-              onChange={setSelectedStatus}
-              style={{ minWidth: "120px" }}
-            />
-
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedCollection("Todas");
-                setSelectedStatus("Todos");
-              }}
-            >
-              Limpar Filtros
-            </Button>
-          </Flex>
-        </Card>
+        {/* Filtros */}
+        <FilterBar
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          collections={collections.map((c) => ({
+            id: c.publicId,
+            name: c.name,
+          }))}
+        />
 
         {/* Lista de Produtos */}
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
+        <Card shadow="sm" padding="lg" radius="md" withBorder mb="lg">
           <Card.Section withBorder inheritPadding py="xs" mb="md">
             <Group>
               <IconPackage size={18} />
               <Title order={4}>
-                Lista de Produtos ({filteredProducts.length})
+                Lista de Produtos ({productsData?.total || 0})
               </Title>
             </Group>
           </Card.Section>
 
-          <ProductTable products={filteredProducts} />
+          <ProductTable
+            products={productsData?.data || []}
+            isLoading={isLoading}
+            sortOptions={sortOptions}
+            onSortChange={handleSortChange}
+          />
         </Card>
+
+        {/* Paginação */}
+        {productsData && productsData.totalPages > 1 && (
+          <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Pagination
+              pagination={pagination}
+              onPageChange={setPage}
+              onLimitChange={setLimit}
+            />
+          </Card>
+        )}
       </Container>
     </>
   );

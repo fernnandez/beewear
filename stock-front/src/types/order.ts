@@ -30,6 +30,7 @@ export interface OrderDetails {
   shippingAddress: string;
   paymentMethodType: string;
   paymentStatus: string;
+  stripeSessionId: string;
   notes?: string;
   items: OrderItem[];
   createdAt: Date;
