@@ -290,8 +290,74 @@ const expandedCollections = [
   },
 ];
 
+// Mock do serviço de storage para o seeder
+const mockStorageService = {
+  upload: async (fileBuffer: Buffer, filename: string): Promise<string> => {
+    // Em desenvolvimento, retorna a URL completa da imagem
+    // Em produção, seria feito upload para Cloudinary
+    const baseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
+    return `${baseUrl}/uploads/images/${filename}`;
+  },
+  getImageUrl: (filename: string): string => {
+    const baseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
+    return `${baseUrl}/uploads/images/${filename}`;
+  },
+  imageExists: async (filename: string): Promise<boolean> => {
+    const fs = await import('fs');
+    const path = await import('path');
+    const imagePath = path.join(process.cwd(), 'test/utils/files', filename);
+    return fs.existsSync(imagePath);
+  },
+};
+
 // Instanciar o serviço de imagens
-const imageSeederService = new ImageSeederService(null as any);
+const imageSeederService = new ImageSeederService(mockStorageService as any);
+
+// Função para truncar todas as tabelas
+async function truncateTables(dataSource: DataSource) {
+  console.log('🗑️  Limpando tabelas existentes...');
+
+  // Obter todas as tabelas do banco
+  const tables = await dataSource.query(`
+    SELECT tablename 
+    FROM pg_tables 
+    WHERE schemaname = 'public' 
+    AND tablename NOT LIKE 'pg_%'
+    AND tablename NOT LIKE 'sql_%'
+    ORDER BY tablename;
+  `);
+
+  if (tables.length === 0) {
+    console.log('ℹ️  Nenhuma tabela encontrada para truncar');
+    return;
+  }
+
+  // Desabilitar foreign key checks temporariamente
+  await dataSource.query('SET session_replication_role = replica;');
+
+  // Truncar todas as tabelas encontradas
+  const tableNames = tables.map((table: any) => table.tablename);
+
+  console.log(`📋 Encontradas ${tableNames.length} tabelas para truncar:`);
+  tableNames.forEach((tableName: string) => {
+    console.log(`   - ${tableName}`);
+  });
+
+  for (const tableName of tableNames) {
+    try {
+      await dataSource.query(
+        `TRUNCATE TABLE "${tableName}" RESTART IDENTITY CASCADE;`,
+      );
+      console.log(`✅ Tabela ${tableName} truncada`);
+    } catch (error) {
+      console.log(`⚠️  Erro ao truncar ${tableName}:`, error.message);
+    }
+  }
+
+  // Reabilitar foreign key checks
+  await dataSource.query('SET session_replication_role = DEFAULT;');
+  console.log('✅ Todas as tabelas foram limpas');
+}
 
 // Função principal de seeding
 async function seedDatabase() {
@@ -304,6 +370,9 @@ async function seedDatabase() {
 
     await dataSource.initialize();
     console.log('✅ Conectado ao banco de dados');
+
+    // Truncar tabelas antes de inserir novos dados
+    await truncateTables(dataSource);
 
     const userRepository = dataSource.getRepository(User);
     const addressRepository = dataSource.getRepository(Address);

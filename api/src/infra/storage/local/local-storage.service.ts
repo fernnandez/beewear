@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { LocalStorageInterface } from './local.interface';
 
 @Injectable()
 export class LocalStorageService implements LocalStorageInterface {
   async upload(fileBuffer: Buffer, filename: string): Promise<string> {
-    // Para desenvolvimento local, apenas retorna o nome do arquivo
+    // Para desenvolvimento local, retorna a URL completa da imagem
     // O arquivo já deve existir na pasta test/utils/files
-    return filename;
+    return this.getImageUrl(filename);
   }
 
   /**

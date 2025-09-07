@@ -1,26 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
-import { ImageStorageService } from '../src/infra/storage/image.interface';
+import { CloudinaryStorageInterface } from '../src/infra/storage/cloudinary/cloudinary.interface';
+import { LocalStorageInterface } from '../src/infra/storage/local/local.interface';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
 export class ImageSeederService {
   private readonly logger = new Logger(ImageSeederService.name);
-  private readonly isProduction: boolean;
 
   constructor(
     @Inject('ImageStorageService')
-    private readonly imageStorageService: ImageStorageService,
-  ) {
-    this.isProduction = process.env.NODE_ENV === 'production';
-  }
+    private readonly imageStorageService:
+      | CloudinaryStorageInterface
+      | LocalStorageInterface,
+  ) {}
 
   /**
    * Obtém imagens aleatórias da pasta files (excluindo banners)
    */
   getRandomImages(count: number): string[] {
-    const imagesDir = path.join(__dirname, '../test/utils/files');
+    const imagesDir = path.join(process.cwd(), 'test/utils/files');
     const imageFiles = fs
       .readdirSync(imagesDir)
       .filter(
@@ -41,35 +41,25 @@ export class ImageSeederService {
 
   /**
    * Processa uma imagem para o seeding
-   * Em desenvolvimento: retorna URL completa local
-   * Em produção: faz upload para Cloudinary
+   * Usa o serviço de storage configurado (Cloudinary ou Local)
    */
   async processImageForSeeding(filename: string): Promise<string> {
-    if (this.isProduction) {
-      // Em produção, faz upload para Cloudinary
-      const imagePath = path.join(__dirname, '../test/utils/files', filename);
+    const imagePath = path.join(process.cwd(), 'test/utils/files', filename);
 
-      if (!fs.existsSync(imagePath)) {
-        this.logger.warn(`Imagem não encontrada: ${filename}`);
-        return filename; // Fallback para o nome do arquivo
-      }
-
-      const fileBuffer = fs.readFileSync(imagePath);
-      const cloudinaryUrl = await this.imageStorageService.upload(
-        fileBuffer,
-        filename,
-      );
-      this.logger.debug(
-        `Uploaded to Cloudinary: ${filename} -> ${cloudinaryUrl}`,
-      );
-      return cloudinaryUrl;
-    } else {
-      // Em desenvolvimento, retorna URL completa local
-      const baseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
-      const localUrl = `${baseUrl}/uploads/images/${filename}`;
-      this.logger.debug(`Using local image: ${filename} -> ${localUrl}`);
-      return localUrl;
+    if (!fs.existsSync(imagePath)) {
+      this.logger.warn(`Imagem não encontrada: ${filename}`);
+      // Fallback para URL completa usando o serviço
+      return this.imageStorageService.getImageUrl(filename);
     }
+
+    const fileBuffer = fs.readFileSync(imagePath);
+    const imageUrl = await this.imageStorageService.upload(
+      fileBuffer,
+      filename,
+    );
+
+    this.logger.debug(`Processed image: ${filename} -> ${imageUrl}`);
+    return imageUrl;
   }
 
   /**
@@ -87,32 +77,24 @@ export class ImageSeederService {
   }
 
   /**
-   * Gera URL completa para a imagem baseada no ambiente
+   * Gera URL completa para a imagem usando o serviço de storage
    */
   getImageUrl(filename: string): string {
-    if (this.isProduction) {
-      // Em produção, retorna a URL do Cloudinary (já é completa)
-      return filename;
-    } else {
-      // Em desenvolvimento, retorna URL local
-      const baseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
-      return `${baseUrl}/uploads/images/${filename}`;
-    }
+    return this.imageStorageService.getImageUrl(filename);
   }
 
   /**
-   * Verifica se uma imagem existe localmente
+   * Verifica se uma imagem existe usando o serviço de storage
    */
-  imageExists(filename: string): boolean {
-    const imagePath = path.join(__dirname, '../test/utils/files', filename);
-    return fs.existsSync(imagePath);
+  async imageExists(filename: string): Promise<boolean> {
+    return this.imageStorageService.imageExists(filename);
   }
 
   /**
    * Lista todas as imagens disponíveis (excluindo banners)
    */
   getAvailableImages(): string[] {
-    const imagesDir = path.join(__dirname, '../test/utils/files');
+    const imagesDir = path.join(process.cwd(), 'test/utils/files');
     return fs
       .readdirSync(imagesDir)
       .filter(

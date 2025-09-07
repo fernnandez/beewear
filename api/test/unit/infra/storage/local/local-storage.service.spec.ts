@@ -22,7 +22,7 @@ describe('LocalStorageService', () => {
 
       const result = await service.upload(fileBuffer, filename);
 
-      expect(result).toBe(filename);
+      expect(result).toBe(`http://localhost:3000/uploads/images/${filename}`);
     });
   });
 
