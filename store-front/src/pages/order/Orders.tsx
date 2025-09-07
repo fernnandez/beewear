@@ -1,6 +1,6 @@
 import {
-  getPaymentMethodText,
   getPaymentMethodIcon,
+  getPaymentMethodText,
   getStatusColor,
   getStatusIcon,
   getStatusText,
@@ -36,7 +36,12 @@ export function Orders() {
   const isDark = colorScheme === "dark";
   const navigate = useNavigate();
 
-  const { data: orders, isLoading: loading, error, refetch } = useOrders();
+  const {
+    data: orders,
+    isLoading: loading,
+    error,
+    refetch,
+  } = useOrders();
 
   if (loading) {
     return (
@@ -79,8 +84,10 @@ export function Orders() {
             >
               Voltar
             </Button>
+            <Title order={2}>Meus Pedidos</Title>
           </Group>
         </Group>
+
 
         {/* Orders List */}
         {orders?.length === 0 ? (
@@ -174,7 +181,7 @@ export function Orders() {
                         </Group>
 
                         <Group gap="xs">
-                          <span style={{ fontSize: '1.2em' }}>
+                          <span style={{ fontSize: "1.2em" }}>
                             {getPaymentMethodIcon(order.paymentMethodType)}
                           </span>
                           <Text size="sm">
@@ -198,6 +205,7 @@ export function Orders() {
             })}
           </Stack>
         )}
+
       </Stack>
     </Container>
   );

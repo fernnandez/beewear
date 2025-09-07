@@ -18,14 +18,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from '../../infra/auth/decorator/public.decorator';
 import { ConfirmOrderDto } from './dto/confirm-order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { MarkAsCanceledDto } from './dto/mark-as-canceled.dto';
+import { MarkAsShippedDto } from './dto/mark-as-shipped.dto';
 import { OrderListResponseDto } from './dto/order-list-response.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { MarkAsShippedDto } from './dto/mark-as-shipped.dto';
-import { MarkAsCanceledDto } from './dto/mark-as-canceled.dto';
 import { ValidateStockResponseDto } from './dto/validate-stock-response.dto';
 import { ValidateStockDto } from './dto/validate-stock.dto';
 
@@ -48,7 +47,6 @@ export class OrderController {
   }
 
   @Get(':publicId')
-  @Public()
   async findOrderByPublicId(
     @Param('publicId') publicId: string,
   ): Promise<OrderResponseDto> {

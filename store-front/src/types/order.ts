@@ -52,3 +52,13 @@ export enum PaymentStatus {
   FAILED = 'FAILED',
   REFUNDED = 'REFUNDED',
 }
+
+export interface OrdersResponse {
+  data: OrderList[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+}

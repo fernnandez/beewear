@@ -23,6 +23,7 @@ export const useOrder = (publicId: string) => {
   });
 };
 
+
 // Hook para confirmação de pedidos após checkout
 export const useOrderConfirmation = () => {
   const [isConfirming, setIsConfirming] = useState(false);

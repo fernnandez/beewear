@@ -128,49 +128,164 @@ describe('ProductService (with Real DB Interaction)', () => {
     expect(productsAfter).toHaveLength(3); // Assumindo 3 produtos iniciais de fixtures
   });
 
-  // CTU-PS-004: Deve lidar com falha ao salvar produto e reverter/lançar erro.
-  // Este cenário é mais difícil de testar com o DB real sem simular um erro do DB.
-  // Pode ser melhor manter um mock para este caso específico, ou confiar nos testes de integração.
-  // Vou manter o cenário, mas com uma nota.
-  // it(
-  //   'should handle product save failure and throw an error (may require specific DB error simulation)',
-  //   // Para realmente testar isso, você precisaria de um mock no nível do TypeORM,
-  //   // ou uma forma de fazer o `save` do TypeORM falhar *apenas* para este teste.
-  //   // Isso é mais complexo com o DB real. Por enquanto, pode-se confiar
-  //   // no teste de integração ou usar um mock de repositório apenas para este caso.
-  //   // Se seu serviço não tem um tratamento de erro específico para save (ex: catch DB errors),
-  //   // o NestJS geralmente converterá para InternalServerError.
-  //   // Ex: Se o banco de dados estiver inacessível, o TypeORM já lançaria um erro.
-  //   // Para fins de demonstração, deixarei o teste, mas tenha em mente a complexidade.
-  //   runWithRollbackTransaction(async () => {
-  //     // Exemplo de como forçar um erro se houvesse uma validação de DB muito específica
-  //     // que o serviço tratasse antes de tentar salvar.
-  //     // Neste cenário de DB real, é mais sobre o que o TypeORM faz quando falha.
-  //     const createProductDto = {
-  //       name: 'Produto para falha DB',
-  //       active: true,
-  //       collectionPublicId: (await collectionRepo.findOneBy({
-  //         name: 'Roupas Masculinas',
-  //       }))!.publicId,
-  //       variations: [{ color: 'Fail', size: 'S', price: 100, initialStock: 1 }],
-  //     };
+  it(
+    'should test findAllPaginated with undefined pagination values (line 76)',
+    runWithRollbackTransaction(async () => {
+      // Mock data
+      const mockProducts = [
+        {
+          id: 1,
+          publicId: 'test-1',
+          name: 'Product 1',
+          active: true,
+          collection: {
+            publicId: 'collection-1',
+            name: 'Collection 1',
+            active: true,
+            description: 'Test collection',
+            imageUrl: 'test.jpg',
+          },
+          variations: [
+            {
+              publicId: 'variation-1',
+              color: 'Red',
+              name: 'Red Variation',
+              price: '99.90',
+              images: ['image1.jpg'],
+              sizes: [
+                {
+                  size: 42,
+                  stock: {
+                    quantity: 10,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ];
 
-  //     try {
-  //       await service.create(createProductDto);
-  //       // Se o código chegou aqui, o teste falha, pois deveria ter lançado um erro.
-  //       fail('Expected an error to be thrown, but it did not.');
-  //     } catch (error) {
-  //       // Verifique se o erro é o esperado ou se é um erro do TypeORM/DB
-  //       // if (error instanceof InternalServerErrorException) {
-  //       //   expect(error.message).toContain('Erro ao salvar produto');
-  //       // } else {
-  //       //   fail(`Expected InternalServerErrorException, but received: ${error.constructor.name}`);
-  //       // }
-  //       // Para o DB real, pode ser um TypeORMError ou algo mais específico.
-  //       expect(error).toBeDefined(); // Pelo menos um erro deve ser lançado
-  //     }
-  //   }),
-  // );
+      // Mock repository methods
+      jest.spyOn(productRepo, 'createQueryBuilder').mockReturnValue({
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([mockProducts, 1]),
+      } as any);
 
-  // --- Cenários de Consulta de Produtos (`findAllProducts`) ---
+      // Test with undefined pagination values to cover line 76
+      const result = await service.findAllPaginated({}, {});
+
+      expect(result).toBeDefined();
+      expect(result.data).toHaveLength(1);
+      expect(result.page).toBe(1); // default value
+      expect(result.limit).toBe(10); // default value
+    }),
+  );
+
+  it(
+    'should test mapToProductListResponseDto with product without variations (line 172)',
+    runWithRollbackTransaction(async () => {
+      // Create a product without variations
+      const productWithoutVariations = {
+        id: 1,
+        publicId: 'test-1',
+        name: 'Product Without Variations',
+        active: true,
+        collection: {
+          publicId: 'collection-1',
+          name: 'Collection 1',
+          active: true,
+          description: 'Test collection',
+          imageUrl: 'test.jpg',
+        },
+        variations: null, // No variations to test line 172
+      };
+
+      // Use reflection to access private method
+      const mapToProductListResponseDto = (
+        service as any
+      ).mapToProductListResponseDto.bind(service);
+      const result = mapToProductListResponseDto(productWithoutVariations);
+
+      expect(result).toBeDefined();
+      expect(result.publicId).toBe('test-1');
+      expect(result.name).toBe('Product Without Variations');
+      expect(result.variations).toEqual([]); // Should be empty array
+    }),
+  );
+
+  it(
+    'should test mapToProductListResponseDto with variation without sizes (line 179)',
+    runWithRollbackTransaction(async () => {
+      // Create a product with variation but no sizes
+      const productWithVariationWithoutSizes = {
+        id: 1,
+        publicId: 'test-1',
+        name: 'Product With Variation Without Sizes',
+        active: true,
+        collection: {
+          publicId: 'collection-1',
+          name: 'Collection 1',
+          active: true,
+          description: 'Test collection',
+          imageUrl: 'test.jpg',
+        },
+        variations: [
+          {
+            publicId: 'variation-1',
+            color: 'Red',
+            name: 'Red Variation',
+            price: '99.90',
+            images: ['image1.jpg'],
+            sizes: null, // No sizes to test line 179
+          },
+        ],
+      };
+
+      // Use reflection to access private method
+      const mapToProductListResponseDto = (
+        service as any
+      ).mapToProductListResponseDto.bind(service);
+      const result = mapToProductListResponseDto(
+        productWithVariationWithoutSizes,
+      );
+
+      expect(result).toBeDefined();
+      expect(result.publicId).toBe('test-1');
+      expect(result.name).toBe('Product With Variation Without Sizes');
+      expect(result.variations).toHaveLength(1);
+      expect(result.variations[0].sizes).toEqual([]); // Should be empty array
+    }),
+  );
+
+  it(
+    'should test mapToProductListResponseDto with product without collection',
+    runWithRollbackTransaction(async () => {
+      // Create a product without collection
+      const productWithoutCollection = {
+        id: 1,
+        publicId: 'test-1',
+        name: 'Product Without Collection',
+        active: true,
+        collection: null, // No collection
+        variations: [],
+      };
+
+      // Use reflection to access private method
+      const mapToProductListResponseDto = (
+        service as any
+      ).mapToProductListResponseDto.bind(service);
+      const result = mapToProductListResponseDto(productWithoutCollection);
+
+      expect(result).toBeDefined();
+      expect(result.publicId).toBe('test-1');
+      expect(result.name).toBe('Product Without Collection');
+      expect(result.collection).toBeUndefined();
+      expect(result.variations).toEqual([]);
+    }),
+  );
 });

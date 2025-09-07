@@ -11,6 +11,11 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product.entity';
 import { Size } from './productVariation/product-variation-size.entity';
 import { ProductVariationService } from './productVariation/product-variation.service';
+import {
+  PaginationDto,
+  PaginatedResponseDto,
+} from '../../shared/dto/pagination.dto';
+import { ProductFilterDto } from '../../shared/dto/filter.dto';
 
 @Injectable()
 export class ProductService {
@@ -62,6 +67,123 @@ export class ProductService {
         collection: true,
       },
     });
+  }
+
+  async findAllPaginated(
+    pagination: PaginationDto,
+    filters: ProductFilterDto,
+  ): Promise<PaginatedResponseDto<ProductListResponseDto>> {
+    const { page = 1, limit = 10 } = pagination;
+    const {
+      search,
+      active,
+      collectionId,
+      minPrice,
+      maxPrice,
+      colors,
+      sizes,
+      startDate,
+      endDate,
+    } = filters;
+
+    const queryBuilder = this.productRepo
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.collection', 'collection')
+      .leftJoinAndSelect('product.variations', 'variations')
+      .leftJoinAndSelect('variations.sizes', 'sizes')
+      .leftJoinAndSelect('sizes.stock', 'stock');
+
+    // Aplicar filtros
+    if (search) {
+      queryBuilder.andWhere('product.name ILIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    if (active !== undefined) {
+      queryBuilder.andWhere('product.active = :active', { active });
+    }
+
+    if (collectionId) {
+      queryBuilder.andWhere('collection.publicId = :collectionId', {
+        collectionId,
+      });
+    }
+
+    if (minPrice !== undefined) {
+      queryBuilder.andWhere('variations.price >= :minPrice', { minPrice });
+    }
+
+    if (maxPrice !== undefined) {
+      queryBuilder.andWhere('variations.price <= :maxPrice', { maxPrice });
+    }
+
+    if (colors && colors.length > 0) {
+      queryBuilder.andWhere('variations.color IN (:...colors)', { colors });
+    }
+
+    if (sizes && sizes.length > 0) {
+      queryBuilder.andWhere('sizes.size IN (:...sizes)', { sizes });
+    }
+
+    if (startDate) {
+      queryBuilder.andWhere('product.createdAt >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      queryBuilder.andWhere('product.createdAt <= :endDate', { endDate });
+    }
+
+    // Ordenação padrão por data de criação (mais recentes primeiro)
+    queryBuilder.orderBy('product.createdAt', 'DESC');
+
+    // Aplicar paginação
+    const skip = (page - 1) * limit;
+    queryBuilder.skip(skip).take(limit);
+
+    // Executar consulta
+    const [products, total] = await queryBuilder.getManyAndCount();
+
+    // Mapear para DTO de resposta
+    const productListDtos = products.map((product) =>
+      this.mapToProductListResponseDto(product),
+    );
+
+    return new PaginatedResponseDto(productListDtos, total, page, limit);
+  }
+
+  private mapToProductListResponseDto(
+    product: Product,
+  ): ProductListResponseDto {
+    return {
+      publicId: product.publicId,
+      name: product.name,
+      active: product.active,
+      collection: product.collection
+        ? {
+            publicId: product.collection.publicId,
+            name: product.collection.name,
+            active: product.collection.active,
+            description: product.collection.description,
+            imageUrl: product.collection.imageUrl,
+          }
+        : undefined,
+      variations:
+        product.variations?.map((variation) => ({
+          publicId: variation.publicId,
+          color: variation.color,
+          name: variation.name,
+          price: variation.price,
+          images: variation.images || [],
+          sizes:
+            variation.sizes?.map((size) => ({
+              size: size.size,
+              stock: {
+                quantity: size.stock?.quantity || 0,
+              },
+            })) || [],
+        })) || [],
+    };
   }
 
   async getProductDetailsByPublicId(publicId: string): Promise<any> {

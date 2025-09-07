@@ -123,6 +123,7 @@ class OrderService {
     const response = await api.post('/orders/validate-stock', validateStockData);
     return response.data;
   }
+
 }
 
 export default new OrderService();
