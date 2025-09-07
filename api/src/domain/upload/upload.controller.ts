@@ -16,7 +16,8 @@ import { createReadStream, existsSync } from 'fs';
 import * as mime from 'mime-types';
 import { memoryStorage } from 'multer';
 import { basename, extname, join } from 'path';
-import { ImageStorageService } from 'src/infra/storage/image-storage.service';
+import { CloudinaryStorageInterface } from 'src/infra/storage/cloudinary/cloudinary.interface';
+import { LocalStorageInterface } from 'src/infra/storage/local/local.interface';
 
 const uploadsDir = join(process.cwd(), 'uploads/images');
 
@@ -24,7 +25,9 @@ const uploadsDir = join(process.cwd(), 'uploads/images');
 export class UploadController {
   constructor(
     @Inject('ImageStorageService')
-    private readonly imageStorageService: ImageStorageService,
+    private readonly imageStorageService:
+      | CloudinaryStorageInterface
+      | LocalStorageInterface,
   ) {}
 
   @Post()

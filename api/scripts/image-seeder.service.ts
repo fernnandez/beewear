@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
-import { ImageStorageService } from '../src/infra/storage/image-storage.service';
+import { ImageStorageService } from '../src/infra/storage/image.interface';
 import * as fs from 'fs';
 import * as path from 'path';
 

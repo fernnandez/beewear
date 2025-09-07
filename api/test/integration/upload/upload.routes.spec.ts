@@ -17,6 +17,8 @@ initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
 const mockImageStorageService = {
   upload: jest.fn().mockResolvedValue('https://mocked-url.com/image.png'),
+  getImageUrl: jest.fn().mockReturnValue('https://mocked-url.com/image.png'),
+  imageExists: jest.fn().mockResolvedValue(true),
 };
 
 describe('UploadController', () => {

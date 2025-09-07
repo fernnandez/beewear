@@ -4,13 +4,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 
 import { CreateOrderDto } from 'src/domain/order/dto/create-order.dto';
 import { ValidateStockDto } from 'src/domain/order/dto/validate-stock.dto';
-import { OrderStatus } from '../../../src/domain/order/enums/order-status.enum';
-import { OrderItem } from '../../../src/domain/order/order-item.entity';
-import { Order } from '../../../src/domain/order/order.entity';
-import { OrderService } from '../../../src/domain/order/order.service';
-import { ProductVariationService } from '../../../src/domain/product/productVariation/product-variation.service';
-import { StockService } from '../../../src/domain/product/stock/stock.service';
-import { User } from '../../../src/domain/user/user.entity';
+import { OrderStatus } from 'src/domain/order/enums/order-status.enum';
+import { OrderItem } from 'src/domain/order/order-item.entity';
+import { Order } from 'src/domain/order/order.entity';
+import { OrderService } from 'src/domain/order/order.service';
+import { ProductVariationService } from 'src/domain/product/productVariation/product-variation.service';
+import { StockService } from 'src/domain/product/stock/stock.service';
+import { User } from 'src/domain/user/user.entity';
 
 describe('OrderService', () => {
   let service: OrderService;

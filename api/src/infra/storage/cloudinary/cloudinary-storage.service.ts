@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { Readable } from 'stream';
+import { CloudinaryStorageInterface } from './cloudinary.interface';
 
 @Injectable()
-export class CloudinaryImageStorageService {
+export class CloudinaryStorageService implements CloudinaryStorageInterface {
   constructor() {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -28,5 +29,25 @@ export class CloudinaryImageStorageService {
 
       Readable.from(fileBuffer).pipe(uploadStream);
     });
+  }
+
+  /**
+   * Gera URL completa para a imagem no Cloudinary
+   */
+  getImageUrl(filename: string): string {
+    // O Cloudinary já retorna a URL completa no upload
+    return filename;
+  }
+
+  /**
+   * Verifica se uma imagem existe no Cloudinary
+   */
+  async imageExists(filename: string): Promise<boolean> {
+    try {
+      await cloudinary.api.resource(filename);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

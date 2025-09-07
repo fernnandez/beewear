@@ -1,25 +1,13 @@
 import { Module } from '@nestjs/common';
-import { CloudinaryImageStorageService } from './cloudinary-image-storage.service';
-import { LocalImageStorageService } from './local-image-storage.service';
-import { UnifiedImageStorageService } from './unified-image-storage.service';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { LocalModule } from './local/local.module';
 import { ImageServeController } from './image-serve.controller';
+import { STORAGE_PROVIDER } from './storage.provider';
 
 @Module({
+  imports: [CloudinaryModule, LocalModule],
   controllers: [ImageServeController],
-  providers: [
-    CloudinaryImageStorageService,
-    LocalImageStorageService,
-    {
-      provide: 'ImageStorageService',
-      useFactory: (
-        cloudinaryService: CloudinaryImageStorageService,
-        localService: LocalImageStorageService,
-      ) => {
-        return new UnifiedImageStorageService(cloudinaryService, localService);
-      },
-      inject: [CloudinaryImageStorageService, LocalImageStorageService],
-    },
-  ],
+  providers: [STORAGE_PROVIDER],
   exports: ['ImageStorageService'],
 })
 export class StorageModule {}

@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PaymentController } from '../../../src/domain/order/payment.controller';
+import { PaymentController } from 'src/domain/order/payment.controller';
 
 describe('PaymentController', () => {
   let controller: PaymentController;
