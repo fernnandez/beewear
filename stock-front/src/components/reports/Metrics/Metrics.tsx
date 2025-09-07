@@ -31,7 +31,7 @@ export const Metrics = ({
 
       <ValueCard
         title="Valor Total"
-        value={`€ ${totalValue}`}
+        value={`€ ${totalValue.toFixed(2)}`}
         description="em estoque"
         icon={<IconTrendingUp size={16} />}
         iconColor="green"

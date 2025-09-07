@@ -22,10 +22,11 @@ export class PaymentController {
   }
 
   // Endpoint para verificar status do pagamento
-  @Get('verify-payment/:sessionId')
-  async verifyPayment(@Param('sessionId') sessionId: string) {
+  @Get('verify-payment/:paymentIntentId')
+  async verifyPayment(@Param('paymentIntentId') paymentIntentId: string) {
     try {
-      const result = await this.paymentService.verifyPaymentStatus(sessionId);
+      const result =
+        await this.paymentService.verifyPaymentStatus(paymentIntentId);
       return result;
     } catch (error) {
       console.error('❌ Erro ao verificar pagamento:', error);

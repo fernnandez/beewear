@@ -524,7 +524,7 @@ async function seedDatabase() {
           : faker.location.streetAddress();
 
       const order = orderRepository.create({
-        user: { id: user.id } as User,
+        user: user,
         status,
         totalAmount: 0, // Será calculado
         shippingCost: faker.number.int({ min: 500, max: 1500 }) / 100,
@@ -534,7 +534,7 @@ async function seedDatabase() {
         notes: faker.helpers.maybe(() => faker.lorem.sentence(), {
           probability: 0.3,
         }),
-        stripeSessionId: faker.string.uuid(),
+        paymentIntentId: faker.string.uuid(),
       });
       const savedOrder = await orderRepository.save(order);
 

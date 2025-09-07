@@ -298,6 +298,7 @@ describe('OrderService', () => {
         paymentStatus: 'paid',
         status: 'complete',
         paymentDetails: { method: 'card' },
+        paymentIntentId: 'pi_test_123',
       };
       const mockOrder = {
         publicId: 'order-1',
@@ -338,6 +339,7 @@ describe('OrderService', () => {
         paymentStatus: 'failed',
         status: 'incomplete',
         paymentDetails: { method: 'card' },
+        paymentIntentId: 'pi_test_456',
       };
       const mockOrder = {
         publicId: 'order-1',
@@ -689,19 +691,14 @@ describe('OrderService', () => {
           stripeSessionId: 'session-123',
         };
 
-        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
-          mockStripeSession,
-        );
         mockOrderRepo.save.mockResolvedValue(mockConfirmedOrder);
 
         const result = await (service as any).processSuccessfulPayment(
           mockOrder,
           'session-123',
+          mockStripeSession,
         );
 
-        expect(mockPaymentProvider.verifyPaymentStatus).toHaveBeenCalledWith(
-          'session-123',
-        );
         expect(mockOrderRepo.save).toHaveBeenCalled();
         expect(result).toHaveProperty('status', 'CONFIRMED');
       });
@@ -723,19 +720,14 @@ describe('OrderService', () => {
           stripeSessionId: 'session-123',
         };
 
-        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
-          mockStripeSession,
-        );
         mockOrderRepo.save.mockResolvedValue(mockConfirmedOrder);
 
         const result = await (service as any).processSuccessfulPayment(
           mockOrder,
           'session-123',
+          mockStripeSession,
         );
 
-        expect(mockPaymentProvider.verifyPaymentStatus).toHaveBeenCalledWith(
-          'session-123',
-        );
         expect(mockOrderRepo.save).toHaveBeenCalled();
         expect(result).toHaveProperty('status', 'CONFIRMED');
         expect(result).toHaveProperty('paymentMethodType', 'unknown');
@@ -758,19 +750,14 @@ describe('OrderService', () => {
           stripeSessionId: 'session-123',
         };
 
-        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
-          mockStripeSession,
-        );
         mockOrderRepo.save.mockResolvedValue(mockConfirmedOrder);
 
         const result = await (service as any).processSuccessfulPayment(
           mockOrder,
           'session-123',
+          mockStripeSession,
         );
 
-        expect(mockPaymentProvider.verifyPaymentStatus).toHaveBeenCalledWith(
-          'session-123',
-        );
         expect(mockOrderRepo.save).toHaveBeenCalled();
         expect(result).toHaveProperty('status', 'CONFIRMED');
         expect(result).toHaveProperty('paymentMethodType', 'unknown');
@@ -1270,6 +1257,31 @@ describe('OrderService', () => {
         await expect(
           service.confirmOrder(1, 'order-1', 'session-123'),
         ).rejects.toThrow('Stripe service error');
+      });
+
+      it('should throw error when paymentIntentId is not found in session', async () => {
+        const mockStripeSession = {
+          success: true,
+          paymentStatus: 'paid',
+          status: 'complete',
+          paymentDetails: { method: 'card' },
+          // paymentIntentId não está presente
+        };
+        const mockOrder = {
+          publicId: 'order-1',
+          status: OrderStatus.PENDING,
+          items: [],
+          user: { id: 1 },
+        };
+
+        mockPaymentProvider.verifyPaymentStatus.mockResolvedValue(
+          mockStripeSession,
+        );
+        mockOrderRepo.findOne.mockResolvedValue(mockOrder);
+
+        await expect(
+          service.confirmOrder(1, 'order-1', 'session-123'),
+        ).rejects.toThrow('PaymentIntent ID não encontrado na sessão');
       });
     });
   });

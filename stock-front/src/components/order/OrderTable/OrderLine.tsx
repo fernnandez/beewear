@@ -1,14 +1,9 @@
 import { Badge, Button, Group, Table, Text } from "@mantine/core";
-import {
-  getOrderStatusColor,
-  getOrderStatusLabel,
-  getPaymentMethodLabel,
-  getPaymentStatusColor,
-  getPaymentStatusLabel,
-} from "@services/order.service";
+import { getPaymentMethodLabel } from "@services/order.service";
 import { IconEye } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { Order } from "../../../types/order";
+import { getOrderStatusInfo, getPaymentStatusInfo } from "../../../utils/status-mapper";
 
 export const OrderLine = ({ order }: { order: Order }) => {
   const navigate = useNavigate();
@@ -42,14 +37,14 @@ export const OrderLine = ({ order }: { order: Order }) => {
       </Table.Td>
 
       <Table.Td>
-        <Badge color={getOrderStatusColor(order.status)} size="sm">
-          {getOrderStatusLabel(order.status)}
+        <Badge color={getOrderStatusInfo(order.status).color} size="sm">
+          {getOrderStatusInfo(order.status).label}
         </Badge>
       </Table.Td>
 
       <Table.Td>
-        <Badge color={getPaymentStatusColor(order.paymentStatus)} size="sm">
-          {getPaymentStatusLabel(order.paymentStatus)}
+        <Badge color={getPaymentStatusInfo(order.paymentStatus).color} size="sm">
+          {getPaymentStatusInfo(order.paymentStatus).label}
         </Badge>
       </Table.Td>
 

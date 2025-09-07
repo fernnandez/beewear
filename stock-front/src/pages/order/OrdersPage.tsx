@@ -14,7 +14,10 @@ import { fetchOrders } from "@services/order.service";
 import { IconFilter, IconReceipt, IconSearch } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { OrderStatus } from "../../types/order";
+import { 
+  ORDER_STATUS_FILTER_OPTIONS, 
+  PAYMENT_STATUS_FILTER_OPTIONS 
+} from "../../utils/status-mapper";
 
 export default function OrdersPage() {
   const { data: orders = [] } = useQuery({
@@ -23,10 +26,10 @@ export default function OrdersPage() {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<string | null>("Todos");
+  const [selectedStatus, setSelectedStatus] = useState<string | null>("");
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<
     string | null
-  >("Todos");
+  >("");
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
@@ -35,10 +38,10 @@ export default function OrdersPage() {
       order.user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      selectedStatus === "Todos" || order.status === selectedStatus;
+      !selectedStatus || order.status === selectedStatus;
 
     const matchesPaymentStatus =
-      selectedPaymentStatus === "Todos" ||
+      !selectedPaymentStatus ||
       order.paymentStatus === selectedPaymentStatus;
 
     return matchesSearch && matchesStatus && matchesPaymentStatus;
@@ -73,14 +76,7 @@ export default function OrdersPage() {
 
             <Select
               placeholder="Status do Pedido"
-              data={[
-                "Todos",
-                OrderStatus.PENDING,
-                OrderStatus.CONFIRMED,
-                OrderStatus.SHIPPED,
-                OrderStatus.DELIVERED,
-                OrderStatus.CANCELLED,
-              ]}
+              data={ORDER_STATUS_FILTER_OPTIONS}
               value={selectedStatus}
               onChange={setSelectedStatus}
               style={{ minWidth: "180px" }}
@@ -88,7 +84,7 @@ export default function OrdersPage() {
 
             <Select
               placeholder="Status do Pagamento"
-              data={["Todos", "PENDING", "PAID", "FAILED", "REFUNDED"]}
+              data={PAYMENT_STATUS_FILTER_OPTIONS}
               value={selectedPaymentStatus}
               onChange={setSelectedPaymentStatus}
               style={{ minWidth: "180px" }}
@@ -98,8 +94,8 @@ export default function OrdersPage() {
               variant="outline"
               onClick={() => {
                 setSearchTerm("");
-                setSelectedStatus("Todos");
-                setSelectedPaymentStatus("Todos");
+                setSelectedStatus("");
+                setSelectedPaymentStatus("");
               }}
             >
               Limpar Filtros

@@ -28,7 +28,7 @@ export class Order {
   user: User;
 
   @Column({ nullable: true })
-  stripeSessionId: string;
+  paymentIntentId: string;
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;

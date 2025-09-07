@@ -30,6 +30,7 @@ export interface PaymentVerificationResult {
   status: string;
   paymentStatus: string;
   sessionId?: string;
+  paymentIntentId?: string;
   amountTotal?: number;
   customerEmail?: string;
   metadata?: any;
@@ -66,5 +67,7 @@ export interface PaymentProvider {
     url: string;
   }>;
 
-  verifyPaymentStatus(sessionId: string): Promise<PaymentVerificationResult>;
+  verifyPaymentStatus(
+    paymentIntentId: string,
+  ): Promise<PaymentVerificationResult>;
 }

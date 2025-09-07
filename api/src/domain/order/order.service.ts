@@ -203,10 +203,20 @@ export class OrderService {
         throw new NotFoundException('Pedido não encontrado');
       }
 
+      // Extrair paymentIntentId da sessão para salvar na entidade
+      const paymentIntentId = stripeSession.paymentIntentId;
+      if (!paymentIntentId) {
+        throw new Error('PaymentIntent ID não encontrado na sessão');
+      }
+
       if (this.isPaymentSuccessful(stripeSession)) {
-        return await this.processSuccessfulPayment(pendingOrder, sessionId);
+        return await this.processSuccessfulPayment(
+          pendingOrder,
+          paymentIntentId,
+          stripeSession,
+        );
       } else {
-        return await this.processFailedPayment(pendingOrder, sessionId);
+        return await this.processFailedPayment(pendingOrder, paymentIntentId);
       }
     } catch (error) {
       console.error('❌ Erro ao confirmar pedido:', error);
@@ -223,15 +233,13 @@ export class OrderService {
 
   private async processSuccessfulPayment(
     order: Order,
-    stripeSessionId: string,
+    paymentIntentId: string,
+    stripeSession: any,
   ): Promise<OrderResponseDto> {
-    const stripeSession =
-      await this.paymentService.verifyPaymentStatus(stripeSessionId);
-
     order.status = OrderStatus.CONFIRMED;
     order.paymentStatus = 'PAID';
     order.paymentMethodType = stripeSession.paymentDetails?.method || 'unknown';
-    order.stripeSessionId = stripeSessionId;
+    order.paymentIntentId = paymentIntentId;
 
     const confirmedOrder = await this.orderRepo.save(order);
 
@@ -245,11 +253,11 @@ export class OrderService {
 
   private async processFailedPayment(
     order: Order,
-    stripeSessionId: string,
+    paymentIntentId: string,
   ): Promise<OrderResponseDto> {
     order.status = OrderStatus.CANCELLED;
     order.paymentStatus = 'FAILED';
-    order.notes = `Pedido cancelado - Pagamento rejeitado. Sessão: ${stripeSessionId}`;
+    order.notes = `Pedido cancelado - Pagamento rejeitado. PaymentIntent: ${paymentIntentId}`;
 
     const cancelledOrder = await this.orderRepo.save(order);
 
@@ -624,7 +632,7 @@ export class OrderService {
     return {
       publicId: order.publicId,
       status: order.status,
-      stripeSessionId: order.stripeSessionId,
+      paymentIntentId: order.paymentIntentId,
       totalAmount: Number(order.totalAmount),
       shippingCost: Number(order.shippingCost),
       shippingAddress: order.shippingAddress,
@@ -645,7 +653,7 @@ export class OrderService {
 
     return {
       publicId: order.publicId,
-      stripeSessionId: order.stripeSessionId,
+      paymentIntentId: order.paymentIntentId,
       status: order.status,
       totalAmount: Number(order.totalAmount),
       totalItems,

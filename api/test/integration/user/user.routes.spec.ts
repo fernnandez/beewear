@@ -111,7 +111,7 @@ describe('UserController - Integration (HTTP)', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(response.body).toHaveProperty('userId');
+    expect(response.body).toHaveProperty('id');
     expect(response.body.email).toBe(testUser.email);
     expect(response.body.name).toBe(testUser.name);
     expect(response.body.role).toBe(testUser.role);

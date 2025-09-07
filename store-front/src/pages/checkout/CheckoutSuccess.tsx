@@ -1,21 +1,25 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useOrderConfirmation } from "@hooks/useOrders";
 import {
-  Container,
-  Paper,
-  Title,
-  Text,
-  Button,
-  Stack,
   Alert,
+  Button,
+  Center,
+  Container,
   Group,
   LoadingOverlay,
-  Center,
+  Paper,
+  Stack,
+  Text,
+  Title,
+  useMantineColorScheme,
 } from "@mantine/core";
-import { IconCheck, IconAlertCircle, IconArrowRight } from "@tabler/icons-react";
-import { useOrderConfirmation } from "@hooks/useOrders";
+import {
+  IconAlertCircle,
+  IconArrowRight,
+  IconCheck,
+} from "@tabler/icons-react";
 import { DARK_COLOR } from "@utils/constants";
-import { useMantineColorScheme } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 
 export function CheckoutSuccess() {
   const { colorScheme } = useMantineColorScheme();
@@ -39,7 +43,8 @@ export function CheckoutSuccess() {
   } = useOrderConfirmation();
 
   // Estado local para controlar a UI
-  const [hasAttemptedConfirmation, setHasAttemptedConfirmation] = useState(false);
+  const [hasAttemptedConfirmation, setHasAttemptedConfirmation] =
+    useState(false);
 
   useEffect(() => {
     console.log("🎯 CheckoutSuccess montado com:", { orderId, sessionId });
@@ -60,11 +65,13 @@ export function CheckoutSuccess() {
     setHasAttemptedConfirmation(true);
 
     const result = await confirmOrderAfterCheckout(orderId, sessionId);
-    
+
     if (result?.success) {
       console.log("✅ Confirmação automática bem-sucedida!");
     } else {
-      console.log("⚠️ Confirmação automática falhou, tentando verificar status...");
+      console.log(
+        "⚠️ Confirmação automática falhou, tentando verificar status..."
+      );
       // Se a confirmação falhar, tentar verificar o status
       await checkOrderStatus(orderId);
     }
@@ -84,7 +91,7 @@ export function CheckoutSuccess() {
 
     console.log("🔄 Tentando confirmação manual...");
     const result = await confirmOrderAfterCheckout(orderId, sessionId);
-    
+
     if (result?.success) {
       console.log("✅ Confirmação manual bem-sucedida!");
     }
@@ -93,7 +100,7 @@ export function CheckoutSuccess() {
   const handleRetry = () => {
     resetConfirmationState();
     setHasAttemptedConfirmation(false);
-    
+
     if (orderId && sessionId) {
       handleAutomaticConfirmation();
     } else if (orderId) {
@@ -160,8 +167,8 @@ export function CheckoutSuccess() {
                   variant="light"
                 >
                   <Text>
-                    Seu pedido foi confirmado e está sendo processado. 
-                    Você receberá atualizações por email.
+                    Seu pedido foi confirmado e está sendo processado. Você
+                    receberá atualizações por email.
                   </Text>
                 </Alert>
               ) : confirmationError ? (
@@ -202,28 +209,6 @@ export function CheckoutSuccess() {
           </Paper>
         )}
 
-        {/* Informações do Pedido */}
-        {orderId && (
-          <Paper
-            p="xl"
-            radius="lg"
-            style={{ backgroundColor: isDark ? DARK_COLOR : "white" }}
-            withBorder
-          >
-            <Stack gap="md">
-              <Title order={3}>Informações do Pedido</Title>
-              <Text>
-                <strong>ID do Pedido:</strong> {orderId}
-              </Text>
-              {sessionId && (
-                <Text>
-                  <strong>Session ID:</strong> {sessionId}
-                </Text>
-              )}
-            </Stack>
-          </Paper>
-        )}
-
         {/* Botões de Navegação */}
         <Paper
           p="xl"
@@ -233,7 +218,7 @@ export function CheckoutSuccess() {
         >
           <Stack gap="md">
             <Title order={3}>Próximos Passos</Title>
-            
+
             <Group gap="md" justify="center">
               {orderConfirmed && (
                 <Button
@@ -245,7 +230,7 @@ export function CheckoutSuccess() {
                   Ver Pedido
                 </Button>
               )}
-              
+
               <Button
                 onClick={handleContinueShopping}
                 variant="outline"

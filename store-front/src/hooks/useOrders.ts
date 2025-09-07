@@ -3,6 +3,7 @@ import { IconCheck, IconPackage, IconTruck, IconX } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useCart } from "../contexts/cart-context";
+import { getOrderStatusInfo } from "../utils/status-mapper";
 
 export const useOrders = () => {
   return useQuery({
@@ -144,26 +145,13 @@ export const useOrderConfirmation = () => {
   };
 };
 
+
 export const getStatusColor = (status: string) => {
-  const statusColors: Record<string, string> = {
-    PENDING: "yellow",
-    CONFIRMED: "blue",
-    SHIPPED: "blue",
-    DELIVERED: "green",
-    CANCELLED: "red",
-  };
-  return statusColors[status] || "gray";
+  return getOrderStatusInfo(status).color;
 };
 
 export const getStatusText = (status: string) => {
-  const statusTexts: Record<string, string> = {
-    PENDING: "Aguardando Pagamento",
-    CONFIRMED: "Confirmado e em Preparação",
-    SHIPPED: "Enviado",
-    DELIVERED: "Entregue",
-    CANCELLED: "Cancelado",
-  };
-  return statusTexts[status] || status;
+  return getOrderStatusInfo(status).label;
 };
 
 export const getStatusIcon = (status: string) => {

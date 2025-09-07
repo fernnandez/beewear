@@ -58,7 +58,7 @@ export const OrderInfoSection = ({ order }: OrderInfoSectionProps) => {
             ID do Pagamento
           </Text>
           <Text fw={500} mb="md">
-            {order.stripeSessionId}
+            {order.paymentIntentId}
           </Text>
 
           <Text size="sm" c="dimmed" mb={4}>

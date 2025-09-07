@@ -119,6 +119,7 @@ export class StripeService implements PaymentProvider {
         status: session.status || 'unknown',
         paymentStatus: session.payment_status || 'unknown',
         sessionId: session.id,
+        paymentIntentId: paymentDetails?.id,
         amountTotal: session.amount_total || undefined,
         customerEmail: session.customer_email || undefined,
         metadata: session.metadata,
