@@ -18,8 +18,8 @@ export interface Order {
     name: string;
     email: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrderDetails {
@@ -33,8 +33,8 @@ export interface OrderDetails {
   paymentIntentId: string;
   notes?: string;
   items: OrderItem[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrderItem {
@@ -48,8 +48,8 @@ export interface OrderItem {
   unitPrice: number;
   totalPrice: number;
   productVariationSizePublicId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrderStatusUpdate {

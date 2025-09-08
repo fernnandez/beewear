@@ -1,12 +1,26 @@
+import { DateTime } from 'luxon';
+
 export const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("pt-BR");
+  const dateTime = DateTime.fromISO(dateString).setZone('America/Sao_Paulo');
+  return dateTime.isValid ? dateTime.setLocale('pt-BR').toFormat('dd/MM/yyyy') : dateString;
 };
 
 export const formatDateShort = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const dateTime = DateTime.fromISO(dateString).setZone('America/Sao_Paulo');
+  return dateTime.isValid ? dateTime.setLocale('pt-BR').toFormat('dd/MM/yyyy HH:mm') : dateString;
+};
+
+export const formatDateTime = (dateString: string) => {
+  const dateTime = DateTime.fromISO(dateString).setZone('America/Sao_Paulo');
+  return dateTime.isValid ? dateTime.setLocale('pt-BR').toFormat('dd/MM/yyyy HH:mm:ss') : dateString;
+};
+
+export const formatTime = (dateString: string) => {
+  const dateTime = DateTime.fromISO(dateString).setZone('America/Sao_Paulo');
+  return dateTime.isValid ? dateTime.setLocale('pt-BR').toFormat('HH:mm') : dateString;
+};
+
+export const formatRelative = (dateString: string) => {
+  const dateTime = DateTime.fromISO(dateString).setZone('America/Sao_Paulo');
+  return dateTime.isValid ? dateTime.setLocale('pt-BR').toRelative() || dateString : dateString;
 };

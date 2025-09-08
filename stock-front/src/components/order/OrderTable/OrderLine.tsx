@@ -4,19 +4,10 @@ import { IconEye } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { Order } from "../../../types/order";
 import { getOrderStatusInfo, getPaymentStatusInfo } from "../../../utils/status-mapper";
+import { formatDate } from "../../../utils/formatDate";
 
 export const OrderLine = ({ order }: { order: Order }) => {
   const navigate = useNavigate();
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {

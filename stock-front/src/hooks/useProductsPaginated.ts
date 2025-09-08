@@ -8,6 +8,6 @@ export function useProductsPaginated(params: ProductQueryParams = {}) {
   return useQuery<PaginatedResponse<Product>, Error>({
     queryKey: ['products-paginated', params],
     queryFn: () => fetchProductsPaginated(params),
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 }

@@ -10,8 +10,8 @@ export interface Address {
   postalCode: string;
   country: string;
   userId: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateOrUpdateAddressDto {
