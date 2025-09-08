@@ -8,9 +8,11 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-RUN ls -la /app/dist
-
 FROM node:20-alpine
+
+# Configurar timezone no container
+RUN apk add --no-cache tzdata
+ENV TZ=${TZ:-UTC}
 
 WORKDIR /app
 COPY --from=builder /app/dist ./dist

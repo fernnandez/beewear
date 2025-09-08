@@ -11,6 +11,11 @@ export const config: any = {
   logger: process.env.DATABASE_LOGGER || 'advanced-console',
   migrationsRun: (process.env.DATABASE_MIGRATION_RUN || 'true') === 'true',
   migrations: [__dirname + '/../infra/database/migrations/*{.ts,.js}'],
+  // Configuração de timezone
+  extra: {
+    // força conexão em UTC
+    options: '-c timezone=UTC',
+  },
 };
 
 export default registerAs('database', () => ({

@@ -9,6 +9,7 @@ import {
   Request,
 } from '@nestjs/common';
 
+import { OrderCleanupService } from './order-cleanup.service';
 import { OrderService } from './order.service';
 
 import {
@@ -32,7 +33,10 @@ import { ValidateStockDto } from './dto/validate-stock.dto';
 @ApiTags('Orders')
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly orderCleanupService: OrderCleanupService,
+  ) {}
 
   @Get('my-orders')
   async findOrdersByUserId(

@@ -11,6 +11,9 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
+  // Garante que o runtime use o TZ do .env (default UTC)
+  process.env.TZ = process.env.TZ ?? 'UTC';
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Swagger
@@ -22,10 +25,10 @@ async function bootstrap() {
       {
         type: 'http',
         scheme: 'bearer',
-        bearerFormat: 'JWT', // opcional, só para indicar o formato
+        bearerFormat: 'JWT',
         description: 'Informe o token JWT retornado após login',
       },
-      'access-token', // nome do security scheme
+      'access-token',
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
