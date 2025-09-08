@@ -80,10 +80,6 @@ export const Login = () => {
     }
   };
 
-  const fillDemoCredentials = () => {
-    form.setValues({ email: "email@example.com", password: "123456" });
-  };
-
   const isDark = colorScheme === "dark";
 
   return (
@@ -208,60 +204,29 @@ export const Login = () => {
             >
               Registrar
             </Button>
-
-            <Button
-              variant="light"
-              size="compact-sm"
-              fullWidth
-              disabled
-              style={{
-                backgroundColor: isDark
-                  ? theme.colors.dark[4]
-                  : theme.colors.gray[2],
-                color: isDark ? theme.colors.gray[6] : theme.colors.gray[5],
-                opacity: 0.5,
-                cursor: "not-allowed",
-              }}
-            >
-              Esqueci a senha
-            </Button>
           </Group>
 
-          <Divider label="Demonstração" labelPosition="center" my="md" />
+          <Divider label="Tema" labelPosition="center" my="md" />
 
-          <Group>
+          {colorScheme === "dark" ? (
             <Button
-              variant="light"
               size="compact-sm"
               fullWidth
-              onClick={fillDemoCredentials}
-              style={{
-                backgroundColor: isDark ? theme.colors.yellow[6] : undefined,
-                color: isDark ? theme.black : undefined,
-              }}
+              variant="default"
+              onClick={() => setColorScheme("light")}
             >
-              Preencher Automaticamente
+              <IconSun size="1rem" />
             </Button>
-            {colorScheme === "dark" ? (
-              <Button
-                size="compact-sm"
-                fullWidth
-                variant="default"
-                onClick={() => setColorScheme("light")}
-              >
-                <IconSun size="1rem" />
-              </Button>
-            ) : (
-              <Button
-                size="compact-sm"
-                fullWidth
-                variant="default"
-                onClick={() => setColorScheme("dark")}
-              >
-                <IconMoon size="1rem" />
-              </Button>
-            )}
-          </Group>
+          ) : (
+            <Button
+              size="compact-sm"
+              fullWidth
+              variant="default"
+              onClick={() => setColorScheme("dark")}
+            >
+              <IconMoon size="1rem" />
+            </Button>
+          )}
         </Card>
 
         <Text

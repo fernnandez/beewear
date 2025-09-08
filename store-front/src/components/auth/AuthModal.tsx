@@ -60,7 +60,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
     setIsLoading(true);
     try {
       const token = await loginFunction(loginForm.values);
-      login(token);
+      await login(token);
 
       notifications.show({
         title: "Login realizado com sucesso",
@@ -85,8 +85,8 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
     setRegisterError("");
     try {
       const token = await register(registerForm.values);
-      login(token);
-      // O perfil será carregado automaticamente pelo useEffect do contexto
+      await login(token);
+      // O perfil será carregado automaticamente pela função login
       notifications.show({
         title: "Registro realizado com sucesso",
         message: "",

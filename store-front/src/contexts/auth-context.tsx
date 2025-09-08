@@ -31,7 +31,7 @@ interface AuthContextType {
   user: User | null;
   setUser: (data: User) => void;
   token: string | null;
-  login: (token: string) => void;
+  login: (token: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   isAutenticated: boolean;
@@ -82,10 +82,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
-  const login = (token: string) => {
+  const login = async (token: string) => {
     setToken(token);
     setCookie("beewear-auth-token", token, 30);
     setIsAutenticated(true);
+
+    // Buscar informações do usuário após o login
+    try {
+      const profileInfo = await getProfileInfo();
+      setUser(profileInfo);
+    } catch (error) {
+      console.warn("Erro ao buscar informações do usuário após login:", error);
+      // Mesmo com erro, mantém o usuário autenticado
+    }
   };
 
   const logout = () => {
