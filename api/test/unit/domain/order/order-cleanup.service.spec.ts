@@ -31,8 +31,8 @@ describe('OrderCleanupService', () => {
     paymentIntentId: 'pi_test',
     notes: 'Test notes',
     items: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: DateTime.now().toJSDate(),
+    updatedAt: DateTime.now().toJSDate(),
   });
 
   beforeEach(async () => {

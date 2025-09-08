@@ -6,8 +6,8 @@ import {
   Max,
   Min,
   IsString,
-  IsBoolean,
   IsEnum,
+  IsDateString,
 } from 'class-validator';
 
 export class OrderQueryDto {
@@ -91,18 +91,22 @@ export class OrderQueryDto {
   paymentMethod?: string;
 
   @ApiProperty({
-    description: 'Data de início para filtro por data de criação',
+    description:
+      'Data de início para filtro por data de criação (formato ISO 8601)',
     required: false,
+    example: '2024-01-01T00:00:00.000Z',
   })
   @IsOptional()
-  @IsString()
+  @IsDateString()
   startDate?: string;
 
   @ApiProperty({
-    description: 'Data de fim para filtro por data de criação',
+    description:
+      'Data de fim para filtro por data de criação (formato ISO 8601)',
     required: false,
+    example: '2024-12-31T23:59:59.999Z',
   })
   @IsOptional()
-  @IsString()
+  @IsDateString()
   endDate?: string;
 }

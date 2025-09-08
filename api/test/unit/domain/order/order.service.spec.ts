@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { DateTime } from 'luxon';
 
 import { CreateOrderDto } from 'src/domain/order/dto/create-order.dto';
 import { ValidateStockDto } from 'src/domain/order/dto/validate-stock.dto';
@@ -98,8 +99,8 @@ describe('OrderService', () => {
         notes: 'Test notes',
         items: [],
         user: { id: 1, name: 'Test User', email: 'test@example.com' },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: DateTime.now().toJSDate(),
+        updatedAt: DateTime.now().toJSDate(),
       };
 
       mockOrderRepo.findOne.mockResolvedValue(mockOrder);
@@ -202,8 +203,8 @@ describe('OrderService', () => {
         totalAmount: 100,
         items: [],
         user: mockUser,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: DateTime.now().toJSDate(),
+        updatedAt: DateTime.now().toJSDate(),
       };
       const mockOrderItem = {
         id: 1,

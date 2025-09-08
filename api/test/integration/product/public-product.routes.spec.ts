@@ -2,6 +2,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as request from 'supertest';
 import { Repository } from 'typeorm';
+import { DateTime } from 'luxon';
 
 import { AppModule } from 'src/app.module';
 import { Collection } from 'src/domain/product/collection/collection.entity';
@@ -421,13 +422,15 @@ describe('PublicProductController - Integration (HTTP)', () => {
 
         // Verificar se está ordenado por data de criação (DESC - mais recentes primeiro)
         for (let i = 1; i < response.body.data.length; i++) {
-          const currentDate = new Date(response.body.data[i].createdAt);
-          const previousDate = new Date(response.body.data[i - 1].createdAt);
+          const currentDate = DateTime.fromISO(response.body.data[i].createdAt);
+          const previousDate = DateTime.fromISO(
+            response.body.data[i - 1].createdAt,
+          );
 
           // Verificar se as datas são válidas antes de comparar
-          if (!isNaN(currentDate.getTime()) && !isNaN(previousDate.getTime())) {
-            expect(currentDate.getTime()).toBeLessThanOrEqual(
-              previousDate.getTime(),
+          if (currentDate.isValid && previousDate.isValid) {
+            expect(currentDate.toMillis()).toBeLessThanOrEqual(
+              previousDate.toMillis(),
             );
           }
         }

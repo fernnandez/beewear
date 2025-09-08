@@ -46,11 +46,11 @@ export class OrderCleanupService {
 
       // Filtrar pedidos usando timestamp Unix (mais confiável)
       const abandonedOrders = allPendingOrders.filter((order) => {
-        const orderTimestamp = DateTime.fromJSDate(order.createdAt).toMillis();
-        const ageInMinutes = (now.toMillis() - orderTimestamp) / (1000 * 60);
+        const orderDateTime = DateTime.fromJSDate(order.createdAt);
+        const ageInMinutes = now.diff(orderDateTime, 'minutes').minutes;
 
         this.logger.log(
-          `Pedido ${order.publicId}: timestamp ${orderTimestamp}, idade: ${Math.floor(ageInMinutes)} minutos`,
+          `Pedido ${order.publicId}: timestamp ${orderDateTime.toMillis()}, idade: ${Math.floor(ageInMinutes)} minutos`,
         );
 
         return ageInMinutes > 5;

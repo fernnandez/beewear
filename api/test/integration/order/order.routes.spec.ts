@@ -1,6 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { DateTime } from 'luxon';
 import * as request from 'supertest';
 import { Repository } from 'typeorm';
 import {
@@ -138,8 +139,8 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
         expect(response.body.length).toBeGreaterThan(1);
 
         // Verificar se está ordenado por data de criação (mais recente primeiro)
-        const dates = response.body.map(
-          (order: any) => new Date(order.createdAt),
+        const dates = response.body.map((order: any) =>
+          DateTime.fromISO(order.createdAt).toJSDate(),
         );
         for (let i = 0; i < dates.length - 1; i++) {
           expect(dates[i].getTime()).toBeGreaterThanOrEqual(
@@ -364,33 +365,33 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
         expect(order).toBeDefined();
 
         // Mock do StripeService para confirmação
-        const mockStripeSession = {
-          success: true,
-          sessionId: 'test-session-id-123',
-          status: 'complete' as any,
-          paymentStatus: 'paid' as any,
-          amountTotal: 5000,
-          customerEmail: 'test@example.com',
-          metadata: {},
-          createdAt: Date.now(),
-          expiresAt: Date.now() + 3600000,
-          paymentDetails: {
-            id: 'pi_test_123',
-            method: 'card',
-            amount: 5000,
-            currency: 'eur',
-            status: 'succeeded',
-            created: Date.now(),
-          },
-          customerInfo: {
-            id: 'cus_test_123',
-            email: 'test@example.com',
-            name: 'Test User',
-            phone: null,
-          },
-          billingAddress: null,
-          shippingAddress: null,
-        };
+        // const mockStripeSession = {
+        //   success: true,
+        //   sessionId: 'test-session-id-123',
+        //   status: 'complete' as any,
+        //   paymentStatus: 'paid' as any,
+        //   amountTotal: 5000,
+        //   customerEmail: 'test@example.com',
+        //   metadata: {},
+        //   createdAt: DateTime.now().toMillis(),
+        //   expiresAt: DateTime.now().plus({ hours: 1 }).toMillis(),
+        //   paymentDetails: {
+        //     id: 'pi_test_123',
+        //     method: 'card',
+        //     amount: 5000,
+        //     currency: 'eur',
+        //     status: 'succeeded',
+        //     created: DateTime.now().toMillis(),
+        //   },
+        //   customerInfo: {
+        //     id: 'cus_test_123',
+        //     email: 'test@example.com',
+        //     name: 'Test User',
+        //     phone: null,
+        //   },
+        //   billingAddress: null,
+        //   shippingAddress: null,
+        // };
 
         // O mock do PaymentProvider já foi configurado no beforeAll
         // Não precisamos fazer spy adicional
@@ -426,15 +427,15 @@ describe('OrderController (Integration - Routes) with Fixtures', () => {
           amountTotal: 5000,
           customerEmail: 'test@example.com',
           metadata: {},
-          createdAt: Date.now(),
-          expiresAt: Date.now() + 3600000,
+          createdAt: DateTime.now().toMillis(),
+          expiresAt: DateTime.now().plus({ hours: 1 }).toMillis(),
           paymentDetails: {
             id: 'pi_test_456',
             method: 'card',
             amount: 5000,
             currency: 'eur',
             status: 'succeeded',
-            created: Date.now(),
+            created: DateTime.now().toMillis(),
           },
           customerInfo: {
             id: 'cus_test_456',

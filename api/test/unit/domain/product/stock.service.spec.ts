@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { DateTime } from 'luxon';
 import {
   initializeTransactionalContext,
   StorageDriver,
@@ -59,8 +60,8 @@ describe('StockService (with Real DB Interaction)', () => {
         color: 'Verde Limão',
         price: 89.9,
         product: { id: 101 },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: DateTime.now().toJSDate(),
+        updatedAt: DateTime.now().toJSDate(),
       });
 
       const variationSize = await variationSizeRepo.save({

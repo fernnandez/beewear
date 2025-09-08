@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { DateTime } from 'luxon';
 import {
   initializeTransactionalContext,
   StorageDriver,
@@ -113,7 +114,7 @@ describe('AddressService (with Real DB Interaction)', () => {
           postalCode: '1000-001',
           country: 'Portugal',
           userId: 1,
-          createdAt: new Date('2024-01-01T10:00:00Z'),
+          createdAt: DateTime.fromISO('2024-01-01T10:00:00Z').toJSDate(),
         });
 
         const address2 = addressRepo.create({
@@ -126,7 +127,7 @@ describe('AddressService (with Real DB Interaction)', () => {
           postalCode: '4000-001',
           country: 'Portugal',
           userId: 1,
-          createdAt: new Date('2024-01-01T11:00:00Z'),
+          createdAt: DateTime.fromISO('2024-01-01T11:00:00Z').toJSDate(),
         });
 
         await addressRepo.save([address1, address2]);

@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { DateTime } from 'luxon';
 import { Collection } from './collection/collection.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductDetailsResponseDto } from './dto/product-details-response.dto';
@@ -341,7 +342,9 @@ export class ProductService {
 
           // pegar os últimos movimentos (no plano local)
           const sortedMovements = [...(stock.movements ?? [])].sort(
-            (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+            (a, b) =>
+              DateTime.fromJSDate(b.createdAt).toMillis() -
+              DateTime.fromJSDate(a.createdAt).toMillis(),
           );
 
           for (const m of sortedMovements.slice(0, 1)) {
@@ -359,11 +362,15 @@ export class ProductService {
     }
 
     const recentMovements = recentMovementsFlat
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .sort(
+        (a, b) =>
+          DateTime.fromJSDate(b.createdAt).toMillis() -
+          DateTime.fromJSDate(a.createdAt).toMillis(),
+      )
       .slice(0, 5)
       .map((m) => ({
         productName: m.productName,
-        date: m.createdAt.toISOString().split('T')[0],
+        date: DateTime.fromJSDate(m.createdAt).toISODate() || '',
         type: m.type,
         quantity: m.quantity,
       }));
