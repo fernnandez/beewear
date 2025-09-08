@@ -145,7 +145,7 @@ export function CheckoutSuccess() {
               Checkout Concluído!
             </Title>
             <Text size="lg" c="dimmed">
-              Seu pedido foi processado com sucesso
+              O seu pedido foi processado com sucesso
             </Text>
           </Stack>
         </Paper>
@@ -167,8 +167,8 @@ export function CheckoutSuccess() {
                   variant="light"
                 >
                   <Text>
-                    Seu pedido foi confirmado e está sendo processado. Você
-                    receberá atualizações por email.
+                    O seu pedido foi confirmado e está a ser processado. Receberá
+                    actualizações por email.
                   </Text>
                 </Alert>
               ) : confirmationError ? (
@@ -200,7 +200,7 @@ export function CheckoutSuccess() {
                       variant="outline"
                       disabled={isConfirming}
                     >
-                      Verificar Status
+                      Verificar Estado
                     </Button>
                   </>
                 )}
@@ -236,7 +236,7 @@ export function CheckoutSuccess() {
                 variant="outline"
                 rightSection={<IconArrowRight size={16} />}
               >
-                Continuar Comprando
+                Continuar a Comprar
               </Button>
             </Group>
           </Stack>

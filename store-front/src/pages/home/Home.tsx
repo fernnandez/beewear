@@ -30,7 +30,7 @@ export const Home = () => {
                   c={isDark ? "white" : "dark"}
                   lh={1.2}
                 >
-                  Roupa fitness
+                  Roupa desportiva
                 </Title>
                 <Text span fw={700} c="yellow.6">
                   premium
@@ -68,7 +68,7 @@ export const Home = () => {
                   color={isDark ? "white" : "var(--mantine-color-dark-6)"}
                 />
                 <Text fw={500} size="md" ta="center">
-                  Envio Grátis
+                  Envio Gratuito
                 </Text>
                 <Text size="sm" c="dimmed" ta="center">
                   Acima de €50

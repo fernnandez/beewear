@@ -47,7 +47,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
   const { items, getTotalPrice, updateQuantity, removeItem } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // ✅ Hook para validação de estoque
+  // ✅ Hook para validação de stock
   const { validateStock, isValidating, validationResult } =
     useStockValidation();
 
@@ -60,7 +60,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
     clearOrderError,
   } = useCheckout();
 
-  // ✅ Validar estoque uma única vez ao renderizar a página
+  // ✅ Validar stock uma única vez ao renderizar a página
   useEffect(() => {
     if (items.length > 0) {
       const stockData = items.map((item) => ({
@@ -77,10 +77,10 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
       setIsProcessing(true);
       clearOrderError();
 
-      // ✅ PRIMEIRO: Validar estoque antes de prosseguir
+      // ✅ PRIMEIRO: Validar stock antes de prosseguir
       if (!validationResult?.isValid) {
         throw new Error(
-          "Alguns produtos não possuem estoque suficiente. Verifique a disponibilidade dos itens."
+          "Alguns produtos não possuem stock suficiente. Verifique a disponibilidade dos itens."
         );
       }
 
@@ -175,7 +175,7 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
         Resumo do Pedido
       </Title>
 
-      {/* ✅ Botão para Validar Estoque */}
+      {/* ✅ Botão para Validar Stock */}
       {items.length > 0 && (
         <Group justify="space-between" align="center">
           <Text size="sm" c="dimmed">
@@ -194,12 +194,12 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
             loading={isValidating}
             disabled={isValidating}
           >
-            {isValidating ? "Verificando..." : "Validar Estoque"}
+            {isValidating ? "A verificar..." : "Validar Stock"}
           </Button>
         </Group>
       )}
 
-      {/* ✅ Status de Validação de Estoque */}
+      {/* ✅ Status de Validação de Stock */}
       {items.length > 0 && (
         <Alert
           icon={
@@ -422,15 +422,15 @@ export function OrderSummary({ isCheckoutComplete }: OrderSummaryProps) {
         loading={isProcessing || isValidating || isCreatingOrder}
       >
         {isProcessing
-          ? "Processando..."
+          ? "A processar..."
           : isValidating
-          ? "Verificando estoque..."
+          ? "A verificar stock..."
           : isCreatingOrder
-          ? "Criando pedido..."
+          ? "A criar pedido..."
           : !validationResult
-          ? "Validar estoque primeiro"
+          ? "Validar stock primeiro"
           : !validationResult.isValid
-          ? "Estoque insuficiente"
+          ? "Stock insuficiente"
           : "Ir Para Pagamento"}
       </Button>
 

@@ -41,7 +41,7 @@ export const Products = () => {
               Produto não encontrado
             </Text>
             <Text size="sm" c="dimmed">
-              O produto que você está procurando não existe ou foi removido.
+              O produto que está a procurar não existe ou foi removido.
             </Text>
           </Stack>
         </Center>

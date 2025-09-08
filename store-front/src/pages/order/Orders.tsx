@@ -96,7 +96,7 @@ export function Orders() {
             >
               Voltar
             </Button>
-            <Title order={2}>Meus Pedidos</Title>
+            <Title order={2}>Os Meus Pedidos</Title>
           </Group>
         </Group>
 
@@ -112,10 +112,10 @@ export function Orders() {
           <Group gap="md" align="center">
             <IconFilter size={20} color="var(--mantine-color-gray-6)" />
             <Text size="sm" fw={500}>
-              Filtrar por status:
+              Filtrar por estado:
             </Text>
             <Select
-              placeholder="Todos os status"
+              placeholder="Todos os estados"
               value={statusFilter}
               onChange={(value) => setStatusFilter(value || "")}
               data={ORDER_STATUS_FILTER_OPTIONS}
@@ -148,7 +148,7 @@ export function Orders() {
               Nenhum pedido encontrado
             </Title>
             <Text c="dimmed" mt="xs">
-              Você ainda não fez nenhum pedido. Que tal começar a comprar?
+              Ainda não fez nenhum pedido. Que tal começar a comprar?
             </Text>
             <Button
               mt="md"
@@ -173,7 +173,7 @@ export function Orders() {
               Nenhum pedido encontrado
             </Title>
             <Text c="dimmed" mt="xs">
-              Não há pedidos com o status selecionado.
+              Não há pedidos com o estado selecionado.
             </Text>
             <Button
               mt="md"

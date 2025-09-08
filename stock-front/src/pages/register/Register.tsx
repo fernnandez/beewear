@@ -59,8 +59,8 @@ export const RegisterPage = () => {
       setUser(profileInfo);
 
       notifications.show({
-        title: "Registro realizado com sucesso",
-        message: "Bem-vindo ao sistema de gestão de estoque",
+        title: "Registo realizado com sucesso",
+        message: "Bem-vindo ao sistema de gestão de stock",
         color: "green",
       });
 
@@ -70,7 +70,7 @@ export const RegisterPage = () => {
 
       const message =
         err?.response?.data?.message ||
-        "Erro ao fazer Cadastro. Tente novamente.";
+        "Erro ao fazer registo. Tente novamente.";
 
       setError(message);
     } finally {
@@ -100,14 +100,14 @@ export const RegisterPage = () => {
             <Box bg="blue" p={16} style={{ borderRadius: "50%" }}>
               <IconPackage size={32} color="white" />
             </Box>
-            <Title order={1}>Sistema de Estoque</Title>
-            <Text c="dimmed">Faça cadastro para acessar o sistema</Text>
+            <Title order={1}>Sistema de Stock</Title>
+            <Text c="dimmed">Faça registo para aceder ao sistema</Text>
           </Stack>
         </Center>
 
         <Card shadow="md" radius="md" p="xl" withBorder>
           <Title order={3} ta="center" mb="sm">
-            Registrar
+            Registar
           </Title>
 
           <form onSubmit={handleRegister}>
@@ -124,7 +124,7 @@ export const RegisterPage = () => {
 
               <TextInput
                 label="Nome"
-                placeholder="Jonh doel"
+                placeholder="João Silva"
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 leftSection={<IconLetterA size={16} />}
@@ -141,8 +141,8 @@ export const RegisterPage = () => {
               />
 
               <PasswordInput
-                label="Senha"
-                placeholder="Digite sua senha"
+                label="Palavra-passe"
+                placeholder="Digite a sua palavra-passe"
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
                 leftSection={<IconLock size={16} />}
@@ -150,11 +150,11 @@ export const RegisterPage = () => {
               />
 
               <Button type="submit" loading={isLoading} fullWidth>
-                {isLoading ? "Registrando..." : "Registrar"}
+                {isLoading ? "A registar..." : "Registar"}
               </Button>
             </Stack>
 
-            <Divider label="Login" labelPosition="center" my="md" />
+            <Divider label="Iniciar Sessão" labelPosition="center" my="md" />
 
             <Group>
               <Button
@@ -163,14 +163,14 @@ export const RegisterPage = () => {
                 fullWidth
                 onClick={() => navigate("/login")}
               >
-                Login
+                Iniciar Sessão
               </Button>
             </Group>
           </form>
         </Card>
 
         <Text c="dimmed" size="xs" ta="center" mt={rem(30)}>
-          Sistema de Gestão de Estoque v1.0 • © 2024 - Todos os direitos
+          Sistema de Gestão de Stock v1.0 • © 2024 - Todos os direitos
           reservados
         </Text>
       </Container>

@@ -43,7 +43,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
     initialValues: { email: "", password: "" },
     validate: {
       email: (v) => (v.trim().length === 0 ? "Email é obrigatório" : null),
-      password: (v) => (v.trim().length === 0 ? "Senha é obrigatória" : null),
+      password: (v) => (v.trim().length === 0 ? "Palavra-passe é obrigatória" : null),
     },
   });
 
@@ -52,7 +52,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
     validate: {
       name: (v) => (v.trim().length === 0 ? "Nome é obrigatório" : null),
       email: (v) => (v.trim().length === 0 ? "Email é obrigatório" : null),
-      password: (v) => (v.trim().length === 0 ? "Senha é obrigatória" : null),
+      password: (v) => (v.trim().length === 0 ? "Palavra-passe é obrigatória" : null),
     },
   });
 
@@ -63,7 +63,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
       await login(token);
 
       notifications.show({
-        title: "Login realizado com sucesso",
+        title: "Início de sessão realizado com sucesso",
         message: "",
         color: "green",
       });
@@ -72,7 +72,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
     } catch (err) {
       const message = getAxiosErrorMessage(
         err,
-        "Erro ao fazer login. Tente novamente."
+        "Erro ao iniciar sessão. Tente novamente."
       );
       notifications.show({ title: "Erro", message, color: "red" });
     } finally {
@@ -88,7 +88,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
       await login(token);
       // O perfil será carregado automaticamente pela função login
       notifications.show({
-        title: "Registro realizado com sucesso",
+        title: "Registo realizado com sucesso",
         message: "",
         color: "green",
       });
@@ -97,7 +97,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
     } catch (err) {
       const message = getAxiosErrorMessage(
         err,
-        "Erro ao fazer cadastro. Tente novamente."
+        "Erro ao fazer registo. Tente novamente."
       );
       setRegisterError(message);
     } finally {
@@ -114,8 +114,8 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
 
       <Tabs value={tab} onChange={(v) => setTab(v as "login" | "register")}>
         <Tabs.List grow>
-          <Tabs.Tab value="login">Entrar</Tabs.Tab>
-          <Tabs.Tab value="register">Registrar</Tabs.Tab>
+          <Tabs.Tab value="login">Iniciar Sessão</Tabs.Tab>
+          <Tabs.Tab value="register">Registar</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="login" pt="sm">
@@ -129,8 +129,8 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
                 {...loginForm.getInputProps("email")}
               />
               <PasswordInput
-                label="Senha"
-                placeholder="Digite sua senha"
+                label="Palavra-passe"
+                placeholder="Digite a sua palavra-passe"
                 leftSection={<IconLock size={16} />}
                 withAsterisk
                 {...loginForm.getInputProps("password")}
@@ -145,7 +145,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
                   color: isDark ? theme.black : undefined,
                 }}
               >
-                {isLoading ? "Entrando..." : "Entrar"}
+                {isLoading ? "A iniciar sessão..." : "Iniciar Sessão"}
               </Button>
             </Stack>
           </form>
@@ -165,7 +165,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
               )}
               <TextInput
                 label="Nome"
-                placeholder="John Doe"
+                placeholder="João Silva"
                 leftSection={<IconLetterA size={16} />}
                 withAsterisk
                 {...registerForm.getInputProps("name")}
@@ -178,8 +178,8 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
                 {...registerForm.getInputProps("email")}
               />
               <PasswordInput
-                label="Senha"
-                placeholder="Digite sua senha"
+                label="Palavra-passe"
+                placeholder="Digite a sua palavra-passe"
                 leftSection={<IconLock size={16} />}
                 withAsterisk
                 {...registerForm.getInputProps("password")}
@@ -194,7 +194,7 @@ export const AuthModal = ({ opened, onClose }: AuthModalProps) => {
                   color: isDark ? theme.black : undefined,
                 }}
               >
-                {isLoading ? "Registrando..." : "Registrar"}
+                {isLoading ? "A registar..." : "Registar"}
               </Button>
             </Stack>
           </form>

@@ -115,7 +115,7 @@ export const OrderCancelAction = ({ order, onStatusUpdate }: OrderCancelActionPr
           >
             <Text size="sm">
               <strong>Importante:</strong> Cancelar o pedido no sistema não cancela automaticamente 
-              o pagamento na Stripe. Se o pagamento foi processado, você deve cancelar/reembolsar 
+              o pagamento na Stripe. Se o pagamento foi processado, deve cancelar/reembolsar 
               manualmente na plataforma de pagamento.
             </Text>
           </Alert>
@@ -128,7 +128,7 @@ export const OrderCancelAction = ({ order, onStatusUpdate }: OrderCancelActionPr
             Motivo do Cancelamento *
           </Text>
           <Textarea
-            placeholder="Ex: Produto fora de estoque, cliente solicitou cancelamento, erro no pedido..."
+            placeholder="Ex: Produto fora de stock, cliente solicitou cancelamento, erro no pedido..."
             value={notes}
             onChange={(event) => setNotes(event.currentTarget.value)}
             minRows={3}

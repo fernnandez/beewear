@@ -32,14 +32,14 @@ export const Metrics = ({
       <ValueCard
         title="Valor Total"
         value={`€ ${totalValue.toFixed(2)}`}
-        description="em estoque"
+        description="em stock"
         icon={<IconTrendingUp size={16} />}
         iconColor="green"
         valueColor="green"
       />
 
       <ValueCard
-        title="Estoque Baixo"
+        title="Stock Baixo"
         value={lowStockCount}
         description="produtos em alerta"
         icon={<IconAlertTriangle size={16} />}
@@ -48,7 +48,7 @@ export const Metrics = ({
       />
 
       <ValueCard
-        title="Sem Estoque"
+        title="Sem Stock"
         value={noStockCount}
         description="produtos esgotados"
         icon={<IconShoppingBag size={16} />}

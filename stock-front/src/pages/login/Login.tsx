@@ -43,7 +43,7 @@ export const Login = () => {
       email: (value) =>
         value.trim().length === 0 ? "Email é obrigatório" : null,
       password: (value) =>
-        value.trim().length === 0 ? "Senha é obrigatória" : null,
+        value.trim().length === 0 ? "Palavra-passe é obrigatória" : null,
     },
   });
 
@@ -62,8 +62,8 @@ export const Login = () => {
       setUser(profileInfo);
 
       notifications.show({
-        title: "Login realizado com sucesso",
-        message: "Bem-vindo ao sistema de gestão de estoque",
+        title: "Início de sessão realizado com sucesso",
+        message: "Bem-vindo ao sistema de gestão de stock",
         color: "green",
       });
 
@@ -71,7 +71,7 @@ export const Login = () => {
     } catch (err) {
       const message = getAxiosErrorMessage(
         err,
-        "Erro ao fazer login. Tente novamente."
+        "Erro ao iniciar sessão. Tente novamente."
       );
 
       notifications.show({ title: "Erro", message, color: "red" });
@@ -99,7 +99,7 @@ export const Login = () => {
               Beewear Stock
             </Title>
             <Text style={{ color: theme.colors.gray[isDark ? 5 : 6] }}>
-              Faça login para acessar o sistema
+              Inicie sessão para aceder ao sistema
             </Text>
           </Stack>
         </Center>
@@ -127,7 +127,7 @@ export const Login = () => {
             mb="lg"
             style={{ color: theme.colors.gray[isDark ? 5 : 6] }}
           >
-            Digite suas credenciais para acessar
+            Digite as suas credenciais para aceder
           </Text>
 
           <form onSubmit={form.onSubmit(handleLogin)}>
@@ -152,8 +152,8 @@ export const Login = () => {
               />
 
               <PasswordInput
-                label="Senha"
-                placeholder="Digite sua senha"
+                label="Palavra-passe"
+                placeholder="Digite a sua palavra-passe"
                 leftSection={<IconLock size={16} />}
                 withAsterisk
                 {...form.getInputProps("password")}
@@ -179,12 +179,12 @@ export const Login = () => {
                   color: isDark ? theme.black : undefined,
                 }}
               >
-                {isLoading ? "Entrando..." : "Entrar"}
+                {isLoading ? "A iniciar sessão..." : "Iniciar Sessão"}
               </Button>
             </Stack>
           </form>
 
-          <Divider label="Cadastro" labelPosition="center" my="md" />
+          <Divider label="Registo" labelPosition="center" my="md" />
 
           <Group>
             <Button
@@ -202,7 +202,7 @@ export const Login = () => {
                 cursor: "not-allowed",
               }}
             >
-              Registrar
+              Registar
             </Button>
           </Group>
 
@@ -235,7 +235,7 @@ export const Login = () => {
           mt={rem(30)}
           style={{ color: theme.colors.gray[isDark ? 5 : 6] }}
         >
-          Sistema de Gestão de Estoque v1.0 • © 2025 - Todos os direitos
+          Sistema de Gestão de Stock v1.0 • © 2025 - Todos os direitos
           reservados
         </Text>
       </Container>

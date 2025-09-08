@@ -1,6 +1,6 @@
 /**
- * Mapper para tradução de status de pedidos e pagamentos
- * Converte valores técnicos em textos amigáveis para o usuário
+ * Mapper para tradução de estados de pedidos e pagamentos
+ * Converte valores técnicos em textos amigáveis para o utilizador
  */
 
 export enum OrderStatus {
@@ -19,7 +19,7 @@ export enum PaymentStatus {
 }
 
 /**
- * Mapper para status de pedidos
+ * Mapper para estados de pedidos
  */
 export const ORDER_STATUS_MAPPER = {
   [OrderStatus.PENDING]: {
@@ -55,7 +55,7 @@ export const ORDER_STATUS_MAPPER = {
 } as const;
 
 /**
- * Mapper para status de pagamento
+ * Mapper para estados de pagamento
  */
 export const PAYMENT_STATUS_MAPPER = {
   [PaymentStatus.PENDING]: {
@@ -85,34 +85,34 @@ export const PAYMENT_STATUS_MAPPER = {
 } as const;
 
 /**
- * Função utilitária para obter informações de status de pedido
+ * Função utilitária para obter informações de estado de pedido
  */
 export function getOrderStatusInfo(status: string) {
   return ORDER_STATUS_MAPPER[status as OrderStatus] || {
     label: status,
-    description: 'Status desconhecido',
+    description: 'Estado desconhecido',
     color: 'gray',
     icon: 'help',
   };
 }
 
 /**
- * Função utilitária para obter informações de status de pagamento
+ * Função utilitária para obter informações de estado de pagamento
  */
 export function getPaymentStatusInfo(status: string) {
   return PAYMENT_STATUS_MAPPER[status as PaymentStatus] || {
     label: status,
-    description: 'Status desconhecido',
+    description: 'Estado desconhecido',
     color: 'gray',
     icon: 'help',
   };
 }
 
 /**
- * Lista de opções para filtros de status de pedido
+ * Lista de opções para filtros de estado de pedido
  */
 export const ORDER_STATUS_FILTER_OPTIONS = [
-  { value: '', label: 'Todos os status' },
+  { value: '', label: 'Todos os estados' },
   ...Object.entries(ORDER_STATUS_MAPPER).map(([value, info]) => ({
     value,
     label: info.label,
@@ -121,10 +121,10 @@ export const ORDER_STATUS_FILTER_OPTIONS = [
 ];
 
 /**
- * Lista de opções para filtros de status de pagamento
+ * Lista de opções para filtros de estado de pagamento
  */
 export const PAYMENT_STATUS_FILTER_OPTIONS = [
-  { value: '', label: 'Todos os status' },
+  { value: '', label: 'Todos os estados' },
   ...Object.entries(PAYMENT_STATUS_MAPPER).map(([value, info]) => ({
     value,
     label: info.label,
