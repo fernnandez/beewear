@@ -167,6 +167,7 @@ export const getStatusIcon = (status: string) => {
 
 export const getPaymentMethodText = (method: string) => {
   const methodTexts: Record<string, string> = {
+    // Valores do Stripe (minúsculas)
     card: "Cartão de Crédito/Débito",
     klarna: "Klarna",
     mbway: "MB WAY",
@@ -179,6 +180,12 @@ export const getPaymentMethodText = (method: string) => {
     eps: "EPS",
     giropay: "GiroPay",
     przelewy24: "Przelewy24",
+    // Valores do sistema (maiúsculas)
+    CREDIT_CARD: "Cartão de Crédito/Débito",
+    KLARNA: "Klarna",
+    PIX: "PIX",
+    BANK_TRANSFER: "Transferência Bancária",
+    OTHER: "Outro",
   };
 
   // Se não encontrar no mapeamento, capitalizar e formatar o método
@@ -198,6 +205,7 @@ export const getPaymentMethodIcon = (method: string) => {
   }
 
   const methodIcons: Record<string, string> = {
+    // Valores do Stripe (minúsculas)
     card: "💳",
     klarna: "🛒",
     mbway: "📱",
@@ -210,9 +218,12 @@ export const getPaymentMethodIcon = (method: string) => {
     eps: "🇦🇹",
     giropay: "🇩🇪",
     przelewy24: "🇵🇱",
+    // Valores do sistema (maiúsculas)
     CREDIT_CARD: "💳",
+    KLARNA: "🛒",
     PIX: "📱",
     BANK_TRANSFER: "🏦",
+    OTHER: "💳",
   };
 
   return methodIcons[method] || "💳";
@@ -224,6 +235,7 @@ export const getPaymentMethodDescription = (method: string) => {
   }
 
   const methodDescriptions: Record<string, string> = {
+    // Valores do Stripe (minúsculas)
     card: "Pagamento com cartão de crédito ou débito",
     klarna: "Pague em 4x sem juros ou em 30 dias",
     mbway: "Pagamento móvel através do MB WAY",
@@ -236,6 +248,12 @@ export const getPaymentMethodDescription = (method: string) => {
     eps: "Pagamento bancário austríaco",
     giropay: "Pagamento bancário alemão",
     przelewy24: "Pagamento bancário polonês",
+    // Valores do sistema (maiúsculas)
+    CREDIT_CARD: "Pagamento com cartão de crédito ou débito",
+    KLARNA: "Pague em 4x sem juros ou em 30 dias",
+    PIX: "Pagamento instantâneo via PIX",
+    BANK_TRANSFER: "Transferência bancária tradicional",
+    OTHER: "Outro método de pagamento",
   };
 
   return methodDescriptions[method] || "Método de pagamento";

@@ -37,7 +37,7 @@ export const ORDER_STATUS_MAPPER = {
   [OrderStatus.SHIPPED]: {
     label: 'Enviado',
     description: 'Pedido enviado para entrega',
-    color: 'purple',
+    color: 'green',
     icon: 'truck',
   },
   [OrderStatus.DELIVERED]: {

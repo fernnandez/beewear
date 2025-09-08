@@ -16,6 +16,7 @@ import {
   Group,
   LoadingOverlay,
   Paper,
+  Select,
   Stack,
   Text,
   Title,
@@ -25,9 +26,12 @@ import {
   IconAlertCircle,
   IconArrowLeft,
   IconCalendar,
+  IconFilter,
   IconPackage,
 } from "@tabler/icons-react";
 import { DARK_COLOR } from "@utils/constants";
+import { ORDER_STATUS_FILTER_OPTIONS, getPaymentStatusInfo } from "@utils/status-mapper";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { formatPrice } from "../../utils/formatPrice";
 
@@ -35,6 +39,7 @@ export function Orders() {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
   const navigate = useNavigate();
+  const [statusFilter, setStatusFilter] = useState<string>("");
 
   const {
     data: orders,
@@ -42,6 +47,13 @@ export function Orders() {
     error,
     refetch,
   } = useOrders();
+
+  // Filtrar pedidos localmente baseado no status selecionado
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    if (!statusFilter) return orders;
+    return orders.filter((order) => order.status === statusFilter);
+  }, [orders, statusFilter]);
 
   if (loading) {
     return (
@@ -88,6 +100,37 @@ export function Orders() {
           </Group>
         </Group>
 
+        {/* Filter Section */}
+        <Paper
+          p="md"
+          radius="md"
+          withBorder
+          style={{
+            backgroundColor: isDark ? DARK_COLOR : "white",
+          }}
+        >
+          <Group gap="md" align="center">
+            <IconFilter size={20} color="var(--mantine-color-gray-6)" />
+            <Text size="sm" fw={500}>
+              Filtrar por status:
+            </Text>
+            <Select
+              placeholder="Todos os status"
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value || "")}
+              data={ORDER_STATUS_FILTER_OPTIONS}
+              clearable
+              style={{ minWidth: 200 }}
+              size="sm"
+            />
+            {statusFilter && (
+              <Text size="sm" c="dimmed">
+                {filteredOrders?.length || 0} pedido(s) encontrado(s)
+              </Text>
+            )}
+          </Group>
+        </Paper>
+
 
         {/* Orders List */}
         {orders?.length === 0 ? (
@@ -115,9 +158,34 @@ export function Orders() {
               Ver Produtos
             </Button>
           </Card>
+        ) : filteredOrders?.length === 0 ? (
+          <Card
+            p="xl"
+            radius="md"
+            ta="center"
+            style={{
+              border: isDark ? "1px solid #212529" : "1px solid #e9ecef",
+              backgroundColor: isDark ? "#212529" : "white",
+            }}
+          >
+            <IconFilter size={48} color="var(--mantine-color-gray-5)" />
+            <Title order={3} mt="md" c="dimmed">
+              Nenhum pedido encontrado
+            </Title>
+            <Text c="dimmed" mt="xs">
+              Não há pedidos com o status selecionado.
+            </Text>
+            <Button
+              mt="md"
+              variant="outline"
+              onClick={() => setStatusFilter("")}
+            >
+              Limpar Filtro
+            </Button>
+          </Card>
         ) : (
           <Stack gap="md">
-            {orders?.map((order) => {
+            {filteredOrders?.map((order) => {
               const StatusIcon = getStatusIcon(order.status);
               return (
                 <Paper
@@ -196,7 +264,7 @@ export function Orders() {
                         {formatPrice(order.totalAmount)}
                       </Text>
                       <Text size="sm" c="dimmed">
-                        {order.paymentStatus}
+                        {getPaymentStatusInfo(order.paymentStatus).label}
                       </Text>
                     </Stack>
                   </Group>

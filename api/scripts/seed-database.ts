@@ -14,6 +14,28 @@ import {
   ProductVariationSize,
   Size,
 } from '../src/domain/product/productVariation/product-variation-size.entity';
+
+// Mapeamento de cores com nomes descritivos e valores hexadecimais
+const colorMapping: Record<string, { name: string; hex: string }> = {
+  Branco: { name: 'Branco', hex: '#FFFFFF' },
+  Preto: { name: 'Preto', hex: '#000000' },
+  Azul: { name: 'Azul', hex: '#0066CC' },
+  Cinza: { name: 'Cinza', hex: '#808080' },
+  Verde: { name: 'Verde', hex: '#00AA44' },
+  Rosa: { name: 'Rosa', hex: '#FF69B4' },
+  Bege: { name: 'Bege', hex: '#F5F5DC' },
+  Navy: { name: 'Navy', hex: '#000080' },
+  Roxo: { name: 'Roxo', hex: '#800080' },
+  Vermelho: { name: 'Vermelho', hex: '#DC143C' },
+  Dourado: { name: 'Dourado', hex: '#FFD700' },
+  Marrom: { name: 'Marrom', hex: '#8B4513' },
+  Amarelo: { name: 'Amarelo', hex: '#FFD700' },
+  Laranja: { name: 'Laranja', hex: '#FF8C00' },
+  Turquesa: { name: 'Turquesa', hex: '#40E0D0' },
+  Coral: { name: 'Coral', hex: '#FF7F50' },
+  Lilás: { name: 'Lilás', hex: '#DDA0DD' },
+  Bordô: { name: 'Bordô', hex: '#800020' },
+};
 import { StockItem } from '../src/domain/product/stock/stock-item.entity';
 import { StockMovement } from '../src/domain/product/stock/stock-movement.entity';
 import { Order } from '../src/domain/order/order.entity';
@@ -335,10 +357,14 @@ async function truncateTables(dataSource: DataSource) {
   // Desabilitar foreign key checks temporariamente
   await dataSource.query('SET session_replication_role = replica;');
 
-  // Truncar todas as tabelas encontradas
-  const tableNames = tables.map((table: any) => table.tablename);
+  // Truncar todas as tabelas encontradas, exceto migrations
+  const tableNames = tables
+    .map((table: any) => table.tablename)
+    .filter((tableName: string) => tableName !== 'migrations');
 
-  console.log(`📋 Encontradas ${tableNames.length} tabelas para truncar:`);
+  console.log(
+    `📋 Encontradas ${tableNames.length} tabelas para truncar (excluindo migrations):`,
+  );
   tableNames.forEach((tableName: string) => {
     console.log(`   - ${tableName}`);
   });
@@ -530,15 +556,21 @@ async function seedDatabase() {
       allProducts.push(savedProduct);
 
       // Criar variações para cada cor
-      for (const color of productData.colors) {
+      for (const colorKey of productData.colors) {
+        const colorInfo = colorMapping[colorKey];
+        if (!colorInfo) {
+          console.warn(`⚠️ Cor não encontrada no mapeamento: ${colorKey}`);
+          continue;
+        }
+
         const randomImages = imageSeederService.getRandomImages(
           faker.number.int({ min: 1, max: 4 }),
         );
         const processedImages =
           await imageSeederService.processImagesForSeeding(randomImages);
         const variation = productVariationRepository.create({
-          color,
-          name: `${productData.name} ${color}`,
+          color: colorInfo.hex, // Usar valor hexadecimal
+          name: colorInfo.name, // Usar nome descritivo da cor
           price: productData.price,
           images: processedImages,
           product: { id: savedProduct.id } as Product,
